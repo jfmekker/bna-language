@@ -15,21 +15,31 @@ namespace BNAC
 			Console.WriteLine( "================================================================================" );
 
 			while ( true ) {
-				Console.WriteLine( "\nWrite a line to be tokenized:" );
+				Console.WriteLine( "\nWrite a line to be tokenized and parsed:" );
 
 				// get a line
 				var input = Console.ReadLine( );
 
-				// end for empty lines (for now)
-				if ( input.Equals( "" ) )
+				// end on tilda '~'
+				if ( input.Equals( "~" ) )
 					break;
 
+				// tokenize and parse the line
 				try {
 					var queue = Token.TokenizeLine( input );
-					foreach ( Token t in queue )
-						Console.WriteLine( t.ToString( ) );
+					Console.WriteLine( "\nTokens :" );
+					foreach ( Token t in queue.ToList() )
+						Console.WriteLine( "  " + t.ToString( ) );
+					Console.WriteLine( " " + queue.Count + " total" );
+
+					var statements = Statement.ParseStatements( queue );
+					Console.WriteLine( "\nStatements :" );
+					foreach ( Statement s in statements.ToList() )
+						Console.WriteLine( s.ToString( ) );
+					Console.WriteLine( " " + statements.Count + " total" );
 				}
 				catch (Exception e) {
+					Console.Error.Write( "Caught exception: " );
 					Console.Error.WriteLine( e.Message );
 				}
 			}

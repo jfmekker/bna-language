@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace BNAC
@@ -51,7 +52,7 @@ namespace BNAC
 						Type = TokenType.LITERAL;
 					}
 					else {
-						throw new System.Exception( "Failed to parse literal value: '" + Value + "'" );
+						throw new Exception( "Failed to parse literal value: '" + Value + "'." );
 					}
 				}
 
@@ -103,7 +104,7 @@ namespace BNAC
 							candidate += c;
 							break;
 						}
-						throw new System.Exception( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")");
+						throw new Exception( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ").");
 				}
 			}
 
@@ -132,6 +133,26 @@ namespace BNAC
 		public override string ToString( )
 		{
 			return "'" + Value + "' (" + Type + ")";
+		}
+
+		public static void ThrowIfNotType( Token token , TokenType type )
+		{
+			if ( token == null ) {
+				throw new Exception( "Expected " + type.ToString() + " token, instead got null." );
+			}
+			else if ( token.Type != type ) {
+				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString() + ".");
+			}
+		}
+
+		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
+		{
+			if ( token == null ) {
+				throw new Exception( "Expected " + types.ToString( ) + " token, instead got null." );
+			}
+			else if ( !types.Contains( token.Type ) ) {
+				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
+			}
 		}
 	}
 }
