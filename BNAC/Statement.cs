@@ -42,14 +42,20 @@ namespace BNAC
 		private List<Token> _tokens = new List<Token>();
 
 		/// <summary>
-		/// First operand of this Statement
+		/// First operand of this Statement, the storage variable for operations that store a value
 		/// </summary>
-		private Token _operand1;
+		public Token Operand1
+		{
+			get; private set;
+		}
 
 		/// <summary>
 		/// Second operand of this Statement
 		/// </summary>
-		private Token _operand2;
+		public Token Operand2
+		{
+			get; private set;
+		}
 
 		/// <summary>
 		/// Parse valid Statements from a stream of Tokens.
@@ -80,7 +86,7 @@ namespace BNAC
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
 						candidate._tokens.Add( token );
-						candidate._operand1 = token;
+						candidate.Operand1 = token;
 
 						// TO
 						token = tokenStream.Dequeue( );
@@ -91,7 +97,7 @@ namespace BNAC
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
 						candidate._tokens.Add( token );
-						candidate._operand2 = token;
+						candidate.Operand2 = token;
 
 						statements.Enqueue( candidate );
 						break;
@@ -109,7 +115,7 @@ namespace BNAC
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
 						candidate._tokens.Add( token );
-						candidate._operand2 = token;
+						candidate.Operand2 = token;
 
 						// TO
 						token = tokenStream.Dequeue( );
@@ -120,7 +126,7 @@ namespace BNAC
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
 						candidate._tokens.Add( token );
-						candidate._operand1 = token;
+						candidate.Operand1 = token;
 
 						statements.Enqueue( candidate );
 						break;
@@ -137,7 +143,7 @@ namespace BNAC
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
 						candidate._tokens.Add( token );
-						candidate._operand2 = token;
+						candidate.Operand1 = token;
 
 						statements.Enqueue( candidate );
 						break;
@@ -149,6 +155,7 @@ namespace BNAC
 					{
 						// VARIABLE
 						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
 						candidate.Type = StatementType.LABEL;
 
 						// LABEL_END
