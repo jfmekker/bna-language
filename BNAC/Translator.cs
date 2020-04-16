@@ -19,11 +19,20 @@ namespace BNAC
 		public static string ToPython( Queue<Statement> statements )
 		{
 			var str = new StringBuilder( );
+
+			// Imports
+			if (statements.Any(s=>s.Type==Statement.StatementType.OP_SLEEP))
+				str.AppendLine( "import time" );
+			if ( statements.Any( s => s.Type == Statement.StatementType.OP_RAND ) )
+				str.AppendLine( "import random" );
+			str.AppendLine( );
+
+			// Intro
 			str.AppendLine( "print(\"Generated from BNA code\")"  );
 
+			// BNA code
 			while ( statements.Count > 0 ) {
 				var statement = statements.Dequeue( );
-
 				switch ( statement.Type ) {
 					// Set a variable
 					case Statement.StatementType.OP_SET:
@@ -35,9 +44,19 @@ namespace BNAC
 						str.AppendLine( statement.Operand1.Value + " += " + statement.Operand2.Value );
 						break;
 
+					// Get a random number
+					case Statement.StatementType.OP_RAND:
+						str.AppendLine( statement.Operand1.Value + " = random.randint(0, " + statement.Operand2.Value + ")" );
+						break;
+
 					// Print a value
 					case Statement.StatementType.OP_PRINT:
 						str.AppendLine( "print(" + statement.Operand1.Value + ")" );
+						break;
+
+					// Sleep for a time
+					case Statement.StatementType.OP_SLEEP:
+						str.AppendLine( "time.sleep(" + statement.Operand1.Value + ")" );
 						break;
 
 					// Create a label

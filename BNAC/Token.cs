@@ -27,9 +27,14 @@ namespace BNAC
 			SET,
 			ADD,
 			PRINT,
+			WAIT,
+			RANDOM,
 
 			// Operation mid keywords
 			TO,
+			MAX,
+
+			// Special words
 		}
 
 		/// <summary>
@@ -70,7 +75,7 @@ namespace BNAC
 					}
 				}
 
-				// Keywords
+				// Main keywords
 				else if ( Value.ToUpper( ).Equals( "SET" ) ) {
 					Type = TokenType.SET;
 				}
@@ -80,8 +85,19 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "PRINT" ) ) {
 					Type = TokenType.PRINT;
 				}
+				else if ( Value.ToUpper( ).Equals( "WAIT" ) ) {
+					Type = TokenType.WAIT;
+				}
+				else if ( Value.ToUpper( ).Equals( "RANDOM" ) ) {
+					Type = TokenType.RANDOM;
+				}
+
+				// Mid-operation keywords
 				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
 					Type = TokenType.TO;
+				}
+				else if ( Value.ToUpper( ).Equals( "MAX" ) ) {
+					Type = TokenType.MAX;
 				}
 
 				// Variable
@@ -100,8 +116,8 @@ namespace BNAC
 		{
 			var tokens = new Queue<Token>( );
 
-			// Ignore if the line is a comment
-			if ( line[0] == '#' )
+			// Ignore if the line is a comment or empty
+			if ( line.Equals("") || line[0] == '#' )
 				return tokens;
 
 			// Parse character by character

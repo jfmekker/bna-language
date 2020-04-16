@@ -23,9 +23,11 @@ namespace BNAC
 			// variable operations
 			OP_SET,
 			OP_ADD,
+			OP_RAND,
 
 			// non-variable operations
 			OP_PRINT,
+			OP_SLEEP,
 		}
 
 		/// <summary>
@@ -132,12 +134,60 @@ namespace BNAC
 						break;
 					}
 
+					/// Random operation
+					/// "RANDOM [VARIABLE] MAX [VARIABLE/LITERAL]"
+					case Token.TokenType.RANDOM:
+					{
+						// RANDOM
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_RAND;
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						// MAX
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.MAX );
+						candidate._tokens.Add( token );
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
 					/// Print operation
 					/// "PRINT [VARIABLE/LITERAL]"
-					case Token.TokenType.PRINT: {
+					case Token.TokenType.PRINT:
+					{
 						// PRINT
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_PRINT;
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// Sleep operation
+					/// "WAIT [VARIABLE/LITERAL]"
+					case Token.TokenType.WAIT:
+					{
+						// PRINT
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_SLEEP;
 
 						// VARIABLE or LITERAL
 						token = tokenStream.Dequeue( );
