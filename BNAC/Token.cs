@@ -63,7 +63,16 @@ namespace BNAC
 			Value = value;
 			Type = type;
 
-			// Try to identify type
+			IdentifyType( );
+		}
+
+		/// <summary>
+		/// Try to identify this Token's type if unknown.
+		/// </summary>
+		/// <returns>The potentially identified type</returns>
+		private TokenType IdentifyType( )
+		{
+			// Don't re-identify if we know it
 			if ( Type == TokenType.UNKNOWN ) {
 				// Number Literal
 				if ( char.IsDigit( Value[0] ) ) {
@@ -105,6 +114,8 @@ namespace BNAC
 					Type = TokenType.VARIABLE;
 				}
 			}
+
+			return Type;
 		}
 
 		/// <summary>
