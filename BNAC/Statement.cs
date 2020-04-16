@@ -1,33 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BNAC
 {
+	/// <summary>
+	/// A collection of tokens that make up a whole valid statement or instruction.
+	/// Each statement maps to a "line of code".
+	/// </summary>
 	class Statement
 	{
+		/// <summary>
+		/// Valid statements or instructions
+		/// </summary>
 		public enum StatementType
 		{
+			// default to unknown
 			UNKNOWN,
 
+			// non-operations
 			LABEL,
 
+			// variable operations
 			OP_SET,
 			OP_ADD,
+
+			// non-variable operations
+			OP_PRINT,
 		}
 
+		/// <summary>
+		/// The StatementType of this Statement
+		/// </summary>
 		public StatementType Type
 		{
 			get; set;
 		}
 
+		/// <summary>
+		/// All Tokens that make up this Statement
+		/// </summary>
 		private List<Token> _tokens = new List<Token>();
 
+		/// <summary>
+		/// First operand of this Statement
+		/// </summary>
 		private Token _operand1;
+
+		/// <summary>
+		/// Second operand of this Statement
+		/// </summary>
 		private Token _operand2;
 
+		/// <summary>
+		/// Parse valid Statements from a stream of Tokens.
+		/// </summary>
+		/// <param name="tokenStream"></param>
+		/// <returns></returns>
 		public static Queue<Statement> ParseStatements( Queue<Token> tokenStream )
 		{
 			var statements = new Queue<Statement>( );
@@ -43,6 +71,7 @@ namespace BNAC
 					/// Set operation
 					/// "SET [VARIABLE] TO [VARIABLE/LITERAL]"
 					case Token.TokenType.SET:
+					{
 						// SET
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_SET;
@@ -60,16 +89,18 @@ namespace BNAC
 
 						// VARIABLE or LITERAL
 						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE, Token.TokenType.LITERAL } );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
 						candidate._tokens.Add( token );
 						candidate._operand2 = token;
 
 						statements.Enqueue( candidate );
 						break;
+					}
 
 					/// Add operation
 					/// "ADD [VARIABLE/LITERAL] TO [VARIABLE]"
 					case Token.TokenType.ADD:
+					{
 						// ADD
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_ADD;
@@ -93,14 +124,33 @@ namespace BNAC
 
 						statements.Enqueue( candidate );
 						break;
+					}
+
+					/// Print operation
+					/// "PRINT [VARIABLE/LITERAL]"
+					case Token.TokenType.PRINT: {
+						// PRINT
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_PRINT;
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate._operand2 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
 
 					/// Label
 					/// "[VARIABLE]LABEL_END"
 					case Token.TokenType.VARIABLE:
+					{
 						// VARIABLE
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.LABEL;
-						
+
 						// LABEL_END
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotType( token , Token.TokenType.LABEL_END );
@@ -108,6 +158,7 @@ namespace BNAC
 
 						statements.Enqueue( candidate );
 						break;
+					}
 
 					// default case
 					default:
@@ -118,6 +169,10 @@ namespace BNAC
 			return statements;
 		}
 
+		/// <summary>
+		/// Stringify the Statement with type information.
+		/// </summary>
+		/// <returns>String description of this Statement</returns>
 		public override string ToString( )
 		{
 			var str = "[" + Type + "]   { ";

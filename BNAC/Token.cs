@@ -1,44 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace BNAC
 {
-	
+	/// <summary>
+	/// Group of related characters that form keywords/variables/etc.
+	/// </summary>
 	class Token
 	{
-		const char LABEL_END = ':';
-
+		/// <summary>
+		/// Recognized token types and keywords.
+		/// </summary>
 		public enum TokenType
 		{
+			// Default to unknown token
 			UNKNOWN,
 
-			KEYWORD,
+			// Non-keywords
 			LITERAL,
 			VARIABLE,
 
+			// Special characters
 			LABEL_END,
 
 			// Operation start keywords
 			SET,
 			ADD,
+			PRINT,
 
 			// Operation mid keywords
 			TO,
-
-			PRINT,
 		}
 
+		/// <summary>
+		/// The TokenType of this Token.
+		/// </summary>
 		public TokenType Type
 		{
 			get; set;
 		}
 
+		/// <summary>
+		/// The actual string input for this Token.
+		/// </summary>
 		public string Value
 		{
 			get; set;
 		}
 
+		/// <summary>
+		/// Create a new Token and try to identify it.
+		/// </summary>
+		/// <param name="value">The string input of the Token</param>
+		/// <param name="type">The Token's type; if unknown, will attempt identifying</param>
 		private Token( string value, TokenType type = TokenType.UNKNOWN )
 		{
 			Value = value;
@@ -63,6 +77,9 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "ADD" ) ) {
 					Type = TokenType.ADD;
 				}
+				else if ( Value.ToUpper( ).Equals( "PRINT" ) ) {
+					Type = TokenType.PRINT;
+				}
 				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
 					Type = TokenType.TO;
 				}
@@ -74,11 +91,16 @@ namespace BNAC
 			}
 		}
 
+		/// <summary>
+		/// Break a line of characters into a queue of Tokens.
+		/// </summary>
+		/// <param name="line">The string of the line to be tokenized</param>
+		/// <returns>Queue of Tokens in order that they appear</returns>
 		public static Queue<Token> TokenizeLine( string line )
 		{
 			var tokens = new Queue<Token>( );
 
-			// First, check if this is a comment
+			// Ignore if the line is a comment
 			if ( line[0] == '#' )
 				return tokens;
 
@@ -86,12 +108,14 @@ namespace BNAC
 			string candidate = "";
 			foreach ( char c in line ) {
 				switch ( c ) {
-					case LABEL_END:
+					// LABEL_END
+					case ':':
 						tokens.Enqueue( new Token( candidate ) );
 						candidate = "";
 						tokens.Enqueue( new Token( c.ToString(), TokenType.LABEL_END ) );
 						break;
 
+					// Whitespace
 					case ' ':
 					case '\t':
 						if ( candidate.Length > 0 ) 
@@ -99,6 +123,7 @@ namespace BNAC
 						candidate = "";
 						break;
 
+					// Check if alphanumeric
 					default:
 						if ( char.IsLetterOrDigit( c ) ) {
 							candidate += c;
@@ -115,7 +140,11 @@ namespace BNAC
 			return tokens;
 		}
 
-
+		/// <summary>
+		/// Tokenize a whole Queue of lines.
+		/// </summary>
+		/// <param name="lines">The program to be tokenized, broken into lines</param>
+		/// <returns>Queue of Tokens in order that they appear</returns>
 		public static Queue<Token> TokenizeProgram( Queue<string> lines )
 		{
 			var tokens = new Queue<Token>( );
@@ -130,11 +159,20 @@ namespace BNAC
 			return tokens;
 		}
 
+		/// <summary>
+		/// Stringify the Token with type information.
+		/// </summary>
+		/// <returns>String description of the Token</returns>
 		public override string ToString( )
 		{
 			return "'" + Value + "' (" + Type + ")";
 		}
 
+		/// <summary>
+		/// Throw an exception if the given Token is not of the given TokenType.
+		/// </summary>
+		/// <param name="token">Token to check type of (can be null)</param>
+		/// <param name="type">The TokenType to check for</param>
 		public static void ThrowIfNotType( Token token , TokenType type )
 		{
 			if ( token == null ) {
@@ -145,6 +183,11 @@ namespace BNAC
 			}
 		}
 
+		/// <summary>
+		/// Throw an exception if the given Token is not one of the given TokenTypes.
+		/// </summary>
+		/// <param name="token">Token to check type of (can be null)</param>
+		/// <param name="types">The TokenTypes to check for</param>
 		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
 		{
 			if ( token == null ) {
