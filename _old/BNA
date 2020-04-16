@@ -1,0 +1,71 @@
+####
+## Simple Assembly Language
+####
+
+## Lexical specification
+
+# Structure
+skip WHITESPACE '\s+'
+skip COMMENT '%.*'
+
+# Values
+DLIT '\d+\.\d+'
+ILIT '\d+'
+SLIT '".*"'
+
+# Instruction keywords
+ADD '(?i)ADD'
+SUB '(?i)SUB'
+MUL '(?i)MUL'
+DIV '(?i)DIV'
+SET '(?i)SET'
+TO '(?i)TO'
+FROM '(?i)FROM'
+BY '(?i)BY'
+STORE '(?i)STORE'
+IN '(?i)IN'
+SEND '(?i)SEND'
+GET '(?i)GET'
+EXIT '(?i)EXIT'
+WAIT '(?i)WAIT'
+RAND '(?i)RAND'
+GOTO '(?i)GOTO'
+IF '(?i)IF'
+ALL '(?i)ALL'
+ANY '(?i)ANY'
+NONE '(?i)NONE'
+
+# User defined item
+VAR '[A-Za-z][\w?]*'
+
+# Other special characters or keywords
+COLON ':'
+LINEEND '\n'
+LPAREN '('
+RPAREN ')'
+COMMA ','
+CARET '^'
+
+# Unknown token
+UNKNOWN '\S*'
+
+%
+
+# Grammar
+
+<program> ::= <lines> EXIT
+<lines> **= <line> LINEEND
+
+#<line>:LabelLine ::= <VAR> COLON
+<line>:SetLine ::= SET <VAR> TO <exp>
+<line>:AddLine ::= ADD <exp> TO <VAR>
+#<line>:SubLine ::= SUB <exp> FROM <VAR>
+#<line>:MulLine ::= MUL <VAR> BY <exp>
+#<line>:DivLine ::= DIV <VAR> BY <exp>
+
+<exp>:ExpVar ::= <VAR>
+<exp>:ExpIVal ::= <ILIT>
+#<exp>:ExpDVal ::= <DLIT>
+#<exp>:ExpSVal ::= <SLIT>
+
+%
