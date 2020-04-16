@@ -26,12 +26,17 @@ namespace BNAC
 			// Operation start keywords
 			SET,
 			ADD,
+			SUBTRACT,
+			MULTIPLY,
+			DIVIDE,
 			PRINT,
 			WAIT,
 			RANDOM,
 
 			// Operation mid keywords
 			TO,
+			BY,
+			FROM,
 			MAX,
 
 			// Special words
@@ -91,6 +96,15 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "ADD" ) ) {
 					Type = TokenType.ADD;
 				}
+				else if ( Value.ToUpper( ).Equals( "SUBTRACT" ) ) {
+					Type = TokenType.SUBTRACT;
+				}
+				else if ( Value.ToUpper( ).Equals( "MULTIPLY" ) ) {
+					Type = TokenType.MULTIPLY;
+				}
+				else if ( Value.ToUpper( ).Equals( "DIVIDE" ) ) {
+					Type = TokenType.DIVIDE;
+				}
 				else if ( Value.ToUpper( ).Equals( "PRINT" ) ) {
 					Type = TokenType.PRINT;
 				}
@@ -104,6 +118,12 @@ namespace BNAC
 				// Mid-operation keywords
 				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
 					Type = TokenType.TO;
+				}
+				else if ( Value.ToUpper( ).Equals( "BY" ) ) {
+					Type = TokenType.BY;
+				}
+				else if ( Value.ToUpper( ).Equals( "FROM" ) ) {
+					Type = TokenType.FROM;
 				}
 				else if ( Value.ToUpper( ).Equals( "MAX" ) ) {
 					Type = TokenType.MAX;

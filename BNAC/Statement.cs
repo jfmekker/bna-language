@@ -23,6 +23,9 @@ namespace BNAC
 			// variable operations
 			OP_SET,
 			OP_ADD,
+			OP_SUB,
+			OP_MUL,
+			OP_DIV,
 			OP_RAND,
 
 			// non-variable operations
@@ -129,6 +132,93 @@ namespace BNAC
 						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
 						candidate._tokens.Add( token );
 						candidate.Operand1 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// Subtract operation
+					/// "Subtract [VARIABLE/LITERAL] FROM [VARIABLE]"
+					case Token.TokenType.SUBTRACT:
+					{
+						// ADD
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_RAND;
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						// TO
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.TO );
+						candidate._tokens.Add( token );
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// Multiply operation
+					/// "Multiply [VARIABLE] BY [VARIABLE/LITERAL]"
+					case Token.TokenType.MULTIPLY:
+					{
+						// MULTIPLY
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_MUL;
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						// BY
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.BY );
+						candidate._tokens.Add( token );
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// Set operation
+					/// "DIVIDE [VARIABLE] BY [VARIABLE/LITERAL]"
+					case Token.TokenType.DIVIDE:
+					{
+						// SET
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_DIV;
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						// BY
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.BY );
+						candidate._tokens.Add( token );
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) { Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
 
 						statements.Enqueue( candidate );
 						break;

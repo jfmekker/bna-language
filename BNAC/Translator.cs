@@ -44,6 +44,21 @@ namespace BNAC
 						str.AppendLine( statement.Operand1.Value + " += " + statement.Operand2.Value );
 						break;
 
+					// Subtract from a variable
+					case Statement.StatementType.OP_SUB:
+						str.AppendLine( statement.Operand1.Value + " -= " + statement.Operand2.Value );
+						break;
+
+					// Multiply a variable
+					case Statement.StatementType.OP_MUL:
+						str.AppendLine( statement.Operand1.Value + " *= " + statement.Operand2.Value );
+						break;
+
+					// Divide a variable
+					case Statement.StatementType.OP_DIV:
+						str.AppendLine( statement.Operand1.Value + " /= " + statement.Operand2.Value );
+						break;
+
 					// Get a random number
 					case Statement.StatementType.OP_RAND:
 						str.AppendLine( statement.Operand1.Value + " = random.randint(0, " + statement.Operand2.Value + ")" );
