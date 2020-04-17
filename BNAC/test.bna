@@ -1,0 +1,22 @@
+﻿# We can write comments with '#'!
+
+# Declare a variable
+SET x TO 5
+
+# Get a random number for 7 (0-14)
+RANDOM y MAX 14
+PRINT y
+
+# Do some arithmetic
+ADD y TO x
+SET z TO x
+RANDOM y MAX 11
+ADD 1 TO y
+DIVIDE z BY y
+PRINT z
+MULTIPLY z BY x
+PRINT z
+
+# Pause for 2 seconds before exiting
+WAIT 2
+PRINT 0

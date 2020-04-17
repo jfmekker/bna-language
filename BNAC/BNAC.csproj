@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="test.bna" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />
