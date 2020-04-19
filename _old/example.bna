@@ -1,9 +1,0 @@
-^label:
-	SET v TO 4
-	ADD 5 TO v STORE IN g
-	% Comment
-	OUTPUT "Hello, World!\ng="
-	SLEEP 2.5
-	OUTPUT g
-	EXIT
-	
