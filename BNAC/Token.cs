@@ -22,6 +22,9 @@ namespace BNAC
 
 			// Special characters
 			LABEL_END,
+			GREATER_THAN,
+			LESS_THAN,
+			EQUAL,
 
 			// Operation start keywords
 			SET,
@@ -32,14 +35,23 @@ namespace BNAC
 			PRINT,
 			WAIT,
 			RANDOM,
+			TEST,
+			GOTO,
+			OR,
+			AND,
+			XOR,
+			NEGATE,
 
 			// Operation mid keywords
 			TO,
 			BY,
 			FROM,
 			MAX,
+			IF,
+			WITH,
 
 			// Special words
+			RESULT,
 		}
 
 		/// <summary>
@@ -114,6 +126,24 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "RANDOM" ) ) {
 					Type = TokenType.RANDOM;
 				}
+				else if ( Value.ToUpper( ).Equals( "TEST" ) ) {
+					Type = TokenType.TEST;
+				}
+				else if ( Value.ToUpper( ).Equals( "GOTO" ) ) {
+					Type = TokenType.GOTO;
+				}
+				else if ( Value.ToUpper( ).Equals( "OR" ) ) {
+					Type = TokenType.OR;
+				}
+				else if ( Value.ToUpper( ).Equals( "AND" ) ) {
+					Type = TokenType.AND;
+				}
+				else if ( Value.ToUpper( ).Equals( "XOR" ) ) {
+					Type = TokenType.XOR;
+				}
+				else if ( Value.ToUpper( ).Equals( "NEGATE" ) ) {
+					Type = TokenType.NEGATE;
+				}
 
 				// Mid-operation keywords
 				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
@@ -127,6 +157,17 @@ namespace BNAC
 				}
 				else if ( Value.ToUpper( ).Equals( "MAX" ) ) {
 					Type = TokenType.MAX;
+				}
+				else if ( Value.ToUpper( ).Equals( "IF" ) ) {
+					Type = TokenType.IF;
+				}
+				else if ( Value.ToUpper( ).Equals( "WITH" ) ) {
+					Type = TokenType.WITH;
+				}
+
+				// Other keywords
+				else if ( Value.ToUpper( ).Equals( "RESULT" ) ) {
+					Type = TokenType.RESULT;
 				}
 
 				// Variable
@@ -168,6 +209,26 @@ namespace BNAC
 						if ( candidate.Length > 0 ) 
 							tokens.Enqueue( new Token( candidate ) );
 						candidate = "";
+						break;
+
+					// Test characters
+					case '>':
+						if ( candidate.Length > 0 )
+							tokens.Enqueue( new Token( candidate ) );
+						candidate = "";
+						tokens.Enqueue( new Token( c.ToString( ) , TokenType.GREATER_THAN ) );
+						break;
+					case '<':
+						if ( candidate.Length > 0 )
+							tokens.Enqueue( new Token( candidate ) );
+						candidate = "";
+						tokens.Enqueue( new Token( c.ToString( ) , TokenType.LESS_THAN ) );
+						break;
+					case '=':
+						if ( candidate.Length > 0 )
+							tokens.Enqueue( new Token( candidate ) );
+						candidate = "";
+						tokens.Enqueue( new Token( c.ToString( ) , TokenType.EQUAL ) );
 						break;
 
 					// Check if alphanumeric

@@ -1,22 +1,33 @@
-﻿# We can write comments with '#'!
+﻿# set our iterator
+SET i TO 0
 
-# Declare a variable
-SET x TO 5
+# How many numbers to generate
+SET count TO 7
 
-# Get a random number for 7 (0-14)
-RANDOM y MAX 14
-PRINT y
+SET total TO 0
 
-# Do some arithmetic
-ADD y TO x
-SET z TO x
-RANDOM y MAX 11
-ADD 1 TO y
-DIVIDE z BY y
-PRINT z
-MULTIPLY z BY x
-PRINT z
+# Loop 'count' number of times
+begin:
+TEST i > count
+GOTO end IF success
 
-# Pause for 2 seconds before exiting
+# Get random number 1 - 10
+RANDOM x MAX 9
+ADD 1 TO x
+PRINT x
+
+# Add to total and increment
+ADD x TO total
+WAIT 1
+ADD 1 TO i
+
+# Go back to loop condition
+GOTO begin IF 1
+end:
+
+SET average TO total
+DIVIDE average BY count
+
+# print average after waiting
 WAIT 2
-PRINT 0
+PRINT average
