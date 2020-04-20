@@ -193,17 +193,20 @@ namespace BNAC
 
 					// Test characters
 					case '>':
-						tokens.Enqueue( new Token( candidate ) );
+						if ( candidate.Length > 0 )
+							tokens.Enqueue( new Token( candidate ) );
 						candidate = "";
 						tokens.Enqueue( new Token( c.ToString( ) , TokenType.GREATER_THAN ) );
 						break;
 					case '<':
-						tokens.Enqueue( new Token( candidate ) );
+						if ( candidate.Length > 0 )
+							tokens.Enqueue( new Token( candidate ) );
 						candidate = "";
 						tokens.Enqueue( new Token( c.ToString( ) , TokenType.LESS_THAN ) );
 						break;
 					case '=':
-						tokens.Enqueue( new Token( candidate ) );
+						if ( candidate.Length > 0 )
+							tokens.Enqueue( new Token( candidate ) );
 						candidate = "";
 						tokens.Enqueue( new Token( c.ToString( ) , TokenType.EQUAL ) );
 						break;

@@ -27,7 +27,11 @@ namespace BNAC
 			OP_MUL,
 			OP_DIV,
 			OP_RAND,
-			OP_TEST,
+
+			// test operations
+			OP_TEST_GT,
+			OP_TEST_LT,
+			OP_TEST_EQ,
 
 			// non-variable modifying operations
 			OP_PRINT,
@@ -267,7 +271,6 @@ namespace BNAC
 					{
 						// TEST
 						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_TEST;
 
 						// VARIABLE or LITERAL
 						token = tokenStream.Dequeue( );
@@ -280,6 +283,17 @@ namespace BNAC
 						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
 							Token.TokenType.GREATER_THAN, Token.TokenType.LESS_THAN, Token.TokenType.EQUAL } );
 						candidate._tokens.Add( token );
+						switch ( token.Type ) {
+							case Token.TokenType.GREATER_THAN:
+								candidate.Type = StatementType.OP_TEST_GT;
+								break;
+							case Token.TokenType.LESS_THAN:
+								candidate.Type = StatementType.OP_TEST_LT;
+								break;
+							case Token.TokenType.EQUAL:
+								candidate.Type = StatementType.OP_TEST_EQ;
+								break;
+						}
 
 						// VARIABLE or LITERAL
 						token = tokenStream.Dequeue( );

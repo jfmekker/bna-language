@@ -20,6 +20,7 @@ namespace BNAC
 			var str = new StringBuilder( );
 
 			// Imports
+			//	Will need to run "pip install goto-statement" before using goto statements
 			if (statements.Any(s=>s.Type==Statement.StatementType.OP_SLEEP))
 				str.AppendLine( "import time" );
 			if ( statements.Any( s => s.Type == Statement.StatementType.OP_RAND ) )
@@ -64,6 +65,17 @@ namespace BNAC
 						str.AppendLine( indent + statement.Operand1.Value + " /= " + statement.Operand2.Value );
 						break;
 
+					// Test a condition
+					case Statement.StatementType.OP_TEST_GT:
+						str.AppendLine( indent + "results = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );
+						break;
+					case Statement.StatementType.OP_TEST_LT:
+						str.AppendLine( indent + "results = 1 if " + statement.Operand1.Value + " < " + statement.Operand2.Value + " else 0" );
+						break;
+					case Statement.StatementType.OP_TEST_EQ:
+						str.AppendLine( indent + "results = 1 if " + statement.Operand1.Value + " = " + statement.Operand2.Value + " else 0" );
+						break;
+
 					// Get a random number
 					case Statement.StatementType.OP_RAND:
 						str.AppendLine( indent + statement.Operand1.Value + " = random.randint(0, " + statement.Operand2.Value + ")" );
@@ -97,6 +109,7 @@ namespace BNAC
 			}
 
 			// Run the program
+			str.AppendLine( );
 			str.AppendLine( program_name + "()" );
 
 			return str.ToString();
