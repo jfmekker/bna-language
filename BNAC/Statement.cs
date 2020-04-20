@@ -27,6 +27,8 @@ namespace BNAC
 			OP_MUL,
 			OP_DIV,
 			OP_RAND,
+			OP_OR,
+			OP_AND,
 
 			// test operations
 			OP_TEST_GT,
@@ -294,6 +296,65 @@ namespace BNAC
 								candidate.Type = StatementType.OP_TEST_EQ;
 								break;
 						}
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// Or operation
+					/// "OR [VARIABLE] WITH [VARIABLE/LITERAL]"
+					case Token.TokenType.OR:
+					{
+						// OR
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_OR;
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						// WITH
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.WITH );
+						candidate._tokens.Add( token );
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// Set operation
+					/// "SET [VARIABLE] TO [VARIABLE/LITERAL]"
+					case Token.TokenType.AND: {
+						// AND
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_AND;
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						// WITH
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.WITH );
+						candidate._tokens.Add( token );
 
 						// VARIABLE or LITERAL
 						token = tokenStream.Dequeue( );

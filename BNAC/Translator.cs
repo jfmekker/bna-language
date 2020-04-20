@@ -65,6 +65,16 @@ namespace BNAC
 						str.AppendLine( indent + statement.Operand1.Value + " /= " + statement.Operand2.Value );
 						break;
 
+					// Bit-wise or a variable
+					case Statement.StatementType.OP_OR:
+						str.AppendLine( indent + statement.Operand1.Value + " |= " + statement.Operand2.Value );
+						break;
+
+					// Add to a variable
+					case Statement.StatementType.OP_AND:
+						str.AppendLine( indent + statement.Operand1.Value + " &= " + statement.Operand2.Value );
+						break;
+
 					// Test a condition
 					case Statement.StatementType.OP_TEST_GT:
 						str.AppendLine( indent + "results = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );

@@ -37,6 +37,8 @@ namespace BNAC
 			RANDOM,
 			TEST,
 			GOTO,
+			OR,
+			AND,
 
 			// Operation mid keywords
 			TO,
@@ -44,6 +46,7 @@ namespace BNAC
 			FROM,
 			MAX,
 			IF,
+			WITH,
 
 			// Special words
 			RESULT,
@@ -127,6 +130,12 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "GOTO" ) ) {
 					Type = TokenType.GOTO;
 				}
+				else if ( Value.ToUpper( ).Equals( "OR" ) ) {
+					Type = TokenType.OR;
+				}
+				else if ( Value.ToUpper( ).Equals( "AND" ) ) {
+					Type = TokenType.AND;
+				}
 
 				// Mid-operation keywords
 				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
@@ -143,6 +152,9 @@ namespace BNAC
 				}
 				else if ( Value.ToUpper( ).Equals( "IF" ) ) {
 					Type = TokenType.IF;
+				}
+				else if ( Value.ToUpper( ).Equals( "WITH" ) ) {
+					Type = TokenType.WITH;
 				}
 
 				// Other keywords
