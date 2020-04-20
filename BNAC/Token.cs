@@ -41,6 +41,8 @@ namespace BNAC
 			AND,
 			XOR,
 			NEGATE,
+			RAISE,
+			MOD,
 
 			// Operation mid keywords
 			TO,
@@ -49,6 +51,7 @@ namespace BNAC
 			MAX,
 			IF,
 			WITH,
+			OF,
 		}
 
 		/// <summary>
@@ -144,6 +147,12 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "NEGATE" ) ) {
 					Type = TokenType.NEGATE;
 				}
+				else if ( Value.ToUpper( ).Equals( "RAISE" ) ) {
+					Type = TokenType.NEGATE;
+				}
+				else if ( Value.ToUpper( ).Equals( "MOD" ) ) {
+					Type = TokenType.MOD;
+				}
 
 				// Mid-operation keywords
 				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
@@ -163,6 +172,9 @@ namespace BNAC
 				}
 				else if ( Value.ToUpper( ).Equals( "WITH" ) ) {
 					Type = TokenType.WITH;
+				}
+				else if ( Value.ToUpper( ).Equals( "OF" ) ) {
+					Type = TokenType.OF;
 				}
 
 				// Variable
