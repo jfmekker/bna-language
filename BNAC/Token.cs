@@ -22,6 +22,9 @@ namespace BNAC
 
 			// Special characters
 			LABEL_END,
+			GREATER_THAN,
+			LESS_THAN,
+			EQUAL,
 
 			// Operation start keywords
 			SET,
@@ -32,14 +35,18 @@ namespace BNAC
 			PRINT,
 			WAIT,
 			RANDOM,
+			TEST,
+			GOTO,
 
 			// Operation mid keywords
 			TO,
 			BY,
 			FROM,
 			MAX,
+			IF,
 
 			// Special words
+			RESULT,
 		}
 
 		/// <summary>
@@ -114,6 +121,12 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "RANDOM" ) ) {
 					Type = TokenType.RANDOM;
 				}
+				else if ( Value.ToUpper( ).Equals( "TEST" ) ) {
+					Type = TokenType.TEST;
+				}
+				else if ( Value.ToUpper( ).Equals( "GOTO" ) ) {
+					Type = TokenType.GOTO;
+				}
 
 				// Mid-operation keywords
 				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
@@ -127,6 +140,14 @@ namespace BNAC
 				}
 				else if ( Value.ToUpper( ).Equals( "MAX" ) ) {
 					Type = TokenType.MAX;
+				}
+				else if ( Value.ToUpper( ).Equals( "IF" ) ) {
+					Type = TokenType.IF;
+				}
+
+				// Other keywords
+				else if ( Value.ToUpper( ).Equals( "RESULT" ) ) {
+					Type = TokenType.RESULT;
 				}
 
 				// Variable
@@ -168,6 +189,23 @@ namespace BNAC
 						if ( candidate.Length > 0 ) 
 							tokens.Enqueue( new Token( candidate ) );
 						candidate = "";
+						break;
+
+					// Test characters
+					case '>':
+						tokens.Enqueue( new Token( candidate ) );
+						candidate = "";
+						tokens.Enqueue( new Token( c.ToString( ) , TokenType.GREATER_THAN ) );
+						break;
+					case '<':
+						tokens.Enqueue( new Token( candidate ) );
+						candidate = "";
+						tokens.Enqueue( new Token( c.ToString( ) , TokenType.LESS_THAN ) );
+						break;
+					case '=':
+						tokens.Enqueue( new Token( candidate ) );
+						candidate = "";
+						tokens.Enqueue( new Token( c.ToString( ) , TokenType.EQUAL ) );
 						break;
 
 					// Check if alphanumeric
