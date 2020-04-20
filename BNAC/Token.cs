@@ -39,6 +39,8 @@ namespace BNAC
 			GOTO,
 			OR,
 			AND,
+			XOR,
+			NEGATE,
 
 			// Operation mid keywords
 			TO,
@@ -135,6 +137,12 @@ namespace BNAC
 				}
 				else if ( Value.ToUpper( ).Equals( "AND" ) ) {
 					Type = TokenType.AND;
+				}
+				else if ( Value.ToUpper( ).Equals( "XOR" ) ) {
+					Type = TokenType.XOR;
+				}
+				else if ( Value.ToUpper( ).Equals( "NEGATE" ) ) {
+					Type = TokenType.NEGATE;
 				}
 
 				// Mid-operation keywords

@@ -62,6 +62,12 @@ namespace BNAC
 					case Statement.StatementType.OP_AND:
 						str.AppendLine( indent + statement.Operand1.Value + " &= " + statement.Operand2.Value );
 						break;
+					case Statement.StatementType.OP_XOR:
+						str.AppendLine( indent + statement.Operand1.Value + " ^= " + statement.Operand2.Value );
+						break;
+					case Statement.StatementType.OP_NEG:
+						str.AppendLine( indent + statement.Operand1.Value + " = ~" + statement.Operand1.Value );
+						break;
 
 					// Test operations
 					case Statement.StatementType.OP_TEST_GT:

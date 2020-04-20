@@ -29,6 +29,8 @@ namespace BNAC
 			OP_RAND,
 			OP_OR,
 			OP_AND,
+			OP_XOR,
+			OP_NEG,
 
 			// test operations
 			OP_TEST_GT,
@@ -340,7 +342,8 @@ namespace BNAC
 
 					/// Set operation
 					/// "SET [VARIABLE] TO [VARIABLE/LITERAL]"
-					case Token.TokenType.AND: {
+					case Token.TokenType.AND:
+					{
 						// AND
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_AND;
@@ -362,6 +365,54 @@ namespace BNAC
 							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
 						candidate._tokens.Add( token );
 						candidate.Operand2 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// Xor operation
+					/// "XOR [VARIABLE] WITH [VARIABLE/LITERAL]"
+					case Token.TokenType.XOR:
+					{
+						// XOR
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_XOR;
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						// WITH
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.WITH );
+						candidate._tokens.Add( token );
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// Negate operation
+					/// "NEGATE [VARIABLE]"
+					case Token.TokenType.NEGATE:
+					{
+						// NEGATE
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_NEG;
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
 
 						statements.Enqueue( candidate );
 						break;
