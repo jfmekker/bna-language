@@ -49,9 +49,6 @@ namespace BNAC
 			MAX,
 			IF,
 			WITH,
-
-			// Special words
-			RESULT,
 		}
 
 		/// <summary>
@@ -92,8 +89,11 @@ namespace BNAC
 			// Don't re-identify if we know it
 			if ( Type == TokenType.UNKNOWN ) {
 				// Number Literal
-				if ( char.IsDigit( Value[0] ) ) {
-					if ( int.TryParse( Value , out int val ) ) {
+				if ( char.IsDigit( Value[0] ) || Value[0] == '-' || Value[0] == '.' ) {
+					if ( int.TryParse( Value , out int i_val ) ) {
+						Type = TokenType.LITERAL;
+					}
+					else if ( double.TryParse( Value , out double d_val ) ) {
 						Type = TokenType.LITERAL;
 					}
 					else {
@@ -165,11 +165,6 @@ namespace BNAC
 					Type = TokenType.WITH;
 				}
 
-				// Other keywords
-				else if ( Value.ToUpper( ).Equals( "RESULT" ) ) {
-					Type = TokenType.RESULT;
-				}
-
 				// Variable
 				else {
 					Type = TokenType.VARIABLE;
@@ -229,6 +224,18 @@ namespace BNAC
 							tokens.Enqueue( new Token( candidate ) );
 						candidate = "";
 						tokens.Enqueue( new Token( c.ToString( ) , TokenType.EQUAL ) );
+						break;
+
+					case '-':
+						if ( candidate.Length > 0 )
+							throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+						candidate += c;
+						break;
+					case '.':
+						foreach (char ch in candidate)
+							if (!char.IsDigit(ch) || ch == '-')
+								throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+						candidate += c;
 						break;
 
 					// Check if alphanumeric
