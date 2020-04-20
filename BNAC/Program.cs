@@ -19,25 +19,29 @@ namespace BNAC
 		private static string CompileToPython( Queue<string> lines )
 		{
 			try {
+				// Convert lines to token stream
 				var tokens = Token.TokenizeProgram( lines );
 				Console.WriteLine( "\nTokens :" );
 				foreach ( Token t in tokens.ToList( ) )
 					Console.WriteLine( "  " + t.ToString( ) );
 				Console.WriteLine( " " + tokens.Count + " total" );
 
+				// Parse statements from token stream
 				var statements = Statement.ParseStatements( tokens );
 				Console.WriteLine( "\nStatements :" );
 				foreach ( Statement s in statements.ToList( ) )
 					Console.WriteLine( "  " + s.ToString( ) );
 				Console.WriteLine( " " + statements.Count + " total" );
 
+				// Translate to python
 				Console.WriteLine( "\nCode :" );
 				var output = Translator.ToPython( statements );
+				Console.WriteLine( output );
 
 				return output;
 			}
 			catch ( Exception e ) {
-				Console.Error.WriteLine( "!Caught Exception!:" );
+				Console.Error.WriteLine( "!!! Caught Exception while compiling !!!:" );
 				Console.Error.WriteLine( e.ToString( ) );
 			}
 			return "";
@@ -55,37 +59,47 @@ namespace BNAC
 
 			// If no arguments, take input from command line
 			if ( args.Length == 0 ) {
-				Console.WriteLine( "\nInsert BNA code to translate to Python:" );
-
-				var lines = new Queue<string>( );
 				while ( true ) {
-					// get a line
-					var input = Console.ReadLine( );
+					// Usage
+					Console.WriteLine( "\nInsert BNA code to translate to Python (use '~' to exit):" );
 
-					// end on tilda '~'
-					if ( input.Equals( "~" ) )
+					// Read and queue lines
+					var lines = new Queue<string>( );
+					while ( true ) {
+						// get a line
+						var input = Console.ReadLine( );
+
+						// end on tilda '~'
+						if ( input.Equals( "~" ) )
+							break;
+
+						lines.Enqueue( input );
+					}
+
+					// Output 
+					CompileToPython( lines );
+					Console.WriteLine( );
+
+					// Wait to continue, check for exit
+					if ( Console.ReadLine( ).Equals( "~" ) )
 						break;
-
-					lines.Enqueue( input );
 				}
-
-				Console.WriteLine( CompileToPython( lines ) );
-
-				Console.ReadLine( );
 			}
 			// else, take in files
 			else {
 				foreach ( string file in args ) {
 					try {
+						// Output the BNA filename
 						Console.WriteLine( file + ":" );
 
+						// Check the file extension
 						string[] split_filename = file.Split( new char[] { '.' } );
 						string filename = split_filename[0];
 						string extension = split_filename[1];
-
 						if ( !extension.Equals( "bna" ) )
 							throw new Exception( "Wrong file type: " + file );
 
+						// Output file contents
 						Console.WriteLine( "Reading file..." );
 						var lines = new Queue<string>( );
 						using ( StreamReader sr = File.OpenText( ".\\" + file ) ) {
@@ -96,10 +110,11 @@ namespace BNAC
 							}
 						}
 
+						// Compile it
 						Console.WriteLine( "Compiling file..." );
 						string compiled_code = CompileToPython( lines );
-						Console.WriteLine( compiled_code );
 
+						// Propmt to delete existing file
 						if ( File.Exists( ".\\" + filename + ".py" ) ) {
 							Console.Write( filename + ".py already exists, delete it? (y/n): " );
 							if ( !Console.ReadLine( ).Equals("y") ) {
@@ -108,15 +123,16 @@ namespace BNAC
 							}
 						}
 
+						// Write to .py file
 						Console.WriteLine( "Writing file..." );
 						using ( StreamWriter sw = File.CreateText( ".\\" + filename + ".py" ) ) {
-							sw.WriteLine( compiled_code );
+							sw.Write( compiled_code );
 						}
 
 						Console.WriteLine( "Done.\n" );
 					}
 					catch (Exception e) {
-						Console.Error.WriteLine( "!Caught Exception!:" );
+						Console.Error.WriteLine( "!!! Caught Exception compiling file !!!:" );
 						Console.Error.WriteLine( e.Message );
 					}
 				}

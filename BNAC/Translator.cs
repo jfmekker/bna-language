@@ -40,42 +40,30 @@ namespace BNAC
 			while ( statements.Count > 0 ) {
 				var statement = statements.Dequeue( );
 				switch ( statement.Type ) {
-					// Set a variable
+					// Variable modifiying operations
 					case Statement.StatementType.OP_SET:
 						str.AppendLine( indent + statement.Operand1.Value + " = " + statement.Operand2.Value );
 						break;
-
-					// Add to a variable
 					case Statement.StatementType.OP_ADD:
 						str.AppendLine( indent + statement.Operand1.Value + " += " + statement.Operand2.Value );
 						break;
-
-					// Subtract from a variable
 					case Statement.StatementType.OP_SUB:
 						str.AppendLine( indent + statement.Operand1.Value + " -= " + statement.Operand2.Value );
 						break;
-
-					// Multiply a variable
 					case Statement.StatementType.OP_MUL:
 						str.AppendLine( indent + statement.Operand1.Value + " *= " + statement.Operand2.Value );
 						break;
-
-					// Divide a variable
 					case Statement.StatementType.OP_DIV:
 						str.AppendLine( indent + statement.Operand1.Value + " /= " + statement.Operand2.Value );
 						break;
-
-					// Bit-wise or a variable
 					case Statement.StatementType.OP_OR:
 						str.AppendLine( indent + statement.Operand1.Value + " |= " + statement.Operand2.Value );
 						break;
-
-					// Add to a variable
 					case Statement.StatementType.OP_AND:
 						str.AppendLine( indent + statement.Operand1.Value + " &= " + statement.Operand2.Value );
 						break;
 
-					// Test a condition
+					// Test operations
 					case Statement.StatementType.OP_TEST_GT:
 						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );
 						break;
@@ -86,27 +74,21 @@ namespace BNAC
 						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " = " + statement.Operand2.Value + " else 0" );
 						break;
 
-					// Get a random number
+					// Misc operations
 					case Statement.StatementType.OP_RAND:
 						str.AppendLine( indent + statement.Operand1.Value + " = random.randint(0, " + statement.Operand2.Value + ")" );
 						break;
-
-					// Print a value
 					case Statement.StatementType.OP_PRINT:
 						str.AppendLine( indent + "print(" + statement.Operand1.Value + ")" );
 						break;
-
-					// Sleep for a time
 					case Statement.StatementType.OP_SLEEP:
 						str.AppendLine( indent + "time.sleep(" + statement.Operand1.Value + ")" );
 						break;
 
-					// Create a label
+					// Control flow
 					case Statement.StatementType.LABEL:
 						str.AppendLine( indent + "label ." + statement.Operand1.Value );
 						break;
-
-					// Goto a label on condition
 					case Statement.StatementType.OP_GOTO:
 						str.AppendLine( indent + "if " + statement.Operand2.Value + " != 0 :" );
 						str.AppendLine( indent + "\tgoto ." + statement.Operand1.Value );

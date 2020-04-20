@@ -27,4 +27,3 @@ def program():
 	print(average)
 
 program()
-
