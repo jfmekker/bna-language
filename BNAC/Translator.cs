@@ -77,13 +77,13 @@ namespace BNAC
 
 					// Test a condition
 					case Statement.StatementType.OP_TEST_GT:
-						str.AppendLine( indent + "results = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );
 						break;
 					case Statement.StatementType.OP_TEST_LT:
-						str.AppendLine( indent + "results = 1 if " + statement.Operand1.Value + " < " + statement.Operand2.Value + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " < " + statement.Operand2.Value + " else 0" );
 						break;
 					case Statement.StatementType.OP_TEST_EQ:
-						str.AppendLine( indent + "results = 1 if " + statement.Operand1.Value + " = " + statement.Operand2.Value + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " = " + statement.Operand2.Value + " else 0" );
 						break;
 
 					// Get a random number

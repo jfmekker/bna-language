@@ -1,16 +1,15 @@
 ﻿# set our iterator
 SET i TO 0
 
-# Get a random number for stop point (2-7)
-RANDOM count MAX 5
-ADD 2 TO count
+# How many numbers to generate
+SET count TO 7
 
 SET total TO 0
 
 # Loop 'count' number of times
 begin:
 TEST i > count
-GOTO end IF results
+GOTO end IF success
 
 # Get random number 1 - 10
 RANDOM x MAX 9

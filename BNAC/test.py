@@ -6,12 +6,11 @@ from goto import with_goto
 def program():
 	print("Generated from BNA code")
 	i = 0
-	count = random.randint(0, 5)
-	count += 2
+	count = 7
 	total = 0
 	label .begin
-	results = 1 if i > count else 0
-	if results != 0 :
+	success = 1 if i > count else 0
+	if success != 0 :
 		goto .end
 	x = random.randint(0, 9)
 	x += 1

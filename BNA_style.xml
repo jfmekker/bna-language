@@ -24,8 +24,8 @@
             <Keywords name="Folders in comment, open"></Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
-            <Keywords name="Keywords1">add&#x000D;&#x000A;subtract&#x000D;&#x000A;multiply&#x000D;&#x000A;divide&#x000D;&#x000A;set&#x000D;&#x000A;to&#x000D;&#x000A;by&#x000D;&#x000A;from&#x000D;&#x000A;max&#x000D;&#x000A;if&#x000D;&#x000A;goto&#x000D;&#x000A;wait&#x000D;&#x000A;random&#x000D;&#x000A;print&#x000D;&#x000A;test</Keywords>
-            <Keywords name="Keywords2">results&#x000D;&#x000A;true&#x000D;&#x000A;false&#x000D;&#x000A;&gt;&#x000D;&#x000A;&lt;&#x000D;&#x000A;=</Keywords>
+            <Keywords name="Keywords1">add&#x000D;&#x000A;subtract&#x000D;&#x000A;multiply&#x000D;&#x000A;divide&#x000D;&#x000A;set&#x000D;&#x000A;to&#x000D;&#x000A;by&#x000D;&#x000A;from&#x000D;&#x000A;max&#x000D;&#x000A;if&#x000D;&#x000A;goto&#x000D;&#x000A;wait&#x000D;&#x000A;random&#x000D;&#x000A;print&#x000D;&#x000A;test&#x000D;&#x000A;and&#x000D;&#x000A;or</Keywords>
+            <Keywords name="Keywords2">success&#x000D;&#x000A;&gt;&#x000D;&#x000A;&lt;&#x000D;&#x000A;=</Keywords>
             <Keywords name="Keywords3"></Keywords>
             <Keywords name="Keywords4"></Keywords>
             <Keywords name="Keywords5"></Keywords>
