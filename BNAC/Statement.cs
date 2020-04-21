@@ -33,6 +33,8 @@ namespace BNAC
 			OP_NEG,
 			OP_POW,
 			OP_MOD,
+			OP_LOG,
+			OP_ROUND,
 
 			// test operations
 			OP_TEST_GT,
@@ -460,6 +462,53 @@ namespace BNAC
 						// VARIABLE
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// "LOG [VARIABLE/LITERAL] OF [VARIABLE]"
+					case Token.TokenType.LOG:
+					{
+						// LOG
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_LOG;
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						// OF
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.OF );
+						candidate._tokens.Add( token );
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// "ROUND [VARIABLE/LITERAL]"
+					case Token.TokenType.ROUND:
+					{
+						// ROUND
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_ROUND;
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
 						candidate._tokens.Add( token );
 						candidate.Operand1 = token;
 

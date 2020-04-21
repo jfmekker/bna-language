@@ -43,6 +43,8 @@ namespace BNAC
 			NEGATE,
 			RAISE,
 			MOD,
+			LOG,
+			ROUND,
 
 			// Operation mid keywords
 			TO,
@@ -152,6 +154,12 @@ namespace BNAC
 				}
 				else if ( Value.ToUpper( ).Equals( "MOD" ) ) {
 					Type = TokenType.MOD;
+				}
+				else if ( Value.ToUpper( ).Equals( "LOG" ) ) {
+					Type = TokenType.LOG;
+				}
+				else if ( Value.ToUpper( ).Equals( "ROUND" ) ) {
+					Type = TokenType.ROUND;
 				}
 
 				// Mid-operation keywords
