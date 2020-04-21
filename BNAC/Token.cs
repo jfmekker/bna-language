@@ -41,6 +41,10 @@ namespace BNAC
 			AND,
 			XOR,
 			NEGATE,
+			RAISE,
+			MOD,
+			LOG,
+			ROUND,
 
 			// Operation mid keywords
 			TO,
@@ -49,9 +53,7 @@ namespace BNAC
 			MAX,
 			IF,
 			WITH,
-
-			// Special words
-			RESULT,
+			OF,
 		}
 
 		/// <summary>
@@ -92,8 +94,11 @@ namespace BNAC
 			// Don't re-identify if we know it
 			if ( Type == TokenType.UNKNOWN ) {
 				// Number Literal
-				if ( char.IsDigit( Value[0] ) ) {
-					if ( int.TryParse( Value , out int val ) ) {
+				if ( char.IsDigit( Value[0] ) || Value[0] == '-' || Value[0] == '.' ) {
+					if ( int.TryParse( Value , out int i_val ) ) {
+						Type = TokenType.LITERAL;
+					}
+					else if ( double.TryParse( Value , out double d_val ) ) {
 						Type = TokenType.LITERAL;
 					}
 					else {
@@ -144,6 +149,18 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "NEGATE" ) ) {
 					Type = TokenType.NEGATE;
 				}
+				else if ( Value.ToUpper( ).Equals( "RAISE" ) ) {
+					Type = TokenType.NEGATE;
+				}
+				else if ( Value.ToUpper( ).Equals( "MOD" ) ) {
+					Type = TokenType.MOD;
+				}
+				else if ( Value.ToUpper( ).Equals( "LOG" ) ) {
+					Type = TokenType.LOG;
+				}
+				else if ( Value.ToUpper( ).Equals( "ROUND" ) ) {
+					Type = TokenType.ROUND;
+				}
 
 				// Mid-operation keywords
 				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
@@ -164,10 +181,8 @@ namespace BNAC
 				else if ( Value.ToUpper( ).Equals( "WITH" ) ) {
 					Type = TokenType.WITH;
 				}
-
-				// Other keywords
-				else if ( Value.ToUpper( ).Equals( "RESULT" ) ) {
-					Type = TokenType.RESULT;
+				else if ( Value.ToUpper( ).Equals( "OF" ) ) {
+					Type = TokenType.OF;
 				}
 
 				// Variable
@@ -229,6 +244,18 @@ namespace BNAC
 							tokens.Enqueue( new Token( candidate ) );
 						candidate = "";
 						tokens.Enqueue( new Token( c.ToString( ) , TokenType.EQUAL ) );
+						break;
+
+					case '-':
+						if ( candidate.Length > 0 )
+							throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+						candidate += c;
+						break;
+					case '.':
+						foreach (char ch in candidate)
+							if (!char.IsDigit(ch) || ch == '-')
+								throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+						candidate += c;
 						break;
 
 					// Check if alphanumeric

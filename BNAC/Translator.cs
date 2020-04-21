@@ -25,6 +25,8 @@ namespace BNAC
 				str.AppendLine( "import time" );
 			if ( statements.Any( s => s.Type == Statement.StatementType.OP_RAND ) )
 				str.AppendLine( "import random" );
+			if ( statements.Any( s => s.Type == Statement.StatementType.OP_LOG ) )
+				str.AppendLine( "import math" );
 			if ( statements.Any( s => s.Type == Statement.StatementType.OP_GOTO ) )
 				str.AppendLine( "from goto import with_goto" );
 			str.AppendLine( );
@@ -67,6 +69,18 @@ namespace BNAC
 						break;
 					case Statement.StatementType.OP_NEG:
 						str.AppendLine( indent + statement.Operand1.Value + " = ~" + statement.Operand1.Value );
+						break;
+					case Statement.StatementType.OP_POW:
+						str.AppendLine( indent + statement.Operand1.Value + " **= " + statement.Operand2.Value );
+						break;
+					case Statement.StatementType.OP_MOD:
+						str.AppendLine( indent + statement.Operand1.Value + " %= " + statement.Operand2.Value );
+						break;
+					case Statement.StatementType.OP_LOG:
+						str.AppendLine( indent + statement.Operand1.Value + " = math.log(" + statement.Operand1.Value + ", " + statement.Operand2.Value + ")" );
+						break;
+					case Statement.StatementType.OP_ROUND:
+						str.AppendLine( indent + statement.Operand1.Value + " = round(" + statement.Operand1.Value + ")" );
 						break;
 
 					// Test operations

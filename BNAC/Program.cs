@@ -61,7 +61,7 @@ namespace BNAC
 			if ( args.Length == 0 ) {
 				while ( true ) {
 					// Usage
-					Console.WriteLine( "\nInsert BNA code to translate to Python (use '~' to exit):" );
+					Console.WriteLine( "\nInsert BNA code to translate to Python (use '~' to end):" );
 
 					// Read and queue lines
 					var lines = new Queue<string>( );
@@ -78,7 +78,8 @@ namespace BNAC
 
 					// Output 
 					CompileToPython( lines );
-					Console.WriteLine( );
+
+					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 
 					// Wait to continue, check for exit
 					if ( Console.ReadLine( ).Equals( "~" ) )
@@ -138,6 +139,7 @@ namespace BNAC
 				}
 
 				// Wait to close so user can read output
+				Console.WriteLine( "\nPress enter to exit..." );
 				Console.ReadLine( );
 			}
 		}

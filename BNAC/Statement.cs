@@ -31,6 +31,10 @@ namespace BNAC
 			OP_AND,
 			OP_XOR,
 			OP_NEG,
+			OP_POW,
+			OP_MOD,
+			OP_LOG,
+			OP_ROUND,
 
 			// test operations
 			OP_TEST_GT,
@@ -89,7 +93,6 @@ namespace BNAC
 				// Assume we start on a valid start token
 				switch ( token.Type ) {
 					
-					/// Set operation
 					/// "SET [VARIABLE] TO [VARIABLE/LITERAL]"
 					case Token.TokenType.SET:
 					{
@@ -119,7 +122,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Add operation
 					/// "ADD [VARIABLE/LITERAL] TO [VARIABLE]"
 					case Token.TokenType.ADD:
 					{
@@ -149,13 +151,12 @@ namespace BNAC
 						break;
 					}
 
-					/// Subtract operation
-					/// "Subtract [VARIABLE/LITERAL] FROM [VARIABLE]"
+					/// "SUBTRACT [VARIABLE/LITERAL] FROM [VARIABLE]"
 					case Token.TokenType.SUBTRACT:
 					{
-						// ADD
+						// SUBTRACT
 						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_RAND;
+						candidate.Type = StatementType.OP_SUB;
 
 						// VARIABLE or LITERAL
 						token = tokenStream.Dequeue( );
@@ -164,9 +165,9 @@ namespace BNAC
 						candidate._tokens.Add( token );
 						candidate.Operand2 = token;
 
-						// TO
+						// FROM
 						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.TO );
+						Token.ThrowIfNotType( token , Token.TokenType.FROM );
 						candidate._tokens.Add( token );
 
 						// VARIABLE
@@ -179,8 +180,7 @@ namespace BNAC
 						break;
 					}
 
-					/// Multiply operation
-					/// "Multiply [VARIABLE] BY [VARIABLE/LITERAL]"
+					/// "MULTIPLY [VARIABLE] BY [VARIABLE/LITERAL]"
 					case Token.TokenType.MULTIPLY:
 					{
 						// MULTIPLY
@@ -209,11 +209,10 @@ namespace BNAC
 						break;
 					}
 
-					/// Set operation
 					/// "DIVIDE [VARIABLE] BY [VARIABLE/LITERAL]"
 					case Token.TokenType.DIVIDE:
 					{
-						// SET
+						// DIVIDE
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_DIV;
 
@@ -239,7 +238,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Random operation
 					/// "RANDOM [VARIABLE] MAX [VARIABLE/LITERAL]"
 					case Token.TokenType.RANDOM:
 					{
@@ -269,7 +267,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Set operation
 					/// "TEST [VARIABLE/LITERAL] [>/</=] [VARIABLE/LITERAL]"
 					case Token.TokenType.TEST:
 					{
@@ -310,7 +307,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Or operation
 					/// "OR [VARIABLE] WITH [VARIABLE/LITERAL]"
 					case Token.TokenType.OR:
 					{
@@ -340,8 +336,7 @@ namespace BNAC
 						break;
 					}
 
-					/// Set operation
-					/// "SET [VARIABLE] TO [VARIABLE/LITERAL]"
+					/// "AND [VARIABLE] WITH [VARIABLE/LITERAL]"
 					case Token.TokenType.AND:
 					{
 						// AND
@@ -370,7 +365,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Xor operation
 					/// "XOR [VARIABLE] WITH [VARIABLE/LITERAL]"
 					case Token.TokenType.XOR:
 					{
@@ -400,7 +394,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Negate operation
 					/// "NEGATE [VARIABLE]"
 					case Token.TokenType.NEGATE:
 					{
@@ -418,7 +411,111 @@ namespace BNAC
 						break;
 					}
 
-					/// Print operation
+					/// "RAISE [VARIABLE] TO [VARIABLE/LITERAL]"
+					case Token.TokenType.RAISE:
+					{
+						// RAISE
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_POW;
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						// TO
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.TO );
+						candidate._tokens.Add( token );
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// "MOD [VARIABLE/LITERAL] OF [VARIABLE]"
+					case Token.TokenType.MOD:
+					{
+						// MOD
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_MOD;
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						// OF
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.OF );
+						candidate._tokens.Add( token );
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// "LOG [VARIABLE/LITERAL] OF [VARIABLE]"
+					case Token.TokenType.LOG:
+					{
+						// LOG
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_LOG;
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand2 = token;
+
+						// OF
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.OF );
+						candidate._tokens.Add( token );
+
+						// VARIABLE
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
+					/// "ROUND [VARIABLE/LITERAL]"
+					case Token.TokenType.ROUND:
+					{
+						// ROUND
+						candidate._tokens.Add( token );
+						candidate.Type = StatementType.OP_ROUND;
+
+						// VARIABLE or LITERAL
+						token = tokenStream.Dequeue( );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						candidate._tokens.Add( token );
+						candidate.Operand1 = token;
+
+						statements.Enqueue( candidate );
+						break;
+					}
+
 					/// "PRINT [VARIABLE/LITERAL]"
 					case Token.TokenType.PRINT:
 					{
@@ -437,7 +534,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Sleep operation
 					/// "WAIT [VARIABLE/LITERAL]"
 					case Token.TokenType.WAIT:
 					{
@@ -456,7 +552,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Label
 					/// "[VARIABLE]LABEL_END"
 					case Token.TokenType.VARIABLE:
 					{
@@ -474,7 +569,6 @@ namespace BNAC
 						break;
 					}
 
-					/// Label
 					/// "GOTO [VARIABLE] IF [VARIABLE/LITERAL]"
 					case Token.TokenType.GOTO:
 					{
