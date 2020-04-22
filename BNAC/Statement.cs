@@ -498,17 +498,16 @@ namespace BNAC
 						break;
 					}
 
-					/// "ROUND [VARIABLE/LITERAL]"
+					/// "ROUND [VARIABLE]"
 					case Token.TokenType.ROUND:
 					{
 						// ROUND
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_ROUND;
 
-						// VARIABLE or LITERAL
+						// VARIABLE
 						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
 						candidate._tokens.Add( token );
 						candidate.Operand1 = token;
 
