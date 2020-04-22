@@ -515,17 +515,17 @@ namespace BNAC
 						break;
 					}
 
-					/// "PRINT [VARIABLE/LITERAL]"
+					/// "PRINT [VARIABLE/LITERAL/STRING]"
 					case Token.TokenType.PRINT:
 					{
 						// PRINT
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_PRINT;
 
-						// VARIABLE or LITERAL
+						// VARIABLE or LITERAL or STRING
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL, Token.TokenType.STRING } );
 						candidate._tokens.Add( token );
 						candidate.Operand1 = token;
 
