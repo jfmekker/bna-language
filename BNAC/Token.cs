@@ -187,7 +187,7 @@ namespace BNAC
 				}
 
 				// String
-				else if ( Value.Length > 2 && Value[0] == '"' && Value[Value.Length - 1] == '"' ) {
+				else if ( Value.Length >= 2 && Value[0] == '"' && Value[Value.Length - 1] == '"' ) {
 					Type = TokenType.STRING;
 				}
 
