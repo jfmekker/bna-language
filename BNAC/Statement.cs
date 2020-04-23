@@ -93,7 +93,7 @@ namespace BNAC
 				// Assume we start on a valid start token
 				switch ( token.Type ) {
 					
-					/// "SET [VARIABLE] TO [VARIABLE/LITERAL]"
+					/// "SET [VARIABLE] TO [VARIABLE/LITERAL/STRING]"
 					case Token.TokenType.SET:
 					{
 						// SET
@@ -111,10 +111,10 @@ namespace BNAC
 						Token.ThrowIfNotType( token , Token.TokenType.TO );
 						candidate._tokens.Add( token );
 
-						// VARIABLE or LITERAL
+						// VARIABLE or LITERAL or STRING
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL, Token.TokenType.STRING } );
 						candidate._tokens.Add( token );
 						candidate.Operand2 = token;
 
@@ -267,15 +267,16 @@ namespace BNAC
 						break;
 					}
 
-					/// "TEST [VARIABLE/LITERAL] [>/</=] [VARIABLE/LITERAL]"
+					/// "TEST [VARIABLE/LITERAL/STRING] [>/</=] [VARIABLE/LITERAL/STRING]"
 					case Token.TokenType.TEST:
 					{
 						// TEST
 						candidate._tokens.Add( token );
 
-						// VARIABLE or LITERAL
+						// VARIABLE or LITERAL or STRING
 						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
+						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL , Token.TokenType.STRING} );
 						candidate._tokens.Add( token );
 						candidate.Operand1 = token;
 
@@ -296,10 +297,10 @@ namespace BNAC
 								break;
 						}
 
-						// VARIABLE or LITERAL
+						// VARIABLE or LITERAL or STRING
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL , Token.TokenType.STRING} );
 						candidate._tokens.Add( token );
 						candidate.Operand2 = token;
 
@@ -498,17 +499,16 @@ namespace BNAC
 						break;
 					}
 
-					/// "ROUND [VARIABLE/LITERAL]"
+					/// "ROUND [VARIABLE]"
 					case Token.TokenType.ROUND:
 					{
 						// ROUND
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_ROUND;
 
-						// VARIABLE or LITERAL
+						// VARIABLE
 						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
 						candidate._tokens.Add( token );
 						candidate.Operand1 = token;
 
@@ -516,17 +516,17 @@ namespace BNAC
 						break;
 					}
 
-					/// "PRINT [VARIABLE/LITERAL]"
+					/// "PRINT [VARIABLE/LITERAL/STRING]"
 					case Token.TokenType.PRINT:
 					{
 						// PRINT
 						candidate._tokens.Add( token );
 						candidate.Type = StatementType.OP_PRINT;
 
-						// VARIABLE or LITERAL
+						// VARIABLE or LITERAL or STRING
 						token = tokenStream.Dequeue( );
 						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
+							Token.TokenType.VARIABLE , Token.TokenType.LITERAL, Token.TokenType.STRING } );
 						candidate._tokens.Add( token );
 						candidate.Operand1 = token;
 

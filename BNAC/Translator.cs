@@ -85,6 +85,12 @@ namespace BNAC
 
 					// Test operations
 					case Statement.StatementType.OP_TEST_GT:
+						string op1 = statement.Operand1.Value;
+						string op2 = statement.Operand2.Value;
+						if ( statement.Operand1.Type == Token.TokenType.STRING || statement.Operand2.Type == Token.TokenType.STRING ) {
+							op1 = "str(" + statement.Operand1.Value + ")";
+							op2 = "str(" + statement.Operand2.Value + ")";
+						}
 						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );
 						break;
 					case Statement.StatementType.OP_TEST_LT:

@@ -19,6 +19,7 @@ namespace BNAC
 			// Non-keywords
 			LITERAL,
 			VARIABLE,
+			STRING,
 
 			// Special characters
 			LABEL_END,
@@ -185,6 +186,11 @@ namespace BNAC
 					Type = TokenType.OF;
 				}
 
+				// String
+				else if ( Value.Length >= 2 && Value[0] == '"' && Value[Value.Length - 1] == '"' ) {
+					Type = TokenType.STRING;
+				}
+
 				// Variable
 				else {
 					Type = TokenType.VARIABLE;
@@ -209,66 +215,86 @@ namespace BNAC
 
 			// Parse character by character
 			string candidate = "";
+			bool inString = false;
 			foreach ( char c in line ) {
-				switch ( c ) {
-					// LABEL_END
-					case ':':
-						tokens.Enqueue( new Token( candidate ) );
-						candidate = "";
-						tokens.Enqueue( new Token( c.ToString(), TokenType.LABEL_END ) );
-						break;
+				// Letters, numbers, underscores, or anything in a string passes
+				if ( char.IsLetterOrDigit( c ) || c == '_' || inString ) {
+					candidate += c;
 
-					// Whitespace
-					case ' ':
-					case '\t':
-						if ( candidate.Length > 0 ) 
-							tokens.Enqueue( new Token( candidate ) );
+					if ( c == '"' ) {
+						inString = false;
+						tokens.Enqueue( new Token( candidate , TokenType.STRING ) );
 						candidate = "";
-						break;
+					}
+				}
+				// Comments end the line early
+				else if ( c == '#' && !inString) {
+					break;
+				}
+				// Other special characters
+				else {
+					switch ( c ) {
+						// LABEL_END
+						case ':':
+							tokens.Enqueue( new Token( candidate ) );
+							candidate = "";
+							tokens.Enqueue( new Token( c.ToString( ) , TokenType.LABEL_END ) );
+							break;
 
-					// Test characters
-					case '>':
-						if ( candidate.Length > 0 )
-							tokens.Enqueue( new Token( candidate ) );
-						candidate = "";
-						tokens.Enqueue( new Token( c.ToString( ) , TokenType.GREATER_THAN ) );
-						break;
-					case '<':
-						if ( candidate.Length > 0 )
-							tokens.Enqueue( new Token( candidate ) );
-						candidate = "";
-						tokens.Enqueue( new Token( c.ToString( ) , TokenType.LESS_THAN ) );
-						break;
-					case '=':
-						if ( candidate.Length > 0 )
-							tokens.Enqueue( new Token( candidate ) );
-						candidate = "";
-						tokens.Enqueue( new Token( c.ToString( ) , TokenType.EQUAL ) );
-						break;
+						// Whitespace
+						case ' ':
+						case '\t':
+							if ( candidate.Length > 0 )
+								tokens.Enqueue( new Token( candidate ) );
+							candidate = "";
+							break;
 
-					case '-':
-						if ( candidate.Length > 0 )
-							throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
-						candidate += c;
-						break;
-					case '.':
-						foreach (char ch in candidate)
-							if (!char.IsDigit(ch) || ch == '-')
+						// Test characters
+						case '>':
+							if ( candidate.Length > 0 )
+								tokens.Enqueue( new Token( candidate ) );
+							candidate = "";
+							tokens.Enqueue( new Token( c.ToString( ) , TokenType.GREATER_THAN ) );
+							break;
+						case '<':
+							if ( candidate.Length > 0 )
+								tokens.Enqueue( new Token( candidate ) );
+							candidate = "";
+							tokens.Enqueue( new Token( c.ToString( ) , TokenType.LESS_THAN ) );
+							break;
+						case '=':
+							if ( candidate.Length > 0 )
+								tokens.Enqueue( new Token( candidate ) );
+							candidate = "";
+							tokens.Enqueue( new Token( c.ToString( ) , TokenType.EQUAL ) );
+							break;
+
+						case '-':
+							if ( candidate.Length > 0 )
 								throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
-						candidate += c;
-						break;
-
-					// Check if alphanumeric
-					default:
-						if ( char.IsLetterOrDigit( c ) ) {
 							candidate += c;
 							break;
-						}
-						throw new Exception( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ").");
+						case '.':
+							foreach ( char ch in candidate )
+								if ( !char.IsDigit( ch ) || ch == '-' )
+									throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+							candidate += c;
+							break;
+						case '"':
+							inString = true;
+							candidate += c;
+							break;
+
+						default:
+
+							throw new Exception( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+					}
 				}
 			}
 
 			// Add last candidate
+			if ( inString )
+				throw new Exception( "Line ended before string: '" + candidate + "'." );
 			if ( candidate.Length > 0 )
 				tokens.Enqueue( new Token( candidate ) );
 
