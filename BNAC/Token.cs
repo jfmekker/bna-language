@@ -3,6 +3,54 @@ using System.Collections.Generic;
 
 namespace BNAC
 {
+	enum Keyword
+	{
+		// Empty keyword to represent unknown
+		_,
+
+		// Operation start keywords
+		SET,
+		ADD,
+		SUBTRACT,
+		MULTIPLY,
+		DIVIDE,
+		PRINT,
+		WAIT,
+		RANDOM,
+		TEST,
+		GOTO,
+		OR,
+		AND,
+		XOR,
+		NEGATE,
+		RAISE,
+		MOD,
+		LOG,
+		ROUND,
+
+		// Operation mid keywords
+		TO,
+		BY,
+		FROM,
+		MAX,
+		IF,
+		WITH,
+		OF,
+	}
+
+	enum Symbol
+	{
+		// Default to 'null' value
+		NULL = '\0',
+		COMMENT = '#',
+		GREATER_THAN = '>',
+		LESS_THAN = '<',
+		EQUAL = '=',
+		LABEL_START = '^',
+		LABEL_END = ':',
+		LINE_END = '\n',
+	}
+
 	/// <summary>
 	/// Group of related characters that form keywords/variables/etc.
 	/// </summary>
@@ -13,48 +61,12 @@ namespace BNAC
 		/// </summary>
 		public enum TokenType
 		{
-			// Default to unknown token
 			UNKNOWN,
-
-			// Non-keywords
 			LITERAL,
 			VARIABLE,
 			STRING,
-
-			// Special characters
-			LABEL_END,
-			GREATER_THAN,
-			LESS_THAN,
-			EQUAL,
-
-			// Operation start keywords
-			SET,
-			ADD,
-			SUBTRACT,
-			MULTIPLY,
-			DIVIDE,
-			PRINT,
-			WAIT,
-			RANDOM,
-			TEST,
-			GOTO,
-			OR,
-			AND,
-			XOR,
-			NEGATE,
-			RAISE,
-			MOD,
-			LOG,
-			ROUND,
-
-			// Operation mid keywords
-			TO,
-			BY,
-			FROM,
-			MAX,
-			IF,
-			WITH,
-			OF,
+			KEYWORD,
+			SYMBOL,
 		}
 
 		/// <summary>
@@ -94,107 +106,40 @@ namespace BNAC
 		{
 			// Don't re-identify if we know it
 			if ( Type == TokenType.UNKNOWN ) {
-				// Number Literal
+				// Sanity check the length
+				if ( Value.Length <= 0 )
+					throw new Exception( "Can not identify Token with empty value." );
+
+				// Literal
 				if ( char.IsDigit( Value[0] ) || Value[0] == '-' || Value[0] == '.' ) {
 					if ( int.TryParse( Value , out int i_val ) ) {
-						Type = TokenType.LITERAL;
+						return TokenType.LITERAL;
 					}
 					else if ( double.TryParse( Value , out double d_val ) ) {
-						Type = TokenType.LITERAL;
+						return TokenType.LITERAL;
 					}
 					else {
 						throw new Exception( "Failed to parse literal value: '" + Value + "'." );
 					}
 				}
-
-				// Main keywords
-				else if ( Value.ToUpper( ).Equals( "SET" ) ) {
-					Type = TokenType.SET;
-				}
-				else if ( Value.ToUpper( ).Equals( "ADD" ) ) {
-					Type = TokenType.ADD;
-				}
-				else if ( Value.ToUpper( ).Equals( "SUBTRACT" ) ) {
-					Type = TokenType.SUBTRACT;
-				}
-				else if ( Value.ToUpper( ).Equals( "MULTIPLY" ) ) {
-					Type = TokenType.MULTIPLY;
-				}
-				else if ( Value.ToUpper( ).Equals( "DIVIDE" ) ) {
-					Type = TokenType.DIVIDE;
-				}
-				else if ( Value.ToUpper( ).Equals( "PRINT" ) ) {
-					Type = TokenType.PRINT;
-				}
-				else if ( Value.ToUpper( ).Equals( "WAIT" ) ) {
-					Type = TokenType.WAIT;
-				}
-				else if ( Value.ToUpper( ).Equals( "RANDOM" ) ) {
-					Type = TokenType.RANDOM;
-				}
-				else if ( Value.ToUpper( ).Equals( "TEST" ) ) {
-					Type = TokenType.TEST;
-				}
-				else if ( Value.ToUpper( ).Equals( "GOTO" ) ) {
-					Type = TokenType.GOTO;
-				}
-				else if ( Value.ToUpper( ).Equals( "OR" ) ) {
-					Type = TokenType.OR;
-				}
-				else if ( Value.ToUpper( ).Equals( "AND" ) ) {
-					Type = TokenType.AND;
-				}
-				else if ( Value.ToUpper( ).Equals( "XOR" ) ) {
-					Type = TokenType.XOR;
-				}
-				else if ( Value.ToUpper( ).Equals( "NEGATE" ) ) {
-					Type = TokenType.NEGATE;
-				}
-				else if ( Value.ToUpper( ).Equals( "RAISE" ) ) {
-					Type = TokenType.NEGATE;
-				}
-				else if ( Value.ToUpper( ).Equals( "MOD" ) ) {
-					Type = TokenType.MOD;
-				}
-				else if ( Value.ToUpper( ).Equals( "LOG" ) ) {
-					Type = TokenType.LOG;
-				}
-				else if ( Value.ToUpper( ).Equals( "ROUND" ) ) {
-					Type = TokenType.ROUND;
-				}
-
-				// Mid-operation keywords
-				else if ( Value.ToUpper( ).Equals( "TO" ) ) {
-					Type = TokenType.TO;
-				}
-				else if ( Value.ToUpper( ).Equals( "BY" ) ) {
-					Type = TokenType.BY;
-				}
-				else if ( Value.ToUpper( ).Equals( "FROM" ) ) {
-					Type = TokenType.FROM;
-				}
-				else if ( Value.ToUpper( ).Equals( "MAX" ) ) {
-					Type = TokenType.MAX;
-				}
-				else if ( Value.ToUpper( ).Equals( "IF" ) ) {
-					Type = TokenType.IF;
-				}
-				else if ( Value.ToUpper( ).Equals( "WITH" ) ) {
-					Type = TokenType.WITH;
-				}
-				else if ( Value.ToUpper( ).Equals( "OF" ) ) {
-					Type = TokenType.OF;
-				}
-
+				
 				// String
-				else if ( Value.Length >= 2 && Value[0] == '"' && Value[Value.Length - 1] == '"' ) {
-					Type = TokenType.STRING;
+				if ( Value.Length >= 2 && Value[0] == '"' && Value[Value.Length - 1] == '"' ) {
+					return TokenType.STRING;
+				}
+
+				// Keyword
+				if ( TryParseKeyword( Value , out var keyword ) ) {
+					return TokenType.SYMBOL;
+				}
+
+				// Symbol
+				if ( Value.Length == 1 && TryParseSymbol( Value[0] , out var symbol ) ) {
+					return TokenType.SYMBOL;
 				}
 
 				// Variable
-				else {
-					Type = TokenType.VARIABLE;
-				}
+				return TokenType.VARIABLE;
 			}
 
 			return Type;
@@ -210,7 +155,7 @@ namespace BNAC
 			var tokens = new Queue<Token>( );
 
 			// Ignore if the line is a comment or empty
-			if ( line.Equals("") || line[0] == '#' )
+			if ( line.Equals("") || line[0] == (char)Symbol.COMMENT )
 				return tokens;
 
 			// Parse character by character
@@ -228,17 +173,25 @@ namespace BNAC
 					}
 				}
 				// Comments end the line early
-				else if ( c == '#' && !inString) {
+				else if ( c == (char)Symbol.COMMENT ) {
 					break;
 				}
 				// Other special characters
 				else {
 					switch ( c ) {
+						// LABEL_START
+						case (char)Symbol.LABEL_START:
 						// LABEL_END
-						case ':':
+						case (char)Symbol.LABEL_END:
+						// GREATER_THAN
+						case (char)Symbol.GREATER_THAN:
+						// LESS_THAN
+						case (char)Symbol.LESS_THAN:
+						// EQUAL
+						case (char)Symbol.EQUAL:
 							tokens.Enqueue( new Token( candidate ) );
 							candidate = "";
-							tokens.Enqueue( new Token( c.ToString( ) , TokenType.LABEL_END ) );
+							tokens.Enqueue( new Token( c.ToString( ) , TokenType.SYMBOL ) );
 							break;
 
 						// Whitespace
@@ -249,44 +202,28 @@ namespace BNAC
 							candidate = "";
 							break;
 
-						// Test characters
-						case '>':
-							if ( candidate.Length > 0 )
-								tokens.Enqueue( new Token( candidate ) );
-							candidate = "";
-							tokens.Enqueue( new Token( c.ToString( ) , TokenType.GREATER_THAN ) );
-							break;
-						case '<':
-							if ( candidate.Length > 0 )
-								tokens.Enqueue( new Token( candidate ) );
-							candidate = "";
-							tokens.Enqueue( new Token( c.ToString( ) , TokenType.LESS_THAN ) );
-							break;
-						case '=':
-							if ( candidate.Length > 0 )
-								tokens.Enqueue( new Token( candidate ) );
-							candidate = "";
-							tokens.Enqueue( new Token( c.ToString( ) , TokenType.EQUAL ) );
-							break;
-
+						// Negative sign
 						case '-':
 							if ( candidate.Length > 0 )
 								throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 							candidate += c;
 							break;
+
+						// Decimal point
 						case '.':
 							foreach ( char ch in candidate )
 								if ( !char.IsDigit( ch ) || ch == '-' )
 									throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 							candidate += c;
 							break;
+
+						// String end
 						case '"':
 							inString = true;
 							candidate += c;
 							break;
 
 						default:
-
 							throw new Exception( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 					}
 				}
@@ -357,6 +294,40 @@ namespace BNAC
 			else if ( !types.Contains( token.Type ) ) {
 				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
 			}
+		}
+
+		/// <summary>
+		/// Try to parse a Keyword from a string ignoring case
+		/// </summary>
+		/// <param name="word">The string to parse</param>
+		/// <param name="value">Output value</param>
+		/// <returns>True if the word was parsed as a Keyword</returns>
+		private static bool TryParseKeyword( string word , out Keyword value )
+		{
+			try {
+				value = (Keyword)Enum.Parse( System.Type.GetType( "Keyword" ) , word , true);
+			}
+			catch {
+				value = Keyword._;
+				return false;
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Check if a character is a defined Symbol
+		/// </summary>
+		/// <param name="c">The character to check</param>
+		/// <param name="value">Output value</param>
+		/// <returns>True if the character was a defined Symbol</returns>
+		private static bool TryParseSymbol( char c , out Symbol value )
+		{
+			if ( Enum.IsDefined( System.Type.GetType( "Symbol" ) , c ) ) {
+				value = (Symbol)c;
+				return true;
+			}
+			value = Symbol.NULL;
+			return false;
 		}
 	}
 }
