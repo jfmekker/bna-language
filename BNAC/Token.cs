@@ -51,23 +51,21 @@ namespace BNAC
 		LINE_END = '\n',
 	}
 
+	enum TokenType
+	{
+		UNKNOWN,
+		LITERAL,
+		VARIABLE,
+		STRING,
+		KEYWORD,
+		SYMBOL,
+	}
+
 	/// <summary>
 	/// Group of related characters that form keywords/variables/etc.
 	/// </summary>
 	class Token
 	{
-		/// <summary>
-		/// Recognized token types and keywords.
-		/// </summary>
-		public enum TokenType
-		{
-			UNKNOWN,
-			LITERAL,
-			VARIABLE,
-			STRING,
-			KEYWORD,
-			SYMBOL,
-		}
 
 		/// <summary>
 		/// The TokenType of this Token.
@@ -92,7 +90,7 @@ namespace BNAC
 		/// <param name="type">The Token's type; if unknown, will attempt identifying</param>
 		private Token( string value, TokenType type = TokenType.UNKNOWN )
 		{
-			Value = value;
+			Value = value.ToUpper();
 			Type = type;
 
 			IdentifyType( );
@@ -282,6 +280,64 @@ namespace BNAC
 		}
 
 		/// <summary>
+		/// Throw an exception if the given Token is not a given Keyword.
+		/// </summary>
+		/// <param name="token">Token to check value of (can be null)</param>
+		/// <param name="keyword">The Keyword to check for</param>
+		public void ThrowIfNotKeyword( Keyword keyword )
+		{
+			ThrowIfNotType( this , TokenType.KEYWORD );
+			if ( Enum.TryParse( Value , out Keyword result ) && result != keyword ) {
+				throw new Exception( "Token not expected keyword " + keyword.ToString() + ": " + ToString() );
+			}
+		}
+
+		public void ThrowIfNotKeywords( IEnumerable<Keyword> keywords )
+		{
+			bool success = false;
+			foreach ( Keyword keyword in keywords ) {
+				try {
+					ThrowIfNotKeyword( keyword );
+					success = true;
+				}
+				catch (Exception) {
+					// Do nothing
+				}
+			}
+			if ( !success )
+				throw new Exception( "Token not of given keywords" + keywords.ToString() + ": " + ToString() );
+		}
+
+		/// <summary>
+		/// Throw an exception if the given Token is not a given Symbol.
+		/// </summary>
+		/// <param name="token">Token to check type of (can be null)</param>
+		/// <param name="symbol">The Symbol to check for</param>
+		public void ThrowIfNotSymbol( Symbol symbol )
+		{
+			ThrowIfNotType( this , TokenType.SYMBOL );
+			if ( Enum.TryParse( Value , out Symbol result ) && result != symbol ) {
+				throw new Exception( "Token not expected keyword " + symbol.ToString( ) + ": " + ToString( ) );
+			}
+		}
+
+		public void ThrowIfNotSymbols( IEnumerable<Symbol> symbols )
+		{
+			bool success = false;
+			foreach ( Symbol symbol in symbols) {
+				try {
+					ThrowIfNotSymbol( symbol );
+					success = true;
+				}
+				catch ( Exception ) {
+					// Do nothing
+				}
+			}
+			if ( !success )
+				throw new Exception( "Token not of given symbols" + symbols.ToString( ) + ": " + ToString( ) );
+		}
+
+		/// <summary>
 		/// Throw an exception if the given Token is not one of the given TokenTypes.
 		/// </summary>
 		/// <param name="token">Token to check type of (can be null)</param>
@@ -302,7 +358,7 @@ namespace BNAC
 		/// <param name="word">The string to parse</param>
 		/// <param name="value">Output value</param>
 		/// <returns>True if the word was parsed as a Keyword</returns>
-		private static bool TryParseKeyword( string word , out Keyword value )
+		public static bool TryParseKeyword( string word , out Keyword value )
 		{
 			try {
 				value = (Keyword)Enum.Parse( System.Type.GetType( "Keyword" ) , word , true);
@@ -320,7 +376,7 @@ namespace BNAC
 		/// <param name="c">The character to check</param>
 		/// <param name="value">Output value</param>
 		/// <returns>True if the character was a defined Symbol</returns>
-		private static bool TryParseSymbol( char c , out Symbol value )
+		public static bool TryParseSymbol( char c , out Symbol value )
 		{
 			if ( Enum.IsDefined( System.Type.GetType( "Symbol" ) , c ) ) {
 				value = (Symbol)c;
@@ -328,6 +384,31 @@ namespace BNAC
 			}
 			value = Symbol.NULL;
 			return false;
+		}
+
+		/// <summary>
+		/// Test equality to another Token.
+		/// </summary>
+		/// <param name="obj">Object to test equality with.</param>
+		/// <returns>True if the object is a Token and shares TokenType and value with this.</returns>
+		public override bool Equals( object obj )
+		{
+			if ( obj is Token ) {
+				return ( this.Type == ( obj as Token ).Type ) && ( this.Value == ( obj as Token ).Value );
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Get a hash code for the Token object
+		/// </summary>
+		/// <returns></returns>
+		public override int GetHashCode( )
+		{
+			var hashCode = 1265339359;
+			hashCode = hashCode * -1521134295 + this.Type.GetHashCode( );
+			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode( this.Value );
+			return hashCode;
 		}
 	}
 }

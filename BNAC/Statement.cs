@@ -90,521 +90,140 @@ namespace BNAC
 				var token = tokenStream.Dequeue( );
 				var candidate = new Statement( );
 
-				// Assume we start on a valid start token
 				switch ( token.Type ) {
-					
-					/// "SET [VARIABLE] TO [VARIABLE/LITERAL/STRING]"
-					case Token.TokenType.SET:
-					{
-						// SET
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_SET;
 
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// TO
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.TO );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL or STRING
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL, Token.TokenType.STRING } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
+					case TokenType.KEYWORD:
+						statements.Enqueue( ParseKeywordStatement( token , tokenStream ) );
 						break;
-					}
 
-					/// "ADD [VARIABLE/LITERAL] TO [VARIABLE]"
-					case Token.TokenType.ADD:
-					{
-						// ADD
+					case TokenType.SYMBOL:
+						// Only symbol started statement is a label
+						// LABEL_START var LABEL_END:
 						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_ADD;
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						// TO
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.TO );
-						candidate._tokens.Add( token );
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "SUBTRACT [VARIABLE/LITERAL] FROM [VARIABLE]"
-					case Token.TokenType.SUBTRACT:
-					{
-						// SUBTRACT
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_SUB;
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						// FROM
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.FROM );
-						candidate._tokens.Add( token );
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "MULTIPLY [VARIABLE] BY [VARIABLE/LITERAL]"
-					case Token.TokenType.MULTIPLY:
-					{
-						// MULTIPLY
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_MUL;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// BY
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.BY );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "DIVIDE [VARIABLE] BY [VARIABLE/LITERAL]"
-					case Token.TokenType.DIVIDE:
-					{
-						// DIVIDE
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_DIV;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// BY
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.BY );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "RANDOM [VARIABLE] MAX [VARIABLE/LITERAL]"
-					case Token.TokenType.RANDOM:
-					{
-						// RANDOM
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_RAND;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// MAX
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.MAX );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "TEST [VARIABLE/LITERAL/STRING] [>/</=] [VARIABLE/LITERAL/STRING]"
-					case Token.TokenType.TEST:
-					{
-						// TEST
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL or STRING
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL , Token.TokenType.STRING} );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// GREATER_THAN or LESS_THAN or EQUAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.GREATER_THAN, Token.TokenType.LESS_THAN, Token.TokenType.EQUAL } );
-						candidate._tokens.Add( token );
-						switch ( token.Type ) {
-							case Token.TokenType.GREATER_THAN:
-								candidate.Type = StatementType.OP_TEST_GT;
-								break;
-							case Token.TokenType.LESS_THAN:
-								candidate.Type = StatementType.OP_TEST_LT;
-								break;
-							case Token.TokenType.EQUAL:
-								candidate.Type = StatementType.OP_TEST_EQ;
-								break;
-						}
-
-						// VARIABLE or LITERAL or STRING
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL , Token.TokenType.STRING} );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "OR [VARIABLE] WITH [VARIABLE/LITERAL]"
-					case Token.TokenType.OR:
-					{
-						// OR
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_OR;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// WITH
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.WITH );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "AND [VARIABLE] WITH [VARIABLE/LITERAL]"
-					case Token.TokenType.AND:
-					{
-						// AND
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_AND;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// WITH
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.WITH );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "XOR [VARIABLE] WITH [VARIABLE/LITERAL]"
-					case Token.TokenType.XOR:
-					{
-						// XOR
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_XOR;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// WITH
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.WITH );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "NEGATE [VARIABLE]"
-					case Token.TokenType.NEGATE:
-					{
-						// NEGATE
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_NEG;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "RAISE [VARIABLE] TO [VARIABLE/LITERAL]"
-					case Token.TokenType.RAISE:
-					{
-						// RAISE
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_POW;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// TO
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.TO );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "MOD [VARIABLE/LITERAL] OF [VARIABLE]"
-					case Token.TokenType.MOD:
-					{
-						// MOD
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_MOD;
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						// OF
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.OF );
-						candidate._tokens.Add( token );
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "LOG [VARIABLE/LITERAL] OF [VARIABLE]"
-					case Token.TokenType.LOG:
-					{
-						// LOG
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_LOG;
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						// OF
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.OF );
-						candidate._tokens.Add( token );
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "ROUND [VARIABLE]"
-					case Token.TokenType.ROUND:
-					{
-						// ROUND
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_ROUND;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "PRINT [VARIABLE/LITERAL/STRING]"
-					case Token.TokenType.PRINT:
-					{
-						// PRINT
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_PRINT;
-
-						// VARIABLE or LITERAL or STRING
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL, Token.TokenType.STRING } );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "WAIT [VARIABLE/LITERAL]"
-					case Token.TokenType.WAIT:
-					{
-						// WAIT
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_SLEEP;
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					/// "[VARIABLE]LABEL_END"
-					case Token.TokenType.VARIABLE:
-					{
-						// VARIABLE
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
+						candidate.AddTokenOfSymbols( tokenStream.Dequeue( ) , new List<Symbol> { Symbol.LABEL_START } );
+						candidate.AddTokenOfTypes( tokenStream.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } );
+						candidate.AddTokenOfSymbols( tokenStream.Dequeue( ) , new List<Symbol> { Symbol.LABEL_END } );
 						candidate.Type = StatementType.LABEL;
-
-						// LABEL_END
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.LABEL_END );
-						candidate._tokens.Add( token );
-
 						statements.Enqueue( candidate );
 						break;
-					}
 
-					/// "GOTO [VARIABLE] IF [VARIABLE/LITERAL]"
-					case Token.TokenType.GOTO:
-					{
-						// GOTO
-						candidate._tokens.Add( token );
-						candidate.Type = StatementType.OP_GOTO;
-
-						// VARIABLE
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.VARIABLE );
-						candidate._tokens.Add( token );
-						candidate.Operand1 = token;
-
-						// IF
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotType( token , Token.TokenType.IF );
-						candidate._tokens.Add( token );
-
-						// VARIABLE or LITERAL
-						token = tokenStream.Dequeue( );
-						Token.ThrowIfNotTypes( token , new List<Token.TokenType>( ) {
-							Token.TokenType.VARIABLE , Token.TokenType.LITERAL } );
-						candidate._tokens.Add( token );
-						candidate.Operand2 = token;
-
-						statements.Enqueue( candidate );
-						break;
-					}
-
-					// default case
 					default:
-						throw new Exception( "Unknown type token in statement: " + token.ToString( ) );
+						throw new Exception( "Invalid start of statement: " + token );
+
 				}
+
 			}
 
 			return statements;
+		}
+
+		/// <summary>
+		/// Parse a Statement from a queue, starting with a keyword.
+		/// </summary>
+		/// <param name="token">The starting keyword Token</param>
+		/// <param name="tokens">The token queue to parse from</param>
+		/// <returns></returns>
+		private static Statement ParseKeywordStatement( Token token, Queue<Token> tokens )
+		{
+			var candidate = new Statement( );
+			candidate._tokens.Add( token );
+
+			switch ( (Keyword)Enum.Parse(System.Type.GetType("Keyword"), token.Value) ) {
+
+				// SET var TO var|lit|string
+				case Keyword.SET:
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE, TokenType.LITERAL, TokenType.STRING } , operand: 2 );
+					candidate.Type = StatementType.OP_SET;
+					break;
+
+				// ADD var|lit TO var
+				case Keyword.ADD:
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE, TokenType.LITERAL } , operand: 2 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.Type = StatementType.OP_ADD;
+					break;
+
+				// SUBTRACT var|lit FROM var
+				case Keyword.SUBTRACT:
+					break;
+
+				// MULTIPLY|DIVIDE var BY var|lit
+				case Keyword.MULTIPLY:
+				case Keyword.DIVIDE:
+					break;
+
+				// AND|OR|XOR var WITH var|lit
+				case Keyword.AND:
+				case Keyword.OR:
+				case Keyword.XOR:
+					break;
+
+				// MOD|LOG var|lit OF var
+				case Keyword.MOD:
+				case Keyword.LOG:
+					break;
+
+				// RAISE var TO var|lit
+				case Keyword.RAISE:
+					break;
+
+				// NEGATE|ROUND var
+				case Keyword.NEGATE:
+				case Keyword.ROUND:
+					break;
+
+				// RANDOM var MAX var|lit
+				case Keyword.RANDOM:
+					break;
+
+				// PRINT var|lit|string
+				case Keyword.PRINT:
+					break;
+
+				// WAIT var|lit
+				case Keyword.WAIT:
+					break;
+
+				// TEST var GT|LT var|lit
+				// TEST var EQ var|lit|string
+				case Keyword.TEST:
+					break;
+
+				// GOTO var IF var|lit
+				case Keyword.GOTO:
+					break;
+
+				default:
+					throw new Exception( "Invalid start of statement: " + token.ToString( ) );
+
+			}
+
+			return candidate;
+		}
+
+		public void AddTokenOfTypes( Token token, List<TokenType> tokenTypes, int operand = 0 )
+		{
+			Token.ThrowIfNotTypes( token , tokenTypes );
+			_tokens.Add( token );
+			if ( operand == 1 )
+				Operand1 = token;
+			else if ( operand == 2 )
+				Operand2 = token;
+		}
+
+		public void AddTokenOfKeywords( Token token , List<Keyword> keywords )
+		{
+			token.ThrowIfNotKeywords( keywords );
+			_tokens.Add( token );
+		}
+
+		public void AddTokenOfSymbols( Token token , List<Symbol> symbols )
+		{
+			token.ThrowIfNotSymbols( symbols );
+			_tokens.Add( token );
 		}
 
 		/// <summary>
@@ -617,6 +236,45 @@ namespace BNAC
 			foreach ( Token t in _tokens )
 				str += t.ToString( ) + " ";
 			return str + "}";
+		}
+	}
+
+	class StatementValidatorNode
+	{
+		public static StatementValidatorNode START = new StatementValidatorNode();
+
+		private IList<StatementValidatorNode> followers = new List<StatementValidatorNode>( );
+
+		private Token predecessor;
+
+		/// <summary>
+		/// Add a new valid statement to a StatementValidator tree;
+		/// </summary>
+		/// <param name="tokens"></param>
+		public void AddStatement( IList<Token> tokens, int index = 0 )
+		{
+			bool added = false;
+			foreach ( StatementValidatorNode s in followers ) {
+				if ( s.predecessor.Equals( tokens[index] ) ) {
+					s.AddStatement( tokens , index + 1 );
+					added = true;
+					break;
+				}
+			}
+			if ( !added ) {
+				var s = new StatementValidatorNode( );
+				s.predecessor = tokens[index];
+			}
+		}
+
+		/// <summary>
+		/// Validate a set of Tokens as a Statement and build said Statement.
+		/// </summary>
+		/// <param name="tokens">The ordered set of Tokens to validate.</param>
+		/// <returns>Statement parse from the Tokens, null if invalid.</returns>
+		public Statement Validate( IList<Token> tokens )
+		{
+			return null;
 		}
 	}
 }
