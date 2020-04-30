@@ -99,9 +99,8 @@ namespace BNAC
 					case TokenType.SYMBOL:
 						// Only symbol started statement is a label
 						// LABEL_START var LABEL_END:
-						candidate._tokens.Add( token );
-						candidate.AddTokenOfSymbols( tokenStream.Dequeue( ) , new List<Symbol> { Symbol.LABEL_START } );
-						candidate.AddTokenOfTypes( tokenStream.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } );
+						candidate.AddTokenOfSymbols( token , new List<Symbol> { Symbol.LABEL_START } );
+						candidate.AddTokenOfTypes( tokenStream.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 						candidate.AddTokenOfSymbols( tokenStream.Dequeue( ) , new List<Symbol> { Symbol.LABEL_END } );
 						candidate.Type = StatementType.LABEL;
 						statements.Enqueue( candidate );

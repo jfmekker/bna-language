@@ -91,13 +91,13 @@ namespace BNAC
 							op1 = "str(" + statement.Operand1.Value + ")";
 							op2 = "str(" + statement.Operand2.Value + ")";
 						}
-						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );
+						str.AppendLine( indent + "SUCCESS = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );
 						break;
 					case Statement.StatementType.OP_TEST_LT:
-						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " < " + statement.Operand2.Value + " else 0" );
+						str.AppendLine( indent + "SUCCESS = 1 if " + statement.Operand1.Value + " < " + statement.Operand2.Value + " else 0" );
 						break;
 					case Statement.StatementType.OP_TEST_EQ:
-						str.AppendLine( indent + "success = 1 if " + statement.Operand1.Value + " = " + statement.Operand2.Value + " else 0" );
+						str.AppendLine( indent + "SUCCESS = 1 if " + statement.Operand1.Value + " = " + statement.Operand2.Value + " else 0" );
 						break;
 
 					// Misc operations

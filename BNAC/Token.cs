@@ -186,7 +186,8 @@ namespace BNAC
 						case (char)Symbol.LESS_THAN:
 						// EQUAL
 						case (char)Symbol.EQUAL:
-							tokens.Enqueue( new Token( candidate ) );
+							if ( candidate.Length > 0 )
+								tokens.Enqueue( new Token( candidate ) );
 							candidate = "";
 							tokens.Enqueue( new Token( c.ToString( ) , TokenType.SYMBOL ) );
 							break;
@@ -252,15 +253,6 @@ namespace BNAC
 			}
 
 			return tokens;
-		}
-
-		/// <summary>
-		/// Stringify the Token with type information.
-		/// </summary>
-		/// <returns>String description of the Token</returns>
-		public override string ToString( )
-		{
-			return "'" + Value + "' (" + Type + ")";
 		}
 
 		/// <summary>
@@ -408,6 +400,20 @@ namespace BNAC
 			hashCode = hashCode * -1521134295 + this.Type.GetHashCode( );
 			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode( this.Value );
 			return hashCode;
+		}
+
+		/// <summary>
+		/// Stringify the Token with type information.
+		/// </summary>
+		/// <returns>String description of the Token</returns>
+		public override string ToString( )
+		{
+			string str = "'" + Value + "' (" + Type;
+			if ( Type == TokenType.KEYWORD )
+				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , Value ) ).ToString( );
+			else if (Type == TokenType.SYMBOL && Enum.IsDefined(typeof(Symbol), (int)Value[0]))
+				str += ":" + Enum.GetName(typeof(Symbol), (int)Value[0]);
+			return str + ")";
 		}
 	}
 }
