@@ -92,8 +92,7 @@ namespace BNAC
 		{
 			Value = value.ToUpper();
 			Type = type;
-
-			IdentifyType( );
+			Type = IdentifyType( );
 		}
 
 		/// <summary>
@@ -128,7 +127,7 @@ namespace BNAC
 
 				// Keyword
 				if ( TryParseKeyword( Value , out var keyword ) ) {
-					return TokenType.SYMBOL;
+					return TokenType.KEYWORD;
 				}
 
 				// Symbol
@@ -361,7 +360,7 @@ namespace BNAC
 		public static bool TryParseKeyword( string word , out Keyword value )
 		{
 			try {
-				value = (Keyword)Enum.Parse( System.Type.GetType( "Keyword" ) , word , true);
+				value = (Keyword)Enum.Parse( typeof(Keyword) , word , true);
 			}
 			catch {
 				value = Keyword._;
@@ -378,7 +377,7 @@ namespace BNAC
 		/// <returns>True if the character was a defined Symbol</returns>
 		public static bool TryParseSymbol( char c , out Symbol value )
 		{
-			if ( Enum.IsDefined( System.Type.GetType( "Symbol" ) , c ) ) {
+			if ( Enum.IsDefined( typeof(Symbol) , (int)c ) ) {
 				value = (Symbol)c;
 				return true;
 			}

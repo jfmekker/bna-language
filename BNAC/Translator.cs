@@ -21,7 +21,7 @@ namespace BNAC
 
 			// Imports
 			//	Will need to run "pip install goto-statement" before using goto statements
-			if (statements.Any(s=>s.Type==Statement.StatementType.OP_SLEEP))
+			if (statements.Any(s=>s.Type==Statement.StatementType.OP_WAIT))
 				str.AppendLine( "import time" );
 			if ( statements.Any( s => s.Type == Statement.StatementType.OP_RAND ) )
 				str.AppendLine( "import random" );
@@ -42,7 +42,7 @@ namespace BNAC
 			while ( statements.Count > 0 ) {
 				var statement = statements.Dequeue( );
 				switch ( statement.Type ) {
-					// Variable modifiying operations
+					// Math operations
 					case Statement.StatementType.OP_SET:
 						str.AppendLine( indent + statement.Operand1.Value + " = " + statement.Operand2.Value );
 						break;
@@ -87,7 +87,7 @@ namespace BNAC
 					case Statement.StatementType.OP_TEST_GT:
 						string op1 = statement.Operand1.Value;
 						string op2 = statement.Operand2.Value;
-						if ( statement.Operand1.Type == Token.TokenType.STRING || statement.Operand2.Type == Token.TokenType.STRING ) {
+						if ( statement.Operand1.Type == TokenType.STRING || statement.Operand2.Type == TokenType.STRING ) {
 							op1 = "str(" + statement.Operand1.Value + ")";
 							op2 = "str(" + statement.Operand2.Value + ")";
 						}
@@ -107,7 +107,7 @@ namespace BNAC
 					case Statement.StatementType.OP_PRINT:
 						str.AppendLine( indent + "print(" + statement.Operand1.Value + ")" );
 						break;
-					case Statement.StatementType.OP_SLEEP:
+					case Statement.StatementType.OP_WAIT:
 						str.AppendLine( indent + "time.sleep(" + statement.Operand1.Value + ")" );
 						break;
 
