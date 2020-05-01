@@ -4,49 +4,49 @@ using System.Collections.Generic;
 namespace BNAC
 {
 	/// <summary>
+	/// Valid statements or instructions
+	/// </summary>
+	public enum StatementType
+	{
+		// default to unknown
+		UNKNOWN,
+
+		// non-operations
+		LABEL,
+
+		// arithmetic operations
+		OP_SET,
+		OP_ADD,
+		OP_SUB,
+		OP_MUL,
+		OP_DIV,
+		OP_RAND,
+		OP_OR,
+		OP_AND,
+		OP_XOR,
+		OP_NEG,
+		OP_POW,
+		OP_MOD,
+		OP_LOG,
+		OP_ROUND,
+
+		// test operations
+		OP_TEST_GT,
+		OP_TEST_LT,
+		OP_TEST_EQ,
+
+		// misc operations
+		OP_PRINT,
+		OP_WAIT,
+		OP_GOTO,
+	}
+
+	/// <summary>
 	/// A collection of tokens that make up a whole valid statement or instruction.
 	/// Each statement maps to a "line of code".
 	/// </summary>
-	internal class Statement
+	class Statement
 	{
-		/// <summary>
-		/// Valid statements or instructions
-		/// </summary>
-		public enum StatementType
-		{
-			// default to unknown
-			UNKNOWN,
-
-			// non-operations
-			LABEL,
-
-			// variable modifying operations
-			OP_SET,
-			OP_ADD,
-			OP_SUB,
-			OP_MUL,
-			OP_DIV,
-			OP_RAND,
-			OP_OR,
-			OP_AND,
-			OP_XOR,
-			OP_NEG,
-			OP_POW,
-			OP_MOD,
-			OP_LOG,
-			OP_ROUND,
-
-			// test operations
-			OP_TEST_GT,
-			OP_TEST_LT,
-			OP_TEST_EQ,
-
-			// non-variable modifying operations
-			OP_PRINT,
-			OP_WAIT,
-			OP_GOTO,
-		}
-
 		/// <summary>
 		/// The StatementType of this Statement
 		/// </summary>
@@ -79,13 +79,13 @@ namespace BNAC
 		/// <summary>
 		/// Parse valid Statements from a stream of Tokens.
 		/// </summary>
-		/// <param name="tokenStream"></param>
-		/// <returns></returns>
+		/// <param name="tokenStream">A stream of tokens that represent a set of statements</param>
+		/// <returns>Queue of parsed Statements</returns>
 		public static Queue<Statement> ParseStatements( Queue<Token> tokenStream )
 		{
 			var statements = new Queue<Statement>( );
 
-			// Go through each token
+			// Go through each token, assume we start on the start of a statement
 			while ( tokenStream.Count > 0 ) {
 				Token token = tokenStream.Dequeue( );
 				var candidate = new Statement( );
@@ -97,7 +97,6 @@ namespace BNAC
 						break;
 
 					case TokenType.SYMBOL:
-						// Only symbol started statement is a label
 						// LABEL_START var LABEL_END:
 						candidate.AddTokenOfSymbols( token , new List<Symbol> { Symbol.LABEL_START } );
 						candidate.AddTokenOfTypes( tokenStream.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
@@ -117,16 +116,17 @@ namespace BNAC
 		}
 
 		/// <summary>
-		/// Parse a Statement from a queue, starting with a keyword.
+		/// Parse a Statement from a queue, starting with a keyword. Removes items from the queue.
 		/// </summary>
-		/// <param name="token">The starting keyword Token</param>
-		/// <param name="tokens">The token queue to parse from</param>
-		/// <returns></returns>
+		/// <param name="token">Starting keyword Token</param>
+		/// <param name="tokens">Token queue to parse from</param>
+		/// <returns>Single parsed Statement</returns>
 		private static Statement ParseKeywordStatement( Token token , Queue<Token> tokens )
 		{
 			var candidate = new Statement( );
 			candidate._tokens.Add( token );
 
+			// Based on starting token, try to parse the appropriate statement
 			var start = (Keyword)Enum.Parse( typeof(Keyword) , token.Value );
 			switch ( start ) {
 
@@ -231,6 +231,7 @@ namespace BNAC
 				// TEST var GT|LT var|lit
 				// TEST var EQ var|lit|string
 				case Keyword.TEST: {
+					// Have to do TEST a little manually because I don't want to allow string value comparison (only equals)
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					Token next = tokens.Dequeue( );
 					if ( Token.TryParseSymbol( next.Value[0] , out Symbol symbol ) ) {
@@ -269,6 +270,12 @@ namespace BNAC
 			return candidate;
 		}
 
+		/// <summary>
+		/// Add a Token if it is a specified type, else throw an exception.
+		/// </summary>
+		/// <param name="token">Token to add</param>
+		/// <param name="tokenTypes">List of valid types</param>
+		/// <param name="operand">Which operand to set (defaults to none)</param>
 		public void AddTokenOfTypes( Token token , List<TokenType> tokenTypes , int operand = 0 )
 		{
 			Token.ThrowIfNotTypes( token , tokenTypes );
@@ -281,12 +288,22 @@ namespace BNAC
 			}
 		}
 
+		/// <summary>
+		/// Add a Token if it is a specified Keyword, else throw an exception.
+		/// </summary>
+		/// <param name="token">Token to add</param>
+		/// <param name="keywords">List of valid keywords</param>
 		public void AddTokenOfKeywords( Token token , List<Keyword> keywords )
 		{
 			token.ThrowIfNotKeywords( keywords );
 			this._tokens.Add( token );
 		}
 
+		/// <summary>
+		/// Add a Token if it is a specified Symbol, else throw an exception.
+		/// </summary>
+		/// <param name="token">Token to add</param>
+		/// <param name="symbols">List of valid symbols</param>
 		public void AddTokenOfSymbols( Token token , List<Symbol> symbols )
 		{
 			token.ThrowIfNotSymbols( symbols );

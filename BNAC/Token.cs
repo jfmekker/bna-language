@@ -90,6 +90,7 @@ namespace BNAC
 		/// <param name="type">The Token's type; if unknown, will attempt identifying</param>
 		private Token( string value, TokenType type = TokenType.UNKNOWN )
 		{
+			// Convert everything to uppercase so we can assume that later
 			Value = value.ToUpper();
 			Type = type;
 			Type = IdentifyType( );
@@ -271,9 +272,23 @@ namespace BNAC
 		}
 
 		/// <summary>
+		/// Throw an exception if the given Token is not one of the given TokenTypes.
+		/// </summary>
+		/// <param name="token">Token to check type of (can be null)</param>
+		/// <param name="types">The TokenTypes to check for</param>
+		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
+		{
+			if ( token == null ) {
+				throw new Exception( "Expected " + types.ToString( ) + " token, instead got null." );
+			}
+			else if ( !types.Contains( token.Type ) ) {
+				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
+			}
+		}
+
+		/// <summary>
 		/// Throw an exception if the given Token is not a given Keyword.
 		/// </summary>
-		/// <param name="token">Token to check value of (can be null)</param>
 		/// <param name="keyword">The Keyword to check for</param>
 		public void ThrowIfNotKeyword( Keyword keyword )
 		{
@@ -283,6 +298,10 @@ namespace BNAC
 			}
 		}
 
+		/// <summary>
+		/// Throw an exception if the given Token is not one of the given Kymbols.
+		/// </summary>
+		/// <param name="symbols">List of valid keywords</param>
 		public void ThrowIfNotKeywords( IEnumerable<Keyword> keywords )
 		{
 			bool success = false;
@@ -302,7 +321,6 @@ namespace BNAC
 		/// <summary>
 		/// Throw an exception if the given Token is not a given Symbol.
 		/// </summary>
-		/// <param name="token">Token to check type of (can be null)</param>
 		/// <param name="symbol">The Symbol to check for</param>
 		public void ThrowIfNotSymbol( Symbol symbol )
 		{
@@ -312,6 +330,10 @@ namespace BNAC
 			}
 		}
 
+		/// <summary>
+		/// Throw an exception if the given Token is not one of the given Symbols.
+		/// </summary>
+		/// <param name="symbols">List of valid symbols</param>
 		public void ThrowIfNotSymbols( IEnumerable<Symbol> symbols )
 		{
 			bool success = false;
@@ -326,21 +348,6 @@ namespace BNAC
 			}
 			if ( !success )
 				throw new Exception( "Token not of given symbols" + symbols.ToString( ) + ": " + ToString( ) );
-		}
-
-		/// <summary>
-		/// Throw an exception if the given Token is not one of the given TokenTypes.
-		/// </summary>
-		/// <param name="token">Token to check type of (can be null)</param>
-		/// <param name="types">The TokenTypes to check for</param>
-		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
-		{
-			if ( token == null ) {
-				throw new Exception( "Expected " + types.ToString( ) + " token, instead got null." );
-			}
-			else if ( !types.Contains( token.Type ) ) {
-				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
-			}
 		}
 
 		/// <summary>

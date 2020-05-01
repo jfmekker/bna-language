@@ -21,18 +21,18 @@ namespace BNAC
 
 			// Imports
 			//	Will need to run "pip install goto-statement" before using goto statements
-			if (statements.Any(s=>s.Type==Statement.StatementType.OP_WAIT))
+			if (statements.Any(s=>s.Type==StatementType.OP_WAIT))
 				str.AppendLine( "import time" );
-			if ( statements.Any( s => s.Type == Statement.StatementType.OP_RAND ) )
+			if ( statements.Any( s => s.Type == StatementType.OP_RAND ) )
 				str.AppendLine( "import random" );
-			if ( statements.Any( s => s.Type == Statement.StatementType.OP_LOG ) )
+			if ( statements.Any( s => s.Type == StatementType.OP_LOG ) )
 				str.AppendLine( "import math" );
-			if ( statements.Any( s => s.Type == Statement.StatementType.OP_GOTO ) )
+			if ( statements.Any( s => s.Type == StatementType.OP_GOTO ) )
 				str.AppendLine( "from goto import with_goto" );
 			str.AppendLine( );
 
 			// Function def and intro
-			if ( statements.Any( s => s.Type == Statement.StatementType.OP_GOTO ) )
+			if ( statements.Any( s => s.Type == StatementType.OP_GOTO ) )
 				str.AppendLine( "@with_goto" );
 			str.AppendLine( "def " + program_name + "():" );
 			string indent = "\t";
@@ -43,48 +43,48 @@ namespace BNAC
 				var statement = statements.Dequeue( );
 				switch ( statement.Type ) {
 					// Math operations
-					case Statement.StatementType.OP_SET:
+					case StatementType.OP_SET:
 						str.AppendLine( indent + statement.Operand1.Value + " = " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_ADD:
+					case StatementType.OP_ADD:
 						str.AppendLine( indent + statement.Operand1.Value + " += " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_SUB:
+					case StatementType.OP_SUB:
 						str.AppendLine( indent + statement.Operand1.Value + " -= " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_MUL:
+					case StatementType.OP_MUL:
 						str.AppendLine( indent + statement.Operand1.Value + " *= " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_DIV:
+					case StatementType.OP_DIV:
 						str.AppendLine( indent + statement.Operand1.Value + " /= " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_OR:
+					case StatementType.OP_OR:
 						str.AppendLine( indent + statement.Operand1.Value + " |= " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_AND:
+					case StatementType.OP_AND:
 						str.AppendLine( indent + statement.Operand1.Value + " &= " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_XOR:
+					case StatementType.OP_XOR:
 						str.AppendLine( indent + statement.Operand1.Value + " ^= " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_NEG:
+					case StatementType.OP_NEG:
 						str.AppendLine( indent + statement.Operand1.Value + " = ~" + statement.Operand1.Value );
 						break;
-					case Statement.StatementType.OP_POW:
+					case StatementType.OP_POW:
 						str.AppendLine( indent + statement.Operand1.Value + " **= " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_MOD:
+					case StatementType.OP_MOD:
 						str.AppendLine( indent + statement.Operand1.Value + " %= " + statement.Operand2.Value );
 						break;
-					case Statement.StatementType.OP_LOG:
+					case StatementType.OP_LOG:
 						str.AppendLine( indent + statement.Operand1.Value + " = math.log(" + statement.Operand1.Value + ", " + statement.Operand2.Value + ")" );
 						break;
-					case Statement.StatementType.OP_ROUND:
+					case StatementType.OP_ROUND:
 						str.AppendLine( indent + statement.Operand1.Value + " = round(" + statement.Operand1.Value + ")" );
 						break;
 
 					// Test operations
-					case Statement.StatementType.OP_TEST_GT:
+					case StatementType.OP_TEST_GT:
 						string op1 = statement.Operand1.Value;
 						string op2 = statement.Operand2.Value;
 						if ( statement.Operand1.Type == TokenType.STRING || statement.Operand2.Type == TokenType.STRING ) {
@@ -93,29 +93,29 @@ namespace BNAC
 						}
 						str.AppendLine( indent + "SUCCESS = 1 if " + statement.Operand1.Value + " > " + statement.Operand2.Value + " else 0" );
 						break;
-					case Statement.StatementType.OP_TEST_LT:
+					case StatementType.OP_TEST_LT:
 						str.AppendLine( indent + "SUCCESS = 1 if " + statement.Operand1.Value + " < " + statement.Operand2.Value + " else 0" );
 						break;
-					case Statement.StatementType.OP_TEST_EQ:
+					case StatementType.OP_TEST_EQ:
 						str.AppendLine( indent + "SUCCESS = 1 if " + statement.Operand1.Value + " = " + statement.Operand2.Value + " else 0" );
 						break;
 
 					// Misc operations
-					case Statement.StatementType.OP_RAND:
+					case StatementType.OP_RAND:
 						str.AppendLine( indent + statement.Operand1.Value + " = random.randint(0, " + statement.Operand2.Value + ")" );
 						break;
-					case Statement.StatementType.OP_PRINT:
+					case StatementType.OP_PRINT:
 						str.AppendLine( indent + "print(" + statement.Operand1.Value + ")" );
 						break;
-					case Statement.StatementType.OP_WAIT:
+					case StatementType.OP_WAIT:
 						str.AppendLine( indent + "time.sleep(" + statement.Operand1.Value + ")" );
 						break;
 
 					// Control flow
-					case Statement.StatementType.LABEL:
+					case StatementType.LABEL:
 						str.AppendLine( indent + "label ." + statement.Operand1.Value );
 						break;
-					case Statement.StatementType.OP_GOTO:
+					case StatementType.OP_GOTO:
 						str.AppendLine( indent + "if " + statement.Operand2.Value + " != 0 :" );
 						str.AppendLine( indent + "\tgoto ." + statement.Operand1.Value );
 						break;
