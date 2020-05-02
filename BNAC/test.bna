@@ -7,7 +7,7 @@ SET count TO 7
 SET total TO 0
 
 # Loop 'count' number of times
-begin:
+^begin:
 TEST i > count
 GOTO end IF success
 
@@ -23,7 +23,7 @@ ADD 1 TO i
 
 # Go back to loop condition
 GOTO begin IF 1
-end:
+^end:
 
 SET average TO total
 DIVIDE average BY count
