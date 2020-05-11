@@ -27,6 +27,7 @@ namespace BNAC
 		MOD,
 		LOG,
 		ROUND,
+		LIST,
 
 		// Operation mid keywords
 		TO,
@@ -36,6 +37,7 @@ namespace BNAC
 		IF,
 		WITH,
 		OF,
+		SIZE,
 	}
 
 	enum Symbol
@@ -49,6 +51,7 @@ namespace BNAC
 		LABEL_START = '^',
 		LABEL_END = ':',
 		LINE_END = '\n',
+		ACCESSOR = '@',
 	}
 
 	enum TokenType
@@ -161,7 +164,10 @@ namespace BNAC
 			bool inString = false;
 			foreach ( char c in line ) {
 				// Letters, numbers, underscores, or anything in a string passes
-				if ( char.IsLetterOrDigit( c ) || c == '_' || inString ) {
+				if ( char.IsLetterOrDigit( c )
+					|| c == '_'
+					|| inString ) {
+
 					candidate += c;
 
 					if ( c == '"' ) {
@@ -177,6 +183,8 @@ namespace BNAC
 				// Other special characters
 				else {
 					switch ( c ) {
+						// ACCESSOR
+						case (char)Symbol.ACCESSOR:
 						// LABEL_START
 						case (char)Symbol.LABEL_START:
 						// LABEL_END
