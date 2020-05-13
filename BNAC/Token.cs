@@ -322,8 +322,13 @@ namespace BNAC
 					// Do nothing
 				}
 			}
-			if ( !success )
-				throw new Exception( "Token not of given keywords" + keywords.ToString() + ": " + ToString() );
+			if ( !success ) {
+				string message = "Token not of given keywords [ ";
+				foreach ( Keyword s in keywords )
+					message += s.ToString( ) + " ";
+				message += "]: " + ToString( );
+				throw new Exception( message );
+			}
 		}
 
 		/// <summary>
@@ -354,8 +359,13 @@ namespace BNAC
 					// Do nothing
 				}
 			}
-			if ( !success )
-				throw new Exception( "Token not of given symbols" + symbols.ToString( ) + ": " + ToString( ) );
+			if ( !success ) {
+				string message = "Token not of given symbols [ ";
+				foreach ( Symbol s in symbols )
+					message += s.ToString( ) + " ";
+				message += ": " + ToString( );
+				throw new Exception( message );
+			}	
 		}
 
 		/// <summary>
