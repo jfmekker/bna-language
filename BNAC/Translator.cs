@@ -82,7 +82,10 @@ namespace BNAC
 					case StatementType.OP_ROUND:
 						str.AppendLine( indent + statement.Operand1.Value + " = round(" + statement.Operand1.Value + ")" );
 						break;
-
+					case StatementType.OP_LIST:
+						str.AppendLine( indent + statement.Operand1.Value + " = [0] * " + statement.Operand2.Value );
+						break;
+					
 					// Test operations
 					case StatementType.OP_TEST_GT:
 						string op1 = statement.Operand1.Value;
