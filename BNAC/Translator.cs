@@ -121,13 +121,13 @@ namespace BNAC
 
 					// Test operations
 					case StatementType.OP_TEST_GT:
-						str.AppendLine( indent + "SUCCESS = 1 if " + PythonOperand(statement, 1) + " > " + PythonOperand(statement, 2) + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + PythonOperand(statement, 1) + " > " + PythonOperand(statement, 2) + " else 0" );
 						break;
 					case StatementType.OP_TEST_LT:
-						str.AppendLine( indent + "SUCCESS = 1 if " + PythonOperand(statement, 1) + " < " + PythonOperand(statement, 2) + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + PythonOperand(statement, 1) + " < " + PythonOperand(statement, 2) + " else 0" );
 						break;
 					case StatementType.OP_TEST_EQ:
-						str.AppendLine( indent + "SUCCESS = 1 if " + PythonOperand(statement, 1) + " = " + PythonOperand(statement, 2) + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + PythonOperand(statement, 1) + " = " + PythonOperand(statement, 2) + " else 0" );
 						break;
 
 					// Misc operations

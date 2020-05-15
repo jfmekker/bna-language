@@ -94,8 +94,7 @@ namespace BNAC
 		/// <param name="type">The Token's type; if unknown, will attempt identifying</param>
 		private Token( string value, TokenType type = TokenType.UNKNOWN )
 		{
-			// Convert everything to uppercase so we can assume that later
-			Value = value.ToUpper();
+			Value = value;
 			Type = type;
 			Type = IdentifyType( );
 		}
@@ -131,7 +130,7 @@ namespace BNAC
 				}
 
 				// Keyword
-				if ( TryParseKeyword( Value , out var keyword ) ) {
+				if ( TryParseKeyword( Value.ToUpper() , out var keyword ) ) {
 					return TokenType.KEYWORD;
 				}
 
@@ -226,7 +225,7 @@ namespace BNAC
 							candidate += c;
 							break;
 
-						// String end
+						// String start
 						case '"':
 							inString = true;
 							candidate += c;
