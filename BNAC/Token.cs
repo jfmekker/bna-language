@@ -27,6 +27,8 @@ namespace BNAC
 		MOD,
 		LOG,
 		ROUND,
+		LIST,
+		APPEND,
 
 		// Operation mid keywords
 		TO,
@@ -36,6 +38,7 @@ namespace BNAC
 		IF,
 		WITH,
 		OF,
+		SIZE,
 	}
 
 	enum Symbol
@@ -49,6 +52,7 @@ namespace BNAC
 		LABEL_START = '^',
 		LABEL_END = ':',
 		LINE_END = '\n',
+		ACCESSOR = '@',
 	}
 
 	enum TokenType
@@ -90,8 +94,7 @@ namespace BNAC
 		/// <param name="type">The Token's type; if unknown, will attempt identifying</param>
 		private Token( string value, TokenType type = TokenType.UNKNOWN )
 		{
-			// Convert everything to uppercase so we can assume that later
-			Value = value.ToUpper();
+			Value = value;
 			Type = type;
 			Type = IdentifyType( );
 		}
@@ -127,7 +130,7 @@ namespace BNAC
 				}
 
 				// Keyword
-				if ( TryParseKeyword( Value , out var keyword ) ) {
+				if ( TryParseKeyword( Value.ToUpper() , out var keyword ) ) {
 					return TokenType.KEYWORD;
 				}
 
@@ -160,8 +163,12 @@ namespace BNAC
 			string candidate = "";
 			bool inString = false;
 			foreach ( char c in line ) {
-				// Letters, numbers, underscores, or anything in a string passes
-				if ( char.IsLetterOrDigit( c ) || c == '_' || inString ) {
+				// Letters, numbers, underscores, accessor, or anything in a string passes
+				if ( char.IsLetterOrDigit( c )
+					|| c == '_'
+					|| c == (char)Symbol.ACCESSOR
+					|| inString ) {
+
 					candidate += c;
 
 					if ( c == '"' ) {
@@ -177,6 +184,8 @@ namespace BNAC
 				// Other special characters
 				else {
 					switch ( c ) {
+						// ACCESSOR
+						case (char)Symbol.ACCESSOR:
 						// LABEL_START
 						case (char)Symbol.LABEL_START:
 						// LABEL_END
@@ -216,7 +225,7 @@ namespace BNAC
 							candidate += c;
 							break;
 
-						// String end
+						// String start
 						case '"':
 							inString = true;
 							candidate += c;
@@ -314,8 +323,13 @@ namespace BNAC
 					// Do nothing
 				}
 			}
-			if ( !success )
-				throw new Exception( "Token not of given keywords" + keywords.ToString() + ": " + ToString() );
+			if ( !success ) {
+				string message = "Token not of given keywords [ ";
+				foreach ( Keyword s in keywords )
+					message += s.ToString( ) + " ";
+				message += "]: " + ToString( );
+				throw new Exception( message );
+			}
 		}
 
 		/// <summary>
@@ -346,8 +360,13 @@ namespace BNAC
 					// Do nothing
 				}
 			}
-			if ( !success )
-				throw new Exception( "Token not of given symbols" + symbols.ToString( ) + ": " + ToString( ) );
+			if ( !success ) {
+				string message = "Token not of given symbols [ ";
+				foreach ( Symbol s in symbols )
+					message += s.ToString( ) + " ";
+				message += ": " + ToString( );
+				throw new Exception( message );
+			}	
 		}
 
 		/// <summary>

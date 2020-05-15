@@ -29,6 +29,8 @@ namespace BNAC
 		OP_MOD,
 		OP_LOG,
 		OP_ROUND,
+		OP_LIST,
+		OP_APPEND,
 
 		// test operations
 		OP_TEST_GT,
@@ -259,6 +261,24 @@ namespace BNAC
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.IF } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.Type = StatementType.OP_GOTO;
+					break;
+				}
+
+				// LIST var SIZE var|lit
+				case Keyword.LIST: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.SIZE } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
+					candidate.Type = StatementType.OP_LIST;
+					break;
+				}
+
+				// APPEND var|lit TO var
+				case Keyword.APPEND: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.Type = StatementType.OP_APPEND;
 					break;
 				}
 
