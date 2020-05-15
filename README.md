@@ -25,7 +25,7 @@ Versions supporting BNA translation to Python:
  - `v0.2-alpha` Basic control flow and bit operations.
  - `v0.3-alpha` Math functions and fixes.
  - `v0.4-alpha` Strings.
- - `v0.5-beta`  **PLANNED** Lists.
+ - `v0.5-beta`  Lists.
  - `v0.6-beta`  **PLANNED** Command line and file input and output.
  - `v0.7-beta`  **PLANNED** Improved language specification based on pedagogical feedback.
  - `v0.8`       **PLANNED** Included education materials.
