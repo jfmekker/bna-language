@@ -115,15 +115,12 @@ namespace BNAC
 					case StatementType.OP_LIST:
 						str.AppendLine( indent + PythonOperand(statement, 1) + " = [0] * " + PythonOperand(statement, 2) );
 						break;
-					
+					case StatementType.OP_APPEND:
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + ".append(" + PythonOperand( statement , 2 ) + ")" );
+						break;
+
 					// Test operations
 					case StatementType.OP_TEST_GT:
-						string op1 = PythonOperand(statement, 1);
-						string op2 = PythonOperand(statement, 2);
-						if ( statement.Operand1.Type == TokenType.STRING || statement.Operand2.Type == TokenType.STRING ) {
-							op1 = "str(" + PythonOperand(statement, 1) + ")";
-							op2 = "str(" + PythonOperand(statement, 2) + ")";
-						}
 						str.AppendLine( indent + "SUCCESS = 1 if " + PythonOperand(statement, 1) + " > " + PythonOperand(statement, 2) + " else 0" );
 						break;
 					case StatementType.OP_TEST_LT:

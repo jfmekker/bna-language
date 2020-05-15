@@ -28,6 +28,7 @@ namespace BNAC
 		LOG,
 		ROUND,
 		LIST,
+		APPEND,
 
 		// Operation mid keywords
 		TO,
@@ -163,9 +164,10 @@ namespace BNAC
 			string candidate = "";
 			bool inString = false;
 			foreach ( char c in line ) {
-				// Letters, numbers, underscores, or anything in a string passes
+				// Letters, numbers, underscores, accessor, or anything in a string passes
 				if ( char.IsLetterOrDigit( c )
 					|| c == '_'
+					|| c == (char)Symbol.ACCESSOR
 					|| inString ) {
 
 					candidate += c;
