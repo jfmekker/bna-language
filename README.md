@@ -6,11 +6,11 @@
 BNA is an assembly-inspired programming language designed to keep things strict and simple. Operations are atomic, and the syntax is *close* to English. See the wiki for more information.
 
 ## Pronunciation
-BNA  is meant to be pronounced as 'banana', but feel free to call it 'buh-nah' or just 'BNA'.
+BNA is meant to be pronounced as 'banana', but feel free to call it 'buh-nah' or just 'BNA'.
 The acronym takes inspiration from other recursive acronyms, primarily GNU (GNU's Not Unix).
 
 ## Contributing
-BNA is in **very** early stages, so direct *code* contributions most likely won't be taken. However, please offer any advice or suggestions!
+BNA is still in an early beta stage, so it will be difficult to have parallel development without running into conflicts. That being said, contributions are very welcome. Check the issues list for work to pickup, or open issues for bugs, feature requests, or wiki updates.
 
 ## Future Plans
 BNA currently translates BNA code to equivalent Python. However, this is somewhat limiting when it comes to type-enforcement and dynamic jumps. The next few minor releases will see more functionality added to this, as well as cleaning things up for a full semi-stable release.
