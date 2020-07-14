@@ -31,6 +31,8 @@ namespace BNAC
 		OP_ROUND,
 		OP_LIST,
 		OP_APPEND,
+		OP_WRITE,
+		OP_READ,
 
 		// test operations
 		OP_TEST_GT,
@@ -47,7 +49,7 @@ namespace BNAC
 	/// A collection of tokens that make up a whole valid statement or instruction.
 	/// Each statement maps to a "line of code".
 	/// </summary>
-	class Statement
+	internal class Statement
 	{
 		/// <summary>
 		/// The StatementType of this Statement
@@ -129,7 +131,7 @@ namespace BNAC
 			candidate._tokens.Add( token );
 
 			// Based on starting token, try to parse the appropriate statement
-			var start = (Keyword)Enum.Parse( typeof(Keyword) , token.Value );
+			var start = (Keyword)Enum.Parse( typeof( Keyword ) , token.Value );
 			switch ( start ) {
 
 				// SET var TO var|lit|string
@@ -279,6 +281,24 @@ namespace BNAC
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_APPEND;
+					break;
+				}
+
+				// WRITE var|lit|string TO var|string
+				case Keyword.WRITE: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL, TokenType.STRING } , operand: 2 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 1 );
+					candidate.Type = StatementType.OP_WRITE;
+					break;
+				}
+
+				// READ var FROM var|string
+				case Keyword.READ: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 2 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.FROM } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 1 );
+					candidate.Type = StatementType.OP_READ;
 					break;
 				}
 

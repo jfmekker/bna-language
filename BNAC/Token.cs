@@ -29,6 +29,8 @@ namespace BNAC
 		ROUND,
 		LIST,
 		APPEND,
+		WRITE,	// TODO change word
+		READ,	// TODO change word
 
 		// Operation mid keywords
 		TO,

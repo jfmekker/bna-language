@@ -8,7 +8,7 @@ namespace BNAC
 	/// <summary>
 	/// Coverts BNA statements to code
 	/// </summary>
-	class Translator
+	internal class Translator
 	{
 		/// <summary>
 		/// Get an operand of a statement translated to Python.
@@ -16,13 +16,15 @@ namespace BNAC
 		/// <param name="statement">Statement to take operand from</param>
 		/// <param name="operand">which operand to translate (defaults to 1)</param>
 		/// <returns>Python translation of a statement's operand</returns>
-		private static string PythonOperand( Statement statement, int operand = 1 )
+		private static string PythonOperand( Statement statement , int operand = 1 )
 		{
 			string variable = operand == 1 ? statement.Operand1.Value : statement.Operand2.Value;
-			if ( operand == 1 )
+			if ( operand == 1 ) {
 				variable = statement.Operand1.Value;
-			else if ( operand == 2 )
+			}
+			else if ( operand == 2 ) {
 				variable = statement.Operand2.Value;
+			}
 
 			if ( variable.Contains( '@' ) ) {
 				var regex = new System.Text.RegularExpressions.Regex( "^([A-Za-z_])+@([A-Za-z_]|[0-9])+$" );
@@ -30,7 +32,7 @@ namespace BNAC
 				if ( regex.IsMatch( variable ) ) {
 					int index = variable.IndexOf( '@' );
 					string list_part = variable.Substring( 0 , index );
-					string access_part = variable.Substring( index + 1 , variable.Length - (index + 1) );
+					string access_part = variable.Substring( index + 1 , variable.Length - ( index + 1 ) );
 					return list_part + "[" + access_part + "]";
 				}
 				else {
@@ -45,75 +47,85 @@ namespace BNAC
 		/// </summary>
 		/// <param name="statements">Queue of BNA statements</param>
 		/// <returns>Python script in a string</returns>
-		public static string ToPython( Queue<Statement> statements, string program_name = "program" )
+		public static string ToPython( Queue<Statement> statements , string program_name = "program" )
 		{
 			var str = new StringBuilder( );
 
 			// Imports
 			//	Will need to run "pip install goto-statement" before using goto statements
-			if (statements.Any(s=>s.Type==StatementType.OP_WAIT))
+			if ( statements.Any( s => s.Type == StatementType.OP_WAIT ) ) {
 				str.AppendLine( "import time" );
-			if ( statements.Any( s => s.Type == StatementType.OP_RAND ) )
+			}
+
+			if ( statements.Any( s => s.Type == StatementType.OP_RAND ) ) {
 				str.AppendLine( "import random" );
-			if ( statements.Any( s => s.Type == StatementType.OP_LOG ) )
+			}
+
+			if ( statements.Any( s => s.Type == StatementType.OP_LOG ) ) {
 				str.AppendLine( "import math" );
-			if ( statements.Any( s => s.Type == StatementType.OP_GOTO ) )
+			}
+
+			if ( statements.Any( s => s.Type == StatementType.OP_GOTO ) ) {
 				str.AppendLine( "from goto import with_goto" );
+			}
+
 			str.AppendLine( );
 
 			// Function def and intro
-			if ( statements.Any( s => s.Type == StatementType.OP_GOTO ) )
+			if ( statements.Any( s => s.Type == StatementType.OP_GOTO ) ) {
 				str.AppendLine( "@with_goto" );
+			}
+
 			str.AppendLine( "def " + program_name + "():" );
 			string indent = "\t";
-			str.AppendLine( indent + "print(\"Generated from BNA code\")"  );
+			str.AppendLine( indent + "print(\"Generated from BNA code\")" );
 
 			// BNA code
 			while ( statements.Count > 0 ) {
-				var statement = statements.Dequeue( );
+				Statement statement = statements.Dequeue( );
 				switch ( statement.Type ) {
 					// Math operations
 					case StatementType.OP_SET:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " = " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_ADD:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " += " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " += " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_SUB:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " -= " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " -= " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_MUL:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " *= " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " *= " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_DIV:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " /= " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " /= " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_OR:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " |= " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " |= " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_AND:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " &= " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " &= " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_XOR:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " ^= " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " ^= " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_NEG:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " = ~" + PythonOperand(statement, 1) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = ~" + PythonOperand( statement , 1 ) );
 						break;
 					case StatementType.OP_POW:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " **= " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " **= " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_MOD:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " %= " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " %= " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_LOG:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " = math.log(" + PythonOperand(statement, 1) + ", " + PythonOperand(statement, 2) + ")" );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = math.log(" + PythonOperand( statement , 1 ) + ", " + PythonOperand( statement , 2 ) + ")" );
 						break;
 					case StatementType.OP_ROUND:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " = round(" + PythonOperand(statement, 1) + ")" );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = round(" + PythonOperand( statement , 1 ) + ")" );
 						break;
 					case StatementType.OP_LIST:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " = [0] * " + PythonOperand(statement, 2) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = [0] * " + PythonOperand( statement , 2 ) );
 						break;
 					case StatementType.OP_APPEND:
 						str.AppendLine( indent + PythonOperand( statement , 1 ) + ".append(" + PythonOperand( statement , 2 ) + ")" );
@@ -121,38 +133,46 @@ namespace BNAC
 
 					// Test operations
 					case StatementType.OP_TEST_GT:
-						str.AppendLine( indent + "success = 1 if " + PythonOperand(statement, 1) + " > " + PythonOperand(statement, 2) + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + PythonOperand( statement , 1 ) + " > " + PythonOperand( statement , 2 ) + " else 0" );
 						break;
 					case StatementType.OP_TEST_LT:
-						str.AppendLine( indent + "success = 1 if " + PythonOperand(statement, 1) + " < " + PythonOperand(statement, 2) + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + PythonOperand( statement , 1 ) + " < " + PythonOperand( statement , 2 ) + " else 0" );
 						break;
 					case StatementType.OP_TEST_EQ:
-						str.AppendLine( indent + "success = 1 if " + PythonOperand(statement, 1) + " = " + PythonOperand(statement, 2) + " else 0" );
+						str.AppendLine( indent + "success = 1 if " + PythonOperand( statement , 1 ) + " = " + PythonOperand( statement , 2 ) + " else 0" );
 						break;
 
 					// Misc operations
 					case StatementType.OP_RAND:
-						str.AppendLine( indent + PythonOperand(statement, 1) + " = random.randint(0, " + PythonOperand(statement, 2) + ")" );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = random.randint(0, " + PythonOperand( statement , 2 ) + ")" );
 						break;
 					case StatementType.OP_PRINT:
-						str.AppendLine( indent + "print(" + PythonOperand(statement, 1) + ")" );
+						str.AppendLine( indent + "print(" + PythonOperand( statement , 1 ) + ")" );
 						break;
 					case StatementType.OP_WAIT:
-						str.AppendLine( indent + "time.sleep(" + PythonOperand(statement, 1) + ")" );
+						str.AppendLine( indent + "time.sleep(" + PythonOperand( statement , 1 ) + ")" );
 						break;
 
 					// Control flow
 					case StatementType.LABEL:
-						str.AppendLine( indent + "label ." + PythonOperand(statement, 1) );
+						str.AppendLine( indent + "label ." + PythonOperand( statement , 1 ) );
 						break;
 					case StatementType.OP_GOTO:
-						str.AppendLine( indent + "if " + PythonOperand(statement, 2) + " != 0 :" );
-						str.AppendLine( indent + "\tgoto ." + PythonOperand(statement, 1) );
+						str.AppendLine( indent + "if " + PythonOperand( statement , 2 ) + " != 0 :" );
+						str.AppendLine( indent + "\tgoto ." + PythonOperand( statement , 1 ) );
+						break;
+
+					// IO
+					case StatementType.OP_WRITE:
+						str.AppendLine( indent + "# Write operation: " + PythonOperand( statement , 2 ) + " to " + PythonOperand( statement , 1 ) );
+						break;
+					case StatementType.OP_READ:
+						str.AppendLine( indent + "# Read operation: " + PythonOperand( statement , 2 ) + " from " + PythonOperand( statement , 1 ) );
 						break;
 
 					// Shouldn't happen
 					default:
-						throw new Exception( "Unexpected statement type: " + statement.ToString() );
+						throw new Exception( "Unexpected statement type: " + statement.ToString( ) );
 				}
 			}
 
@@ -160,7 +180,7 @@ namespace BNAC
 			str.AppendLine( );
 			str.AppendLine( program_name + "()" );
 
-			return str.ToString();
+			return str.ToString( );
 		}
 	}
 }
