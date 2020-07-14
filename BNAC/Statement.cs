@@ -137,7 +137,7 @@ namespace BNAC
 			candidate._tokens.Add( token );
 
 			// Based on starting token, try to parse the appropriate statement
-			var start = (Keyword)Enum.Parse( typeof( Keyword ) , token.Value, true );
+			var start = (Keyword)Enum.Parse( typeof( Keyword ) , token.Value , true );
 			switch ( start ) {
 
 				// SET var TO var|lit|string
@@ -292,7 +292,7 @@ namespace BNAC
 
 				// OPEN var|string AS var
 				case Keyword.OPEN: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE, TokenType.STRING } , operand: 2 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.AS } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_OPEN;
@@ -308,7 +308,7 @@ namespace BNAC
 
 				// WRITE var|lit|string TO var
 				case Keyword.WRITE: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL, TokenType.STRING } , operand: 2 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_WRITE;
