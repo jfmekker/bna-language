@@ -29,10 +29,16 @@ namespace BNAC
 		OP_MOD,
 		OP_LOG,
 		OP_ROUND,
+
+		// list operations
 		OP_LIST,
 		OP_APPEND,
-		OP_WRITE,
+
+		// io operations
+		OP_OPEN,
+		OP_CLOSE,
 		OP_READ,
+		OP_WRITE,
 
 		// test operations
 		OP_TEST_GT,
@@ -131,7 +137,7 @@ namespace BNAC
 			candidate._tokens.Add( token );
 
 			// Based on starting token, try to parse the appropriate statement
-			var start = (Keyword)Enum.Parse( typeof( Keyword ) , token.Value );
+			var start = (Keyword)Enum.Parse( typeof( Keyword ) , token.Value, true );
 			switch ( start ) {
 
 				// SET var TO var|lit|string
@@ -284,20 +290,36 @@ namespace BNAC
 					break;
 				}
 
-				// WRITE var|lit|string TO var|string
+				// OPEN var|string AS var
+				case Keyword.OPEN: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE, TokenType.STRING } , operand: 2 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.AS } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.Type = StatementType.OP_OPEN;
+					break;
+				}
+
+				// CLOSE var
+				case Keyword.CLOSE: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.Type = StatementType.OP_CLOSE;
+					break;
+				}
+
+				// WRITE var|lit|string TO var
 				case Keyword.WRITE: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL, TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 1 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_WRITE;
 					break;
 				}
 
-				// READ var FROM var|string
+				// READ var FROM var
 				case Keyword.READ: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 2 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.FROM } );
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 1 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 2 );
 					candidate.Type = StatementType.OP_READ;
 					break;
 				}

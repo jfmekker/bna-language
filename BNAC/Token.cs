@@ -29,8 +29,10 @@ namespace BNAC
 		ROUND,
 		LIST,
 		APPEND,
+		OPEN,
+		CLOSE,
+		READ,   // TODO change word
 		WRITE,	// TODO change word
-		READ,	// TODO change word
 
 		// Operation mid keywords
 		TO,
@@ -41,6 +43,7 @@ namespace BNAC
 		WITH,
 		OF,
 		SIZE,
+		AS,
 	}
 
 	enum Symbol
@@ -438,7 +441,7 @@ namespace BNAC
 		{
 			string str = "'" + Value + "' (" + Type;
 			if ( Type == TokenType.KEYWORD )
-				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , Value ) ).ToString( );
+				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , Value, true ) ).ToString( );
 			else if (Type == TokenType.SYMBOL && Enum.IsDefined(typeof(Symbol), (int)Value[0]))
 				str += ":" + Enum.GetName(typeof(Symbol), (int)Value[0]);
 			return str + ")";

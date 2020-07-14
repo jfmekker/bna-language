@@ -163,11 +163,17 @@ namespace BNAC
 						break;
 
 					// IO
+					case StatementType.OP_OPEN:
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = open(" + PythonOperand( statement , 2 ) + ")" );
+						break;
+					case StatementType.OP_CLOSE:
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + ".close()" );
+						break;
 					case StatementType.OP_WRITE:
-						str.AppendLine( indent + "# Write operation: " + PythonOperand( statement , 2 ) + " to " + PythonOperand( statement , 1 ) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + ".write(" + PythonOperand( statement , 2 ) + ")" );
 						break;
 					case StatementType.OP_READ:
-						str.AppendLine( indent + "# Read operation: " + PythonOperand( statement , 2 ) + " from " + PythonOperand( statement , 1 ) );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = " + PythonOperand( statement , 2 ) + ".readline()" );
 						break;
 
 					// Shouldn't happen

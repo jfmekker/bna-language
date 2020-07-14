@@ -56,6 +56,9 @@
     <None Include="App.config" />
     <None Include="test.bna" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="test.py" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
