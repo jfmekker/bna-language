@@ -10,7 +10,7 @@ BNA is meant to be pronounced as 'banana', but feel free to call it 'buh-nah' or
 The acronym takes inspiration from other recursive acronyms, primarily GNU (GNU's Not Unix).
 
 ## Contributing
-BNA is still in an early beta stage, so it will be difficult to have parallel development without running into conflicts. That being said, contributions are very welcome. Check the issues list for work to pickup, or open issues for bugs, feature requests, or wiki updates.
+Contributions to BNA are very welcome. Check the issues list for work to pickup, or open issues for bugs, feature requests, or wiki updates.
 
 ## Future Plans
 BNA currently translates BNA code to equivalent Python. However, this is somewhat limiting when it comes to type-enforcement and dynamic jumps. The next few minor releases will see more functionality added to this, as well as cleaning things up for a full semi-stable release.
@@ -26,7 +26,7 @@ Versions supporting BNA translation to Python:
  - `v0.3-alpha` Math functions and fixes.
  - `v0.4-alpha` Strings.
  - `v0.5-beta`  Lists.
- - `v0.6-beta`  **PLANNED** Command line and file input and output.
+ - `v0.6-beta`  Command line and file input/output.
  - `v0.7-beta`  **PLANNED** Improved language specification based on pedagogical feedback.
  - `v0.8`       **PLANNED** Included education materials.
 
