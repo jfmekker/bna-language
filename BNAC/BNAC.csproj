@@ -59,6 +59,9 @@
   <ItemGroup>
     <Content Include="test.py" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="test\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

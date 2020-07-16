@@ -35,7 +35,8 @@ namespace BNAC
 		OP_APPEND,
 
 		// io operations
-		OP_OPEN,
+		OP_OPEN_R,
+		OP_OPEN_W,
 		OP_CLOSE,
 		OP_READ,
 		OP_WRITE,
@@ -183,7 +184,7 @@ namespace BNAC
 				case Keyword.OR:
 				case Keyword.XOR: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
-					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.BY } );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.WITH } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.Type = ( start == Keyword.AND ) ? StatementType.OP_AND : ( ( start == Keyword.OR ) ? StatementType.OP_OR : StatementType.OP_XOR );
 					break;
@@ -193,7 +194,7 @@ namespace BNAC
 				case Keyword.MOD:
 				case Keyword.LOG: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
-					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.FROM } );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OF } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = ( start == Keyword.MOD ) ? StatementType.OP_MOD : StatementType.OP_LOG;
 					break;
@@ -284,12 +285,14 @@ namespace BNAC
 					break;
 				}
 
-				// OPEN var|string AS var
+				// OPEN var|string AS READ|WRITE var
 				case Keyword.OPEN: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.AS } );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.READ , Keyword.WRITE } );
+					candidate.Type = candidate._tokens[candidate._tokens.Count - 1].Value.Equals( Keyword.READ.ToString( ) , StringComparison.CurrentCultureIgnoreCase ) ?
+						StatementType.OP_OPEN_R : StatementType.OP_OPEN_W;
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
-					candidate.Type = StatementType.OP_OPEN;
 					break;
 				}
 
@@ -318,9 +321,11 @@ namespace BNAC
 					break;
 				}
 
-				// INPUT var
+				// INPUT var WITH var|string
 				case Keyword.INPUT: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.WITH } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
 					candidate.Type = StatementType.OP_INPUT;
 					break;
 				}

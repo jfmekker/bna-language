@@ -122,7 +122,7 @@ namespace BNAC
 						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = math.log(" + PythonOperand( statement , 1 ) + ", " + PythonOperand( statement , 2 ) + ")" );
 						break;
 					case StatementType.OP_ROUND:
-						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = round(" + PythonOperand( statement , 1 ) + ")" );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = int(round(" + PythonOperand( statement , 1 ) + "))" );
 						break;
 					case StatementType.OP_LIST:
 						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = [0] * " + PythonOperand( statement , 2 ) );
@@ -160,22 +160,25 @@ namespace BNAC
 						break;
 
 					// IO
-					case StatementType.OP_OPEN:
-						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = open(" + PythonOperand( statement , 2 ) + ")" );
+					case StatementType.OP_OPEN_R:
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = open(" + PythonOperand( statement , 2 ) + ", 'r')" );
+						break;
+					case StatementType.OP_OPEN_W:
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = open(" + PythonOperand( statement , 2 ) + ", 'a+')" );
 						break;
 					case StatementType.OP_CLOSE:
 						str.AppendLine( indent + PythonOperand( statement , 1 ) + ".close()" );
 						break;
 					case StatementType.OP_WRITE:
-						str.AppendLine( indent + PythonOperand( statement , 1 ) + ".write(" + PythonOperand( statement , 2 ) + ")" );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + ".write(str(" + PythonOperand( statement , 2 ) + "))" );
 						break;
 					case StatementType.OP_READ:
 						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = " + PythonOperand( statement , 2 ) + ".readline()" );
 						break;
 					case StatementType.OP_INPUT:
-						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = raw_input(\"input: \")" );
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = input(" + PythonOperand( statement , 2 ) + ")" );
 						str.AppendLine( indent + "try:" );
-						str.AppendLine( indent + "\t" + PythonOperand(statement,1) + " = float(" + PythonOperand(statement,1) + ")" );
+						str.AppendLine( indent + "\t" + PythonOperand( statement , 1 ) + " = float(" + PythonOperand( statement , 1 ) + ")" );
 						str.AppendLine( indent + "except ValueError:" );
 						str.AppendLine( indent + "\t" + PythonOperand( statement , 1 ) + " = " + PythonOperand( statement , 1 ) );
 						break;
