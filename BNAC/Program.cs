@@ -45,8 +45,10 @@ namespace BNAC
 				return output;
 			}
 			catch ( Exception e ) {
-				Console.Error.WriteLine( "!!! Caught Exception while compiling !!!:" );
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Error.WriteLine( "BNAC caught Exception while compiling!:" );
 				Console.Error.WriteLine( e.ToString( ) );
+				Console.ResetColor( );
 			}
 			return "";
 		}

@@ -39,6 +39,8 @@ namespace BNAC
 		OP_CLOSE,
 		OP_READ,
 		OP_WRITE,
+		OP_INPUT,
+		OP_PRINT,
 
 		// test operations
 		OP_TEST_GT,
@@ -46,7 +48,6 @@ namespace BNAC
 		OP_TEST_EQ,
 
 		// misc operations
-		OP_PRINT,
 		OP_WAIT,
 		OP_GOTO,
 	}
@@ -224,13 +225,6 @@ namespace BNAC
 					break;
 				}
 
-				// PRINT var|lit|string
-				case Keyword.PRINT: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 1 );
-					candidate.Type = StatementType.OP_PRINT;
-					break;
-				}
-
 				// WAIT var|lit
 				case Keyword.WAIT: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 1 );
@@ -321,6 +315,20 @@ namespace BNAC
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.FROM } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 2 );
 					candidate.Type = StatementType.OP_READ;
+					break;
+				}
+
+				// INPUT var
+				case Keyword.INPUT: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.Type = StatementType.OP_INPUT;
+					break;
+				}
+
+				// PRINT var|lit|string
+				case Keyword.PRINT: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 1 );
+					candidate.Type = StatementType.OP_PRINT;
 					break;
 				}
 

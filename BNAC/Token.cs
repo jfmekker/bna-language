@@ -14,7 +14,6 @@ namespace BNAC
 		SUBTRACT,
 		MULTIPLY,
 		DIVIDE,
-		PRINT,
 		WAIT,
 		RANDOM,
 		TEST,
@@ -31,8 +30,10 @@ namespace BNAC
 		APPEND,
 		OPEN,
 		CLOSE,
-		READ,   // TODO change word
-		WRITE,  // TODO change word
+		READ,   // TODO change keywords for IO operations
+		WRITE,  //
+		INPUT,  //
+		PRINT,  //
 
 		// Operation mid keywords
 		TO,

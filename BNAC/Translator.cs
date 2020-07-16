@@ -146,9 +146,6 @@ namespace BNAC
 					case StatementType.OP_RAND:
 						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = random.randint(0, " + PythonOperand( statement , 2 ) + ")" );
 						break;
-					case StatementType.OP_PRINT:
-						str.AppendLine( indent + "print(" + PythonOperand( statement , 1 ) + ")" );
-						break;
 					case StatementType.OP_WAIT:
 						str.AppendLine( indent + "time.sleep(" + PythonOperand( statement , 1 ) + ")" );
 						break;
@@ -174,6 +171,16 @@ namespace BNAC
 						break;
 					case StatementType.OP_READ:
 						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = " + PythonOperand( statement , 2 ) + ".readline()" );
+						break;
+					case StatementType.OP_INPUT:
+						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = raw_input(\"input: \")" );
+						str.AppendLine( indent + "try:" );
+						str.AppendLine( indent + "\t" + PythonOperand(statement,1) + " = float(" + PythonOperand(statement,1) + ")" );
+						str.AppendLine( indent + "except ValueError:" );
+						str.AppendLine( indent + "\t" + PythonOperand( statement , 1 ) + " = " + PythonOperand( statement , 1 ) );
+						break;
+					case StatementType.OP_PRINT:
+						str.AppendLine( indent + "print(" + PythonOperand( statement , 1 ) + ")" );
 						break;
 
 					// Shouldn't happen
