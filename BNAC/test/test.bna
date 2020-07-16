@@ -20,6 +20,7 @@ ADD 1 TO x
 PRINT x
 APPEND x TO numbers
 WRITE numbers@i TO out_file
+WRITE "\n" TO out_file
 
 # Add to total and increment
 ADD numbers@i TO total

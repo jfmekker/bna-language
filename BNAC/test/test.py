@@ -24,6 +24,7 @@ def program():
 	print(x)
 	numbers.append(x)
 	out_file.write(str(numbers[i]))
+	out_file.write(str("\n"))
 	total += numbers[i]
 	time.sleep(0.25)
 	i += 1
