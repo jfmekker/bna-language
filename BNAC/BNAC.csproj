@@ -54,8 +54,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="test.bna" />
+    <None Include="test\test.bna" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="test\input.txt" />
+    <Content Include="test\output.txt" />
+    <Content Include="test\test.py" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

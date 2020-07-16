@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BNAC
 {
-	enum Keyword
+	internal enum Keyword
 	{
 		// Empty keyword to represent unknown
 		_,
@@ -14,7 +14,6 @@ namespace BNAC
 		SUBTRACT,
 		MULTIPLY,
 		DIVIDE,
-		PRINT,
 		WAIT,
 		RANDOM,
 		TEST,
@@ -29,6 +28,12 @@ namespace BNAC
 		ROUND,
 		LIST,
 		APPEND,
+		OPEN,
+		CLOSE,
+		READ,   // TODO change keywords for IO operations
+		WRITE,  //
+		INPUT,  //
+		PRINT,  //
 
 		// Operation mid keywords
 		TO,
@@ -39,9 +44,10 @@ namespace BNAC
 		WITH,
 		OF,
 		SIZE,
+		AS,
 	}
 
-	enum Symbol
+	internal enum Symbol
 	{
 		// Default to 'null' value
 		NULL = '\0',
@@ -55,7 +61,7 @@ namespace BNAC
 		ACCESSOR = '@',
 	}
 
-	enum TokenType
+	internal enum TokenType
 	{
 		UNKNOWN,
 		LITERAL,
@@ -68,7 +74,7 @@ namespace BNAC
 	/// <summary>
 	/// Group of related characters that form keywords/variables/etc.
 	/// </summary>
-	class Token
+	internal class Token
 	{
 
 		/// <summary>
@@ -92,11 +98,11 @@ namespace BNAC
 		/// </summary>
 		/// <param name="value">The string input of the Token</param>
 		/// <param name="type">The Token's type; if unknown, will attempt identifying</param>
-		private Token( string value, TokenType type = TokenType.UNKNOWN )
+		private Token( string value , TokenType type = TokenType.UNKNOWN )
 		{
-			Value = value;
-			Type = type;
-			Type = IdentifyType( );
+			this.Value = value;
+			this.Type = type;
+			this.Type = this.IdentifyType( );
 		}
 
 		/// <summary>
@@ -106,36 +112,37 @@ namespace BNAC
 		private TokenType IdentifyType( )
 		{
 			// Don't re-identify if we know it
-			if ( Type == TokenType.UNKNOWN ) {
+			if ( this.Type == TokenType.UNKNOWN ) {
 				// Sanity check the length
-				if ( Value.Length <= 0 )
+				if ( this.Value.Length <= 0 ) {
 					throw new Exception( "Can not identify Token with empty value." );
+				}
 
 				// Literal
-				if ( char.IsDigit( Value[0] ) || Value[0] == '-' || Value[0] == '.' ) {
-					if ( int.TryParse( Value , out int i_val ) ) {
+				if ( char.IsDigit( this.Value[0] ) || this.Value[0] == '-' || this.Value[0] == '.' ) {
+					if ( int.TryParse( this.Value , out int i_val ) ) {
 						return TokenType.LITERAL;
 					}
-					else if ( double.TryParse( Value , out double d_val ) ) {
+					else if ( double.TryParse( this.Value , out double d_val ) ) {
 						return TokenType.LITERAL;
 					}
 					else {
-						throw new Exception( "Failed to parse literal value: '" + Value + "'." );
+						throw new Exception( "Failed to parse literal value: '" + this.Value + "'." );
 					}
 				}
-				
+
 				// String
-				if ( Value.Length >= 2 && Value[0] == '"' && Value[Value.Length - 1] == '"' ) {
+				if ( this.Value.Length >= 2 && this.Value[0] == '"' && this.Value[this.Value.Length - 1] == '"' ) {
 					return TokenType.STRING;
 				}
 
 				// Keyword
-				if ( TryParseKeyword( Value.ToUpper() , out var keyword ) ) {
+				if ( TryParseKeyword( this.Value.ToUpper( ) , out Keyword keyword ) ) {
 					return TokenType.KEYWORD;
 				}
 
 				// Symbol
-				if ( Value.Length == 1 && TryParseSymbol( Value[0] , out var symbol ) ) {
+				if ( this.Value.Length == 1 && TryParseSymbol( this.Value[0] , out Symbol symbol ) ) {
 					return TokenType.SYMBOL;
 				}
 
@@ -143,7 +150,7 @@ namespace BNAC
 				return TokenType.VARIABLE;
 			}
 
-			return Type;
+			return this.Type;
 		}
 
 		/// <summary>
@@ -156,8 +163,9 @@ namespace BNAC
 			var tokens = new Queue<Token>( );
 
 			// Ignore if the line is a comment or empty
-			if ( line.Equals("") || line[0] == (char)Symbol.COMMENT )
+			if ( line.Equals( "" ) || line[0] == (char)Symbol.COMMENT ) {
 				return tokens;
+			}
 
 			// Parse character by character
 			string candidate = "";
@@ -196,8 +204,10 @@ namespace BNAC
 						case (char)Symbol.LESS_THAN:
 						// EQUAL
 						case (char)Symbol.EQUAL:
-							if ( candidate.Length > 0 )
+							if ( candidate.Length > 0 ) {
 								tokens.Enqueue( new Token( candidate ) );
+							}
+
 							candidate = "";
 							tokens.Enqueue( new Token( c.ToString( ) , TokenType.SYMBOL ) );
 							break;
@@ -205,23 +215,30 @@ namespace BNAC
 						// Whitespace
 						case ' ':
 						case '\t':
-							if ( candidate.Length > 0 )
+							if ( candidate.Length > 0 ) {
 								tokens.Enqueue( new Token( candidate ) );
+							}
+
 							candidate = "";
 							break;
 
 						// Negative sign
 						case '-':
-							if ( candidate.Length > 0 )
+							if ( candidate.Length > 0 ) {
 								throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+							}
+
 							candidate += c;
 							break;
 
 						// Decimal point
 						case '.':
-							foreach ( char ch in candidate )
-								if ( !char.IsDigit( ch ) || ch == '-' )
+							foreach ( char ch in candidate ) {
+								if ( !char.IsDigit( ch ) || ch == '-' ) {
 									throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+								}
+							}
+
 							candidate += c;
 							break;
 
@@ -238,10 +255,13 @@ namespace BNAC
 			}
 
 			// Add last candidate
-			if ( inString )
+			if ( inString ) {
 				throw new Exception( "Line ended before string: '" + candidate + "'." );
-			if ( candidate.Length > 0 )
+			}
+
+			if ( candidate.Length > 0 ) {
 				tokens.Enqueue( new Token( candidate ) );
+			}
 
 			return tokens;
 		}
@@ -256,7 +276,7 @@ namespace BNAC
 			var tokens = new Queue<Token>( );
 
 			while ( lines.Count > 0 ) {
-				var line_tokens = TokenizeLine( lines.Dequeue() );
+				Queue<Token> line_tokens = TokenizeLine( lines.Dequeue( ) );
 				while ( line_tokens.Count > 0 ) {
 					tokens.Enqueue( line_tokens.Dequeue( ) );
 				}
@@ -273,10 +293,10 @@ namespace BNAC
 		public static void ThrowIfNotType( Token token , TokenType type )
 		{
 			if ( token == null ) {
-				throw new Exception( "Expected " + type.ToString() + " token, instead got null." );
+				throw new Exception( "Expected " + type.ToString( ) + " token, instead got null." );
 			}
 			else if ( token.Type != type ) {
-				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString() + ".");
+				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString( ) + "." );
 			}
 		}
 
@@ -302,8 +322,8 @@ namespace BNAC
 		public void ThrowIfNotKeyword( Keyword keyword )
 		{
 			ThrowIfNotType( this , TokenType.KEYWORD );
-			if ( Enum.TryParse( Value , out Keyword result ) && result != keyword ) {
-				throw new Exception( "Token not expected keyword " + keyword.ToString() + ": " + ToString() );
+			if ( Enum.TryParse( this.Value , out Keyword result ) && result != keyword ) {
+				throw new Exception( "Token not expected keyword " + keyword.ToString( ) + ": " + this.ToString( ) );
 			}
 		}
 
@@ -316,18 +336,20 @@ namespace BNAC
 			bool success = false;
 			foreach ( Keyword keyword in keywords ) {
 				try {
-					ThrowIfNotKeyword( keyword );
+					this.ThrowIfNotKeyword( keyword );
 					success = true;
 				}
-				catch (Exception) {
+				catch ( Exception ) {
 					// Do nothing
 				}
 			}
 			if ( !success ) {
 				string message = "Token not of given keywords [ ";
-				foreach ( Keyword s in keywords )
+				foreach ( Keyword s in keywords ) {
 					message += s.ToString( ) + " ";
-				message += "]: " + ToString( );
+				}
+
+				message += "]: " + this.ToString( );
 				throw new Exception( message );
 			}
 		}
@@ -339,8 +361,8 @@ namespace BNAC
 		public void ThrowIfNotSymbol( Symbol symbol )
 		{
 			ThrowIfNotType( this , TokenType.SYMBOL );
-			if ( Enum.TryParse( Value , out Symbol result ) && result != symbol ) {
-				throw new Exception( "Token not expected keyword " + symbol.ToString( ) + ": " + ToString( ) );
+			if ( Enum.TryParse( this.Value , out Symbol result ) && result != symbol ) {
+				throw new Exception( "Token not expected keyword " + symbol.ToString( ) + ": " + this.ToString( ) );
 			}
 		}
 
@@ -351,9 +373,9 @@ namespace BNAC
 		public void ThrowIfNotSymbols( IEnumerable<Symbol> symbols )
 		{
 			bool success = false;
-			foreach ( Symbol symbol in symbols) {
+			foreach ( Symbol symbol in symbols ) {
 				try {
-					ThrowIfNotSymbol( symbol );
+					this.ThrowIfNotSymbol( symbol );
 					success = true;
 				}
 				catch ( Exception ) {
@@ -362,11 +384,13 @@ namespace BNAC
 			}
 			if ( !success ) {
 				string message = "Token not of given symbols [ ";
-				foreach ( Symbol s in symbols )
+				foreach ( Symbol s in symbols ) {
 					message += s.ToString( ) + " ";
-				message += ": " + ToString( );
+				}
+
+				message += ": " + this.ToString( );
 				throw new Exception( message );
-			}	
+			}
 		}
 
 		/// <summary>
@@ -378,7 +402,7 @@ namespace BNAC
 		public static bool TryParseKeyword( string word , out Keyword value )
 		{
 			try {
-				value = (Keyword)Enum.Parse( typeof(Keyword) , word , true);
+				value = (Keyword)Enum.Parse( typeof( Keyword ) , word , true );
 			}
 			catch {
 				value = Keyword._;
@@ -395,7 +419,7 @@ namespace BNAC
 		/// <returns>True if the character was a defined Symbol</returns>
 		public static bool TryParseSymbol( char c , out Symbol value )
 		{
-			if ( Enum.IsDefined( typeof(Symbol) , (int)c ) ) {
+			if ( Enum.IsDefined( typeof( Symbol ) , (int)c ) ) {
 				value = (Symbol)c;
 				return true;
 			}
@@ -422,7 +446,7 @@ namespace BNAC
 		/// <returns></returns>
 		public override int GetHashCode( )
 		{
-			var hashCode = 1265339359;
+			int hashCode = 1265339359;
 			hashCode = hashCode * -1521134295 + this.Type.GetHashCode( );
 			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode( this.Value );
 			return hashCode;
@@ -434,11 +458,14 @@ namespace BNAC
 		/// <returns>String description of the Token</returns>
 		public override string ToString( )
 		{
-			string str = "'" + Value + "' (" + Type;
-			if ( Type == TokenType.KEYWORD )
-				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , Value ) ).ToString( );
-			else if (Type == TokenType.SYMBOL && Enum.IsDefined(typeof(Symbol), (int)Value[0]))
-				str += ":" + Enum.GetName(typeof(Symbol), (int)Value[0]);
+			string str = "'" + this.Value + "' (" + this.Type;
+			if ( this.Type == TokenType.KEYWORD ) {
+				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , this.Value , true ) ).ToString( );
+			}
+			else if ( this.Type == TokenType.SYMBOL && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) ) {
+				str += ":" + Enum.GetName( typeof( Symbol ) , (int)this.Value[0] );
+			}
+
 			return str + ")";
 		}
 	}

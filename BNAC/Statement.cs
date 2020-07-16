@@ -29,8 +29,19 @@ namespace BNAC
 		OP_MOD,
 		OP_LOG,
 		OP_ROUND,
+
+		// list operations
 		OP_LIST,
 		OP_APPEND,
+
+		// io operations
+		OP_OPEN_R,
+		OP_OPEN_W,
+		OP_CLOSE,
+		OP_READ,
+		OP_WRITE,
+		OP_INPUT,
+		OP_PRINT,
 
 		// test operations
 		OP_TEST_GT,
@@ -38,7 +49,6 @@ namespace BNAC
 		OP_TEST_EQ,
 
 		// misc operations
-		OP_PRINT,
 		OP_WAIT,
 		OP_GOTO,
 	}
@@ -47,7 +57,7 @@ namespace BNAC
 	/// A collection of tokens that make up a whole valid statement or instruction.
 	/// Each statement maps to a "line of code".
 	/// </summary>
-	class Statement
+	internal class Statement
 	{
 		/// <summary>
 		/// The StatementType of this Statement
@@ -129,7 +139,7 @@ namespace BNAC
 			candidate._tokens.Add( token );
 
 			// Based on starting token, try to parse the appropriate statement
-			var start = (Keyword)Enum.Parse( typeof(Keyword) , token.Value );
+			var start = (Keyword)Enum.Parse( typeof( Keyword ) , token.Value , true );
 			switch ( start ) {
 
 				// SET var TO var|lit|string
@@ -174,7 +184,7 @@ namespace BNAC
 				case Keyword.OR:
 				case Keyword.XOR: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
-					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.BY } );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.WITH } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.Type = ( start == Keyword.AND ) ? StatementType.OP_AND : ( ( start == Keyword.OR ) ? StatementType.OP_OR : StatementType.OP_XOR );
 					break;
@@ -184,7 +194,7 @@ namespace BNAC
 				case Keyword.MOD:
 				case Keyword.LOG: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
-					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.FROM } );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OF } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = ( start == Keyword.MOD ) ? StatementType.OP_MOD : StatementType.OP_LOG;
 					break;
@@ -213,13 +223,6 @@ namespace BNAC
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.MAX } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.Type = StatementType.OP_RAND;
-					break;
-				}
-
-				// PRINT var|lit|string
-				case Keyword.PRINT: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 1 );
-					candidate.Type = StatementType.OP_PRINT;
 					break;
 				}
 
@@ -279,6 +282,58 @@ namespace BNAC
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_APPEND;
+					break;
+				}
+
+				// OPEN var|string AS READ|WRITE var
+				case Keyword.OPEN: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.AS } );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.READ , Keyword.WRITE } );
+					candidate.Type = candidate._tokens[candidate._tokens.Count - 1].Value.Equals( Keyword.READ.ToString( ) , StringComparison.CurrentCultureIgnoreCase ) ?
+						StatementType.OP_OPEN_R : StatementType.OP_OPEN_W;
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					break;
+				}
+
+				// CLOSE var
+				case Keyword.CLOSE: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.Type = StatementType.OP_CLOSE;
+					break;
+				}
+
+				// WRITE var|lit|string TO var
+				case Keyword.WRITE: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.Type = StatementType.OP_WRITE;
+					break;
+				}
+
+				// READ var FROM var
+				case Keyword.READ: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.FROM } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 2 );
+					candidate.Type = StatementType.OP_READ;
+					break;
+				}
+
+				// INPUT var WITH var|string
+				case Keyword.INPUT: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.WITH } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
+					candidate.Type = StatementType.OP_INPUT;
+					break;
+				}
+
+				// PRINT var|lit|string
+				case Keyword.PRINT: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 1 );
+					candidate.Type = StatementType.OP_PRINT;
 					break;
 				}
 

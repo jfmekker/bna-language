@@ -9,7 +9,7 @@ namespace BNAC
 	/// <summary>
 	/// Main program of the BNA compiler. Compiles files or terminal input.
 	/// </summary>
-	class Program
+	internal class Program
 	{
 		/// <summary>
 		/// Compiles a queue of BNA lines of code to Python.
@@ -20,29 +20,35 @@ namespace BNAC
 		{
 			try {
 				// Convert lines to token stream
-				var tokens = Token.TokenizeProgram( lines );
+				Queue<Token> tokens = Token.TokenizeProgram( lines );
 				Console.WriteLine( "\nTokens :" );
-				foreach ( Token t in tokens.ToList( ) )
+				foreach ( Token t in tokens.ToList( ) ) {
 					Console.WriteLine( "  " + t.ToString( ) );
+				}
+
 				Console.WriteLine( " " + tokens.Count + " total" );
 
 				// Parse statements from token stream
-				var statements = Statement.ParseStatements( tokens );
+				Queue<Statement> statements = Statement.ParseStatements( tokens );
 				Console.WriteLine( "\nStatements :" );
-				foreach ( Statement s in statements.ToList( ) )
+				foreach ( Statement s in statements.ToList( ) ) {
 					Console.WriteLine( "  " + s.ToString( ) );
+				}
+
 				Console.WriteLine( " " + statements.Count + " total" );
 
 				// Translate to python
 				Console.WriteLine( "\nCode :" );
-				var output = Translator.ToPython( statements );
+				string output = Translator.ToPython( statements );
 				Console.WriteLine( output );
 
 				return output;
 			}
 			catch ( Exception e ) {
-				Console.Error.WriteLine( "!!! Caught Exception while compiling !!!:" );
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Error.WriteLine( "BNAC caught Exception while compiling!:" );
 				Console.Error.WriteLine( e.ToString( ) );
+				Console.ResetColor( );
 			}
 			return "";
 		}
@@ -51,7 +57,7 @@ namespace BNAC
 		/// Compile a function to Python, or take input from the terminal
 		/// </summary>
 		/// <param name="args">Names of files to compile to Python, can be none.</param>
-		static void Main( string[] args )
+		private static void Main( string[] args )
 		{
 			Console.WriteLine( "================================================================================" );
 			Console.WriteLine( "Welcome to the BNA's Not Assembly Compiler!" );
@@ -67,11 +73,12 @@ namespace BNAC
 					var lines = new Queue<string>( );
 					while ( true ) {
 						// get a line
-						var input = Console.ReadLine( );
+						string input = Console.ReadLine( );
 
 						// end on tilda '~'
-						if ( input.Equals( "~" ) )
+						if ( input.Equals( "~" ) ) {
 							break;
+						}
 
 						lines.Enqueue( input );
 					}
@@ -82,8 +89,9 @@ namespace BNAC
 					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 
 					// Wait to continue, check for exit
-					if ( Console.ReadLine( ).Equals( "~" ) )
+					if ( Console.ReadLine( ).Equals( "~" ) ) {
 						break;
+					}
 				}
 			}
 			// else, take in files
@@ -97,8 +105,9 @@ namespace BNAC
 						string[] split_filename = file.Split( new char[] { '.' } );
 						string filename = split_filename[0];
 						string extension = split_filename[1];
-						if ( !extension.Equals( "bna" ) )
+						if ( !extension.Equals( "bna" ) ) {
 							throw new Exception( "Wrong file type: " + file );
+						}
 
 						// Output file contents
 						Console.WriteLine( "Reading file..." );
@@ -118,7 +127,7 @@ namespace BNAC
 						// Propmt to delete existing file
 						if ( File.Exists( ".\\" + filename + ".py" ) ) {
 							Console.Write( filename + ".py already exists, delete it? (y/n): " );
-							if ( !Console.ReadLine( ).Equals("y") ) {
+							if ( !Console.ReadLine( ).Equals( "y" ) ) {
 								Console.WriteLine( "Skipping file." );
 								continue;
 							}
@@ -132,7 +141,7 @@ namespace BNAC
 
 						Console.WriteLine( "Done.\n" );
 					}
-					catch (Exception e) {
+					catch ( Exception e ) {
 						Console.Error.WriteLine( "!!! Caught Exception compiling file !!!:" );
 						Console.Error.WriteLine( e.Message );
 					}
