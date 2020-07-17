@@ -1,0 +1,118 @@
+\documentclass[landscape]{report}
+\usepackage{bytefield}
+\usepackage[landscape]{geometry}
+\usepackage{listings}
+
+\setlength\parindent{0pt}
+
+\begin{document}
+	
+	\section*{File Format}
+	
+		\begin{bytefield}{64}
+			\begin{rightwordgroup}{Header}
+				\bitheader{0,7,15,23,31,39,47,55,63} \\
+				\wordbox{1}{Magic Number Identifier} \\
+				\bitbox{32}{Version Number} & \bitbox{32}{Text Length} \\
+				\bitbox{32}{Data Address} & \bitbox{32}{Text Address} \\
+				\wordbox{1}{File Checksum}
+			\end{rightwordgroup} \\
+			\begin{rightwordgroup}{Data}
+				\wordbox[lrt]{1}{} \\
+				\skippedwords \\
+				\wordbox[lrb]{1}{}
+			\end{rightwordgroup} \\
+			\begin{rightwordgroup}{Text}
+				\wordbox[lrt]{1}{} \\
+				\skippedwords \\
+				\wordbox[lrb]{1}{}
+			\end{rightwordgroup}
+		\end{bytefield}
+		
+		\newpage
+	
+	\section*{Field descriptions}
+	
+		\subsection*{Magic Number Identifier}
+	
+		\begin{lstlisting}
+0xF0 0x9F 0x8D 0x8C 0xF0 0x9F 0x8D 0x8C
+		\end{lstlisting}
+	
+		A unique 64-bit value to mark the beginning of a \verb|.bb| file. Value is two copies of the UTF-8 encoding for the ``Banana'' emoji concatenated.
+		
+		\subsection*{Version Number}
+		
+		\subsection*{Text Length}
+		
+		\subsection*{Data Address}
+		
+		\subsection*{Text Address}
+	
+		\newpage
+	
+	\section*{Data Segment}
+	
+		\subsection*{Entry Format}
+		
+		\begin{bytefield}{64}
+			\bitbox{16}{identifier} &
+				\bitbox{24}{\textit{spare}} &
+				\bitbox{8}{type} &
+				\bitbox{16}{data length} \\
+			\wordbox[lrt]{1}{data} \\
+			\skippedwords \\
+			\wordbox[lrb]{1}{}
+		\end{bytefield}
+		
+			
+		\newpage
+		
+	\section*{Text Segment}
+	
+		\subsection*{Instruction Format}
+		
+			\vspace*{10pt}
+			\begin{bytefield}{64}
+				\bitheader{0,7,15,23,31,39,47,55,63} \\
+				\bitbox{8}{op code} &
+				\bitbox{16}{operand 1} &
+				\bitbox{5}{\textit{spare}} &
+				\bitbox{2}{\tiny op2 type} &
+				\bitbox{32}{operand 2} \\
+			\end{bytefield}
+	
+			\subsubsection*{op code}
+			
+			Identifier for the instruction to execute. Two special values, \verb|0x00| exits the program and \verb|0xFF| represents an invalid or unknown instruction (possibly will use for NOP later).
+			
+			\subsubsection*{operand 1}
+			
+			Identifier for the first operand of the instruction. Special value \verb|0x00| is \verb|null| and is for instructions with no first operand.
+			
+			\subsubsection*{op2 type}
+			
+			The type of operand in the \verb|operand 2| field. Uses the below table for the type values.
+			
+			\vspace{10pt}
+			\begin{tabular}{|l|c|}
+				\hline 
+				\textbf{Code} & \textbf{Type} \\ 
+				\hline 
+				\verb|0x00| & None \\ 
+				\hline 
+				\verb|0x01| & Variable \\ 
+				\hline 
+				\verb|0x00| & Literal \\ 
+				\hline 
+				\verb|0x00| & String \\ 
+				\hline 
+			\end{tabular} 
+			
+			
+			\subsubsection*{operand 2}
+	
+			Identifier or value for the second operand.
+	
+	
+\end{document}
