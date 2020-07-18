@@ -13,8 +13,8 @@
 			\begin{rightwordgroup}{Header}
 				\bitheader{0,7,15,23,31,39,47,55,63} \\
 				\wordbox{1}{Magic Number Identifier} \\
-				\bitbox{32}{Version Number} & \bitbox{32}{Text Length} \\
-				\bitbox{32}{Data Address} & \bitbox{32}{Text Address} \\
+				\bitbox{32}{Version Number} & \bitbox{32}{\textit{spare}} \\
+				\bitbox{32}{Data Length} & \bitbox{32}{Text Length} \\
 				\wordbox{1}{File Checksum}
 			\end{rightwordgroup} \\
 			\begin{rightwordgroup}{Data}
@@ -43,11 +43,9 @@
 		
 		\subsection*{Version Number}
 		
+		\subsection*{Data Length}
+		
 		\subsection*{Text Length}
-		
-		\subsection*{Data Address}
-		
-		\subsection*{Text Address}
 	
 		\newpage
 	

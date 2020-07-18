@@ -43,7 +43,7 @@
   <ItemGroup>
     <Compile Include="Binary.cs" />
     <Compile Include="Data.cs" />
-    <Compile Include="Instruction.cs" />
+    <Compile Include="Text.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
