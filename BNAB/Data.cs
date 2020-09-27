@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using BNAB.Util;
 
 namespace BNAB
 {
@@ -61,9 +61,9 @@ namespace BNAB
 			// Parse word-by-word
 			for ( int i = 0 ; i < _raw.Count ; ) {
 				// Read id, type, and length
-				int id = (int)(raw_data[i] & 0xFFFF); // bits 0 - 15
-				var type = (DataEntryType)(( raw_data[i] >> 40 ) & 0xFF); // bits 40 - 47
-				int length = (int)( ( raw_data[i] >> 48 ) & 0xFFFF ); // bits 48 - 63
+				int id = (int)BitHelper.GetBits(0, 15, raw_data[i]);
+				var type = (DataEntryType)BitHelper.GetBits(40, 47, raw_data[i]);
+				int length = (int)BitHelper.GetBits(48, 63, raw_data[i]);
 				
 				// Move iterator to data and read based on type
 				i += 1;
@@ -78,21 +78,13 @@ namespace BNAB
 					case DataEntryType.LITERAL_FLOAT:
 						if ( length != 4 )
 							throw new Exception( "Bad length for literal float." );
-						FloatData.Add( id , BitConverter.ToDouble(BitConverter.GetBytes( raw_data[i] ), 0) );
+						FloatData.Add( id , BitHelper.WordToDouble( raw_data[i] ) );
 						i += 1;
 						break;
 
 					case DataEntryType.LITERAL_STRING:
-						var builder = new StringBuilder( length );
-						// Parse byte-by-byte (8 bytes per word)
-						int j = i;
-						for ( ; j < i + ( length / 8 ) + ( length % 8 > 0 ? 1 : 0 ) ; j += 1 ) {
-							for ( int k = 0 ; k < length % 8 ; k += 1 ) {
-								builder.Append( (char)( ( raw_data[j] << (k * 8) ) & 0xFF ) );
-							}
-						}
-						i = j + 1;
-						StringData.Add( id , builder.ToString( ) );
+						ulong[] words = new ArraySegment<ulong>( raw_data , i , length ).ToArray();
+						StringData.Add( id , BitHelper.WordsToString( words, length ));
 						break;
 
 					default:
@@ -109,28 +101,22 @@ namespace BNAB
 		{
 			foreach ( KeyValuePair<int, long> kv in IntData ) {
 				ulong word = 0;
-				word |= ((ulong)kv.Key & 0xFFFF); // id
-				word |= ((ulong)( DataEntryType.LITERAL_INT ) & 0xFF) << 40; // type
-				word |= ( (ulong)( 8 ) & 0xFFFF ) << 48; // length
-
+				BitHelper.SetBits( 0 , 15 , ref word , (ulong)kv.Value ); // id
+				BitHelper.SetBits( 40 , 47 , ref word , (ulong)DataEntryType.LITERAL_INT ); // type
+				BitHelper.SetBits( 48 , 63 , ref word , 8ul ); // length
+				
 				output.Add( word );
 				output.Add( (ulong)kv.Value );
 			}
 
 			foreach ( KeyValuePair<int , double> kv in FloatData ) {
 				ulong word = 0;
-				word |= ( (ulong)kv.Key & 0xFFFF ); // id
-				word |= ( (ulong)( DataEntryType.LITERAL_INT ) & 0xFF ) << 40; // type
-				word |= ( (ulong)( 8 ) & 0xFFFF ) << 48; // length
+				BitHelper.SetBits( 0 , 15 , ref word , (ulong)kv.Value ); // id
+				BitHelper.SetBits( 40 , 47 , ref word , (ulong)DataEntryType.LITERAL_FLOAT ); // type
+				BitHelper.SetBits( 48 , 63 , ref word , 8ul ); // length
 
 				output.Add( word );
-
-				word = 0;
-				byte[] bytes = BitConverter.GetBytes( kv.Value );
-				for ( int i = 0 ; i < bytes.Length ; i += 1 ) {
-					word |= ( (ulong)bytes[i] << (i * 8) );
-				}
-				output.Add( word );
+				output.Add( BitHelper.DoubleToWord( kv.Value ) );
 			}
 
 			foreach ( KeyValuePair<int , string> kv in StringData ) {
@@ -141,10 +127,9 @@ namespace BNAB
 
 				output.Add( word );
 
-				word = 0;
-				char[] bytes = kv.Value.ToCharArray( );
-				for ( int i = 0 ; i < bytes.Length ; i += 1 ) {
-					word |= ( (ulong)bytes[i] << ( i * 8 ) );
+				ulong[] words = BitHelper.StringToWords( kv.Value );
+				for ( int i = 0 ; i < words.Length ; i += 1 ) {
+					output.Add( words[i] );
 				}
 				output.Add( word );
 			}
