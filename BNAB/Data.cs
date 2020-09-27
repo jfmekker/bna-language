@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BNAB.Util;
 
 namespace BNAB
@@ -22,7 +21,10 @@ namespace BNAB
 		/// <summary>
 		/// Array of raw data taken from a file
 		/// </summary>
-		private ArraySegment<ulong> _raw;
+		public ulong[] Raw
+		{
+			get; private set;
+		}
 
 		/// <summary>
 		/// Dictionaries of Integer/Float/String data values
@@ -35,9 +37,9 @@ namespace BNAB
 		/// Construct a new <see cref="DataSegment"/> instance from raw data.
 		/// </summary>
 		/// <param name="raw">Raw data taken from a file.</param>
-		public DataSegment( ArraySegment<ulong> raw )
+		public DataSegment( ulong[] raw )
 		{
-			_raw = raw;
+			Raw = raw;
 			ReadEntries( );
 		}
 
@@ -56,14 +58,12 @@ namespace BNAB
 			if ( IntData != null && FloatData != null && StringData != null )
 				return;
 
-			ulong[] raw_data = _raw.ToArray( );
-
 			// Parse word-by-word
-			for ( int i = 0 ; i < _raw.Count ; ) {
+			for ( int i = 0 ; i < Raw.Length ; ) {
 				// Read id, type, and length
-				int id = (int)BitHelper.GetBits(0, 15, raw_data[i]);
-				var type = (DataEntryType)BitHelper.GetBits(40, 47, raw_data[i]);
-				int length = (int)BitHelper.GetBits(48, 63, raw_data[i]);
+				int id = (int)BitHelper.GetBits(0, 15, Raw[i]);
+				var type = (DataEntryType)BitHelper.GetBits(40, 47, Raw[i]);
+				int length = (int)BitHelper.GetBits(48, 63, Raw[i]);
 				
 				// Move iterator to data and read based on type
 				i += 1;
@@ -71,19 +71,19 @@ namespace BNAB
 					case DataEntryType.LITERAL_INT:
 						if ( length != 4 )
 							throw new Exception( "Bad length for literal integer." );
-						IntData.Add( id , (long)raw_data[i] );
+						IntData.Add( id , (long)Raw[i] );
 						i += 1;
 						break;
 
 					case DataEntryType.LITERAL_FLOAT:
 						if ( length != 4 )
 							throw new Exception( "Bad length for literal float." );
-						FloatData.Add( id , BitHelper.WordToDouble( raw_data[i] ) );
+						FloatData.Add( id , BitHelper.WordToDouble( Raw[i] ) );
 						i += 1;
 						break;
 
 					case DataEntryType.LITERAL_STRING:
-						ulong[] words = new ArraySegment<ulong>( raw_data , i , length ).ToArray();
+						ulong[] words = new ArraySegment<ulong>( Raw , i , length ).ToArray();
 						StringData.Add( id , BitHelper.WordsToString( words, length ));
 						break;
 
@@ -94,11 +94,12 @@ namespace BNAB
 		}
 
 		/// <summary>
-		/// Append data entries from data dictionaries.
+		/// Fill the raw data array from the data dictionaries.
 		/// </summary>
-		/// <param name="output">List to append data to.</param>
-		public void WriteEntries( List<ulong> output )
+		public void WriteEntries(  )
 		{
+			var output = new List<ulong>( );
+
 			foreach ( KeyValuePair<int, long> kv in IntData ) {
 				ulong word = 0;
 				BitHelper.SetBits( 0 , 15 , ref word , (ulong)kv.Value ); // id
@@ -133,6 +134,8 @@ namespace BNAB
 				}
 				output.Add( word );
 			}
+
+			Raw = output.ToArray( );
 		}
 
 		/// <summary>
@@ -209,5 +212,4 @@ namespace BNAB
 			return _next_id++;
 		}
 	}
-
 }

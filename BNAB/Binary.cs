@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using BNAB.Util;
 
 namespace BNAB
 {
@@ -22,43 +23,77 @@ namespace BNAB
 		/// <summary>
 		/// Number of bytes in each word
 		/// </summary>
-		public static readonly int WORD_SIZE_BYTES = 8;
+		public static readonly int WORD_SIZE_BYTES = sizeof(ulong);
 
 		/// <summary>
-		/// Raw words of the binary
+		/// Raw words of the binary header
 		/// </summary>
-		private ulong[] raw;
+		public ulong[] Header
+		{
+			get; private set;
+		} = new ulong[HEADER_SIZE_WORDS];
 
 		/// <summary>
-		/// Version number of the binary file (to check compatability)
+		/// Magic number specified in the file
 		/// </summary>
-		public int Version
+		public ulong Magic
 		{
 			get
 			{
-				return (int)( ( this.raw[1] >> 32 ) & 0xFFFF_FFFF );
+				return Header[0];
+			}
+
+			private set
+			{
+				Header[0] = value;
 			}
 		}
 
 		/// <summary>
-		/// Length in words of the Text segment
+		/// BNAVersion number of the binary file (to check compatability)
 		/// </summary>
-		public uint TextLength
+		public int BNAVersion
 		{
 			get
 			{
-				return (uint)( this.raw[2] & 0xFFFF_FFFF );
+				return (int)BitHelper.GetBits( 0 , 31 , Header[1] );
+			}
+
+			private set
+			{
+				BitHelper.SetBits( 0 , 31 , ref Header[1] , (ulong)value );
 			}
 		}
 
 		/// <summary>
 		/// Length in words of the Data segment
 		/// </summary>
-		public uint DataLength
+		public int DataLength
 		{
 			get
 			{
-				return (uint)( ( this.raw[2] >> 32 ) & 0xFFFF_FFFF );
+				return (int)BitHelper.GetBits( 0 , 31 , Header[2] );
+			}
+
+			private set
+			{
+				BitHelper.SetBits( 0 , 31 , ref Header[2] , (ulong)value );
+			}
+		}
+
+		/// <summary>
+		/// Length in words of the Text segment
+		/// </summary>
+		public int TextLength
+		{
+			get
+			{
+				return (int)BitHelper.GetBits( 32 , 63 , Header[2] );
+			}
+
+			private set
+			{
+				BitHelper.SetBits( 32 , 63 , ref Header[2] , (ulong)value );
 			}
 		}
 
@@ -69,113 +104,134 @@ namespace BNAB
 		{
 			get
 			{
-				return raw[3];
+				return Header[3];
+			}
+
+			private set
+			{
+				Header[3] = value;
 			}
 		}
-
-		/// <summary>
-		/// Backing variable for the Data field
-		/// </summary>
-		private DataSegment _data;
 
 		/// <summary>
 		/// Instance of the <see cref="DataSegment"/> class to represent the Data segment of the binary
 		/// </summary>
 		public DataSegment Data
 		{
-			get
-			{
-				if ( this._data == null ) {
-					this._data = new DataSegment( new ArraySegment<ulong>( this.raw , HEADER_SIZE_WORDS , (int)this.DataLength ) );
-				}
-				return this._data;
-			}
+			get; private set;
 		}
-
-		/// <summary>
-		/// Backing variable for the Text field
-		/// </summary>
-		private TextSegment _text;
-
+		
 		/// <summary>
 		/// Instance of the <see cref="TextSegment"/> class to represent the Text segment of the binary
 		/// </summary>
 		public TextSegment Text
 		{
-			get
-			{
-				if ( this._text == null ) {
-					this._text = new TextSegment( new ArraySegment<ulong>( this.raw , (int)( HEADER_SIZE_WORDS + this.DataLength ) , (int)this.TextLength ) );
-				}
-				return this._text;
-			}
+			get; private set;
 		}
 
 		/// <summary>
-		/// Create an empty instance of the <see cref="Binary"/>
+		/// Create an empty <see cref="Binary"/> instance
 		/// </summary>
 		public Binary( BinaryReader file )
 		{
+			if ( !Init( file ) )
+				throw new Exception( "Failed to build Binary object from file." );
+		}
+
+		/// <summary>
+		/// Construct a new <see cref="Binary"/> from a data and text segment.
+		/// </summary>
+		/// <param name="dataSegment"><see cref="DataSegment"/></param>
+		/// <param name="textSegment"><see cref="TextSegment"/></param>
+		public Binary( DataSegment dataSegment , TextSegment textSegment )
+		{
+			Header = new ulong[HEADER_SIZE_WORDS];
+			Data = dataSegment;
+			Text = textSegment;
+
+			Magic = MAGIC_NUMBER;
+			BNAVersion = 1; // TODO
+			DataLength = Data.Raw.Length;
+			TextLength = Text.Raw.Length;
+
+			Checksum = 0;
+			foreach ( ulong l in Data.Raw )
+				Checksum += l;
+			foreach ( ulong l in Text.Raw )
+				Checksum += l;
 		}
 
 		/// <summary>
 		/// Initialize a Binary object from a binary file
 		/// </summary>
-		/// <param name="file">Binary file reader, closes the reader when done</param>
+		/// <param name="reader">Binary file reader, closes the reader when done</param>
 		/// <returns>True if successfully initialized, false otherwise</returns>
-		public bool Init( BinaryReader file )
+		public bool Init( BinaryReader reader )
 		{
-			var words = new List<ulong>( );
-
 			// Parse Header
+			var header_words = new List<ulong>( );
 			try {
 				// Magic number
-				words.Add( file.ReadUInt64( ) );
-				if ( words[0] != MAGIC_NUMBER ) {
-					throw new Exception( "Bad magic: " + words[0] );
+				header_words.Add( reader.ReadUInt64( ) );
+				if ( header_words[0] != MAGIC_NUMBER ) {
+					throw new Exception( "Bad magic: " + header_words[0] );
 				}
 
 				// Version + spare
-				words.Add( file.ReadUInt64( ) );
+				header_words.Add( reader.ReadUInt64( ) );
 
 				// Data length + Text length
-				words.Add( file.ReadUInt64( ) );
+				header_words.Add( reader.ReadUInt64( ) );
 
 				// Checksum
-				words.Add( file.ReadUInt64( ) );
+				header_words.Add( reader.ReadUInt64( ) );
 			}
 			catch ( Exception e ) {
 				Console.Error.Write( "Failed to read binary header." );
 				Console.Error.Write( e.Message );
-				file.Close( );
+				reader.Close( );
 				return false;
 			}
+			Header = header_words.ToArray( );
 
-			// Set current 'words' as 'raw', but we're not done with the list yet
-			this.raw = words.ToArray( );
-
-			// Parse Data + Text
+			// Parse Data
+			var data_words = new List<ulong>( );
 			try {
-				for ( int i = 0 ; i < this.DataLength + this.TextLength ; i += 1 ) {
-					words.Add( file.ReadUInt64( ) );
+				for ( int i = 0 ; i < DataLength ; i += 1 ) {
+					data_words.Add( reader.ReadUInt64( ) );
 				}
 			}
 			catch ( Exception e ) {
-				Console.Error.Write( "Failed to read all binary data." );
+				Console.Error.Write( "Failed to read all binary in data segment." );
 				Console.Error.Write( e.Message );
-				file.Close( );
+				reader.Close( );
 				return false;
 			}
-			this.raw = words.ToArray( );
+			Data = new DataSegment( data_words.ToArray( ) );
+
+			// Parse Text
+			var text_words = new List<ulong>( );
+			try {
+				for ( int i = 0 ; i < TextLength ; i += 1 ) {
+					text_words.Add( reader.ReadUInt64( ) );
+				}
+			}
+			catch ( Exception e ) {
+				Console.Error.Write( "Failed to read all binary in data segment." );
+				Console.Error.Write( e.Message );
+				reader.Close( );
+				return false;
+			}
+			Text = new TextSegment( text_words.ToArray( ) );
 
 			// Check checksum
-			if ( !this.ChecksumValid( ) ) {
+			if ( !ChecksumValid( ) ) {
 				Console.Error.Write( "Bad checksum for file." );
-				file.Close( );
+				reader.Close( );
 				return false;
 			}
 
-			file.Close( );
+			reader.Close( );
 			return true;
 		}
 
@@ -186,20 +242,34 @@ namespace BNAB
 		public bool ChecksumValid( )
 		{
 			ulong sum = 0;
-			for ( int i = HEADER_SIZE_WORDS ; i < HEADER_SIZE_WORDS + this.DataLength + this.TextLength ; i += 1 ) {
-				sum += this.raw[i];
-			}
-			return sum == this.Checksum;
+			foreach ( ulong l in Data.Raw )
+				sum += l;
+			foreach ( ulong l in Text.Raw )
+				sum += l;
+			return sum == Checksum;
 		}
 
 		/// <summary>
-		/// Executes the binary program
+		/// Write this binary program to a file.
 		/// </summary>
-		/// <returns>Exit code from program</returns>
-		public int Execute( )
+		/// <param name="writer">file stream to write to</param>
+		public void Write( BinaryWriter writer )
 		{
-			// TODO
-			return -1;
+			try {
+				for ( int i = 0 ; i < Header.Length ; i += 1 )
+					writer.Write( Header[i] );
+				for ( int i = 0 ; i < Data.Raw.Length ; i += 1 )
+					writer.Write( Data.Raw[i] );
+				for ( int i = 0 ; i < Text.Raw.Length ; i += 1 )
+					writer.Write( Text.Raw[i] );
+			}
+			catch (Exception e) {
+				Console.Error.WriteLine( "Encountered error writing binary file." );
+				Console.Error.WriteLine( e.Message );
+			}
+			finally {
+				writer.Close( );
+			}
 		}
 	}
 }
