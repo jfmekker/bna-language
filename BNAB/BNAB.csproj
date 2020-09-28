@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Binary.cs" />
     <Compile Include="Data.cs" />
+    <Compile Include="Instruction.cs" />
     <Compile Include="Text.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\BitHelper.cs" />
