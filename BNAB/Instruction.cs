@@ -15,11 +15,11 @@ namespace BNAB
 		/// <summary>
 		/// Code to specify the operation to perform.
 		/// </summary>
-		public int OpCode
+		public OpCode OpCode
 		{
 			get
 			{
-				return (int)BitHelper.GetBits( 0 , 7 , _raw );
+				return (OpCode)BitHelper.GetBits( 0 , 7 , _raw );
 			}
 
 			private set
@@ -83,7 +83,7 @@ namespace BNAB
 		/// <param name="op1"><see cref="Operand1"/></param>
 		/// <param name="op2type"><see cref="Op2Type"/></param>
 		/// <param name="op2"><see cref="Operand2"/></param>
-		public Instruction( int opCode , int op1 , int op2type , int op2 )
+		public Instruction( OpCode opCode , int op1 , int op2type , int op2 )
 		{
 			_raw = 0;
 			OpCode = opCode;
