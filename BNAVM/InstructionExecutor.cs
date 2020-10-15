@@ -11,12 +11,13 @@ namespace BNAVM
 	class InstructionExecutor
 	{
 		/// <summary>
-		/// Sequential array of <see cref="Instruction"/> representing the program to run.
+		/// Sequential array of <see cref="Instruction"/> representing the
+		/// program to run.
 		/// </summary>
 		private Instruction[] program;
 
 		/// <summary>
-		/// The instruction pointer, an index into the <see cref="program"/> array.
+		/// The instruction pointer, an index to <see cref="program"/> array.
 		/// </summary>
 		private int ip = 0;
 

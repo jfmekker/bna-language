@@ -21,8 +21,9 @@ namespace BNAB
 	/// </summary>
 	public enum OperandDataType
 	{
-		INTEGER,
+		INTEGER = 1,
 		FLOAT,
 		STRING,
+		// TODO add LIST and ELEMENT
 	}
 }

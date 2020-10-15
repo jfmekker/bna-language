@@ -1,24 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BNAB;
 
 namespace BNAVM.Data
 {
 	public class FloatValue : DataValue
 	{
+		public double Value;
+
+		public FloatValue( double value )
+		{
+			Value = value;
+			Type = OperandDataType.FLOAT;
+		}
+
 		public override DataValue ADD( DataValue op2 )
 		{
 			throw new NotImplementedException( );
 		}
 
-		public override DataValue PRINT( )
-		{
-			throw new NotImplementedException( );
-		}
-
-		public override DataValue SET( DataValue op2 )
+		public override void PRINT( )
 		{
 			throw new NotImplementedException( );
 		}

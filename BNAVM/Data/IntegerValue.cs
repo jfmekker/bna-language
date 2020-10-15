@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BNAB;
 
 namespace BNAVM.Data
 {
@@ -13,6 +10,7 @@ namespace BNAVM.Data
 		public IntegerValue( long value )
 		{
 			Value = value;
+			Type = OperandDataType.INTEGER;
 		}
 
 		public override DataValue ADD( DataValue op2 )
