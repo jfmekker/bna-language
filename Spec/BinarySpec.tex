@@ -43,9 +43,15 @@
 		
 		\subsection*{Version Number}
 		
+		BNA version for this file. Not currently used.
+		
 		\subsection*{Data Length}
 		
+		Length of the Data segment in bytes.
+		
 		\subsection*{Text Length}
+		
+		Length of the Text segment in bytes.
 	
 		\newpage
 	
@@ -65,11 +71,11 @@
 
 		\subsubsection*{Identifier}
 
-		Length of the data entry in \textbf{bytes}.
+		Identifier for this value. Used in instructions to find the value of this literal.
 
 		\subsubsection*{Type}
 
-		Length of the data entry in \textbf{bytes}.
+		Data type of the value(s). % TODO determine types
 		
 		\subsubsection*{Length}
 		
@@ -104,24 +110,22 @@
 			The type of operand in the \verb|operand 2| field. Uses the below table for the type values.
 			
 			\vspace{10pt}
-			\begin{tabular}{|l|c|}
+			\begin{tabular}{l|c|l}
+				\textbf{Code} & \textbf{Type} & \textbf{Value} \\ 
 				\hline 
-				\textbf{Code} & \textbf{Type} \\ 
+				\verb|0x00| & None & There is no second operand for this operation. \\ 
 				\hline 
-				\verb|0x00| & None \\ 
+				\verb|0x01| & Variable & Stored as a variable, with \verb|operand 2| as the identifier. \\ 
 				\hline 
-				\verb|0x01| & Variable \\ 
+				\verb|0x10| & Literal & Stored as a literal, with \verb|operand 2| as the identifier. \\ 
 				\hline 
-				\verb|0x10| & Literal \\ 
-				\hline 
-				\verb|0x11| & Small Literal \\ 
-				\hline 
+				\verb|0x11| & Small Literal & Value is \verb|operand 2| as a sign-extended integer. \\ 
 			\end{tabular} 
 			
 			
 			\subsubsection*{operand 2}
 	
-			Identifier or value for the second operand.
+			Identifier or value for the second operand. See \verb|op2 type|
 	
 	
 \end{document}
