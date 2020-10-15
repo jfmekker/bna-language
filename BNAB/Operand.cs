@@ -11,7 +11,7 @@ namespace BNAB
 	/// </summary>
 	public enum OperandType
 	{
-		VARIABLE,
+		VARIABLE = 1,
 		LITERAL,
 		SMALL_LITERAL
 	}

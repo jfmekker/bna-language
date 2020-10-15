@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BNAB;
+using BNAVM.Data;
 
 namespace BNAVM
 {
@@ -18,7 +19,7 @@ namespace BNAVM
 			variables = new DataSegment( );
 		}
 
-		public OperandDataType FindLiteralDataType( int id )
+		private OperandDataType FindLiteralDataType( int id )
 		{
 			if ( literals.GetIntData( id ).HasValue )
 				return OperandDataType.INTEGER;
@@ -30,7 +31,7 @@ namespace BNAVM
 			throw new Exception( "Could not find literal with key: " + id );
 		}
 
-		public OperandDataType FindVariableDataType( int id )
+		private OperandDataType FindVariableDataType( int id )
 		{
 			if ( variables.GetIntData( id ).HasValue )
 				return OperandDataType.INTEGER;
@@ -42,7 +43,7 @@ namespace BNAVM
 			throw new Exception( "Could not find variable with key: " + id );
 		}
 
-		public long GetLiteralIntValue( int id )
+		private long GetLiteralIntValue( int id )
 		{
 			long? value = literals.GetIntData( id );
 			if ( !value.HasValue )
@@ -50,7 +51,7 @@ namespace BNAVM
 			return (long)value;
 		}
 
-		public double GetLiteralFloatValue( int id )
+		private double GetLiteralFloatValue( int id )
 		{
 			double? value = literals.GetFloatData( id );
 			if ( !value.HasValue )
@@ -58,7 +59,7 @@ namespace BNAVM
 			return (double)value;
 		}
 
-		public string GetLiteralStringValue( int id )
+		private string GetLiteralStringValue( int id )
 		{
 			string value = literals.GetStringData( id );
 			if ( value == null )
@@ -66,7 +67,7 @@ namespace BNAVM
 			return value;
 		}
 
-		public long GetVariableIntValue( int id )
+		private long GetVariableIntValue( int id )
 		{
 			long? value = variables.GetIntData( id );
 			if ( !value.HasValue )
@@ -74,7 +75,7 @@ namespace BNAVM
 			return (long)value;
 		}
 
-		public double GetVariableFloatValue( int id )
+		private double GetVariableFloatValue( int id )
 		{
 			double? value = variables.GetFloatData( id );
 			if ( !value.HasValue )
@@ -82,7 +83,7 @@ namespace BNAVM
 			return (double)value;
 		}
 
-		public string GetVariableStringValue( int id )
+		private string GetVariableStringValue( int id )
 		{
 			string value = variables.GetStringData( id );
 			if ( value == null )
@@ -90,19 +91,33 @@ namespace BNAVM
 			return value;
 		}
 
-		public void SetVariableIntValue( int id , long value )
+		private void SetVariableIntValue( int id , long value )
 		{
 			variables.SetIntData( id , value );
 		}
 
-		public void SetVariableFloatValue( int id , double value )
+		private void SetVariableFloatValue( int id , double value )
 		{
 			variables.SetFloatData( id , value );
 		}
 
-		public void SetVariableStringValue( int id , string value )
+		private void SetVariableStringValue( int id , string value )
 		{
 			variables.SetStringData( id , value );
+		}
+
+		public DataValue GetVariable( int id )
+		{
+			return null;
+		}
+
+		public DataValue GetLiteral( int id )
+		{
+			return null;
+		}
+
+		public void SetVariable( int id , DataValue value )
+		{
 		}
 	}
 }

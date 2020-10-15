@@ -8,6 +8,16 @@ namespace BNAVM
 {
 	class Program
 	{
+		public static OperandHandler OperandHandler
+		{
+			get; private set;
+		}
+
+		public static InstructionExecutor InstructionExecutor
+		{
+			get; private set;
+		}
+
 		static void Main( string[] args )
 		{
 			Console.WriteLine( "================================================================================" );

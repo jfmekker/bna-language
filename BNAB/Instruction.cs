@@ -51,6 +51,8 @@ namespace BNAB
 		{
 			get
 			{
+				// TODO
+				// I think we need to sign extend here for negative numbers
 				return (int)BitHelper.GetBits( 30 , 31 , _raw );
 			}
 

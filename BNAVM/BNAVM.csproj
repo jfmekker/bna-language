@@ -43,6 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\DataValue.cs" />
+    <Compile Include="Data\FloatValue.cs" />
+    <Compile Include="Data\IntegerValue.cs" />
+    <Compile Include="Data\StringValue.cs" />
     <Compile Include="InstructionExecutor.cs" />
     <Compile Include="OperandHandler.cs" />
     <Compile Include="Program.cs" />
