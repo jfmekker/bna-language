@@ -1,7 +1,7 @@
 ﻿namespace BNAB
 {
 	/// <summary>
-	/// 
+	/// How an operand value is stored.
 	/// </summary>
 	public enum OperandType
 	{
@@ -11,7 +11,7 @@
 	}
 
 	/// <summary>
-	/// 
+	/// What the actual data of an operand is.
 	/// </summary>
 	public enum OperandDataType
 	{

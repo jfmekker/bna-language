@@ -132,10 +132,8 @@ namespace BNAB
 		/// <summary>
 		/// Create an empty <see cref="Binary"/> instance
 		/// </summary>
-		public Binary( BinaryReader file )
+		public Binary( )
 		{
-			if ( !Init( file ) )
-				throw new Exception( "Failed to build Binary object from file." );
 		}
 
 		/// <summary>
