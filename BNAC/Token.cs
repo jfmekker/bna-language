@@ -26,8 +26,8 @@ namespace BNAC
 		MOD,
 		LOG,
 		ROUND,
-		LIST,
-		APPEND,
+		//LIST,
+		//APPEND,
 		OPEN,
 		CLOSE,
 		READ,   // TODO change keywords for IO operations
@@ -43,7 +43,7 @@ namespace BNAC
 		IF,
 		WITH,
 		OF,
-		SIZE,
+		//SIZE,
 		AS,
 	}
 
@@ -58,7 +58,7 @@ namespace BNAC
 		LABEL_START = '^',
 		LABEL_END = ':',
 		LINE_END = '\n',
-		ACCESSOR = '@',
+		//ACCESSOR = '@',
 	}
 
 	internal enum TokenType
@@ -174,7 +174,7 @@ namespace BNAC
 				// Letters, numbers, underscores, accessor, or anything in a string passes
 				if ( char.IsLetterOrDigit( c )
 					|| c == '_'
-					|| c == (char)Symbol.ACCESSOR
+					//|| c == (char)Symbol.ACCESSOR
 					|| inString ) {
 
 					candidate += c;
@@ -193,7 +193,7 @@ namespace BNAC
 				else {
 					switch ( c ) {
 						// ACCESSOR
-						case (char)Symbol.ACCESSOR:
+						//case (char)Symbol.ACCESSOR:
 						// LABEL_START
 						case (char)Symbol.LABEL_START:
 						// LABEL_END

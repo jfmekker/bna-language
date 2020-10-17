@@ -31,8 +31,8 @@ namespace BNAC
 		OP_ROUND,
 
 		// list operations
-		OP_LIST,
-		OP_APPEND,
+		//OP_LIST,
+		//OP_APPEND,
 
 		// io operations
 		OP_OPEN_R,
@@ -268,13 +268,13 @@ namespace BNAC
 				}
 
 				// LIST var SIZE var|lit
-				case Keyword.LIST: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
-					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.SIZE } );
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
-					candidate.Type = StatementType.OP_LIST;
-					break;
-				}
+				//case Keyword.LIST: {
+				//	candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+				//	candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.SIZE } );
+				//	candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
+				//	candidate.Type = StatementType.OP_LIST;
+				//	break;
+				//}
 
 				// APPEND var|lit TO var
 				case Keyword.APPEND: {

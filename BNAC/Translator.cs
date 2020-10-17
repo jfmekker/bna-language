@@ -124,12 +124,12 @@ namespace BNAC
 					case StatementType.OP_ROUND:
 						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = int(round(" + PythonOperand( statement , 1 ) + "))" );
 						break;
-					case StatementType.OP_LIST:
-						str.AppendLine( indent + PythonOperand( statement , 1 ) + " = [0] * " + PythonOperand( statement , 2 ) );
-						break;
-					case StatementType.OP_APPEND:
-						str.AppendLine( indent + PythonOperand( statement , 1 ) + ".append(" + PythonOperand( statement , 2 ) + ")" );
-						break;
+					//case StatementType.OP_LIST:
+					//	str.AppendLine( indent + PythonOperand( statement , 1 ) + " = [0] * " + PythonOperand( statement , 2 ) );
+					//	break;
+					//case StatementType.OP_APPEND:
+					//	str.AppendLine( indent + PythonOperand( statement , 1 ) + ".append(" + PythonOperand( statement , 2 ) + ")" );
+					//	break;
 
 					// Test operations
 					case StatementType.OP_TEST_GT:
