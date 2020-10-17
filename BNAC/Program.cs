@@ -53,6 +53,52 @@ namespace BNAC
 			return "";
 		}
 
+
+		private static void CompileToBinary( Queue<string> lines , string filename )
+		{
+			// Create and open file for output
+			var file = File.Open( filename , FileMode.CreateNew , FileAccess.Write );
+			var writer = new BinaryWriter( file );
+
+			try {
+				// Convert lines to token stream
+				Queue<Token> tokens = Token.TokenizeProgram( lines );
+				Console.WriteLine( "\nTokens :" );
+				foreach ( Token t in tokens ) {
+					Console.WriteLine( "  " + t.ToString( ) );
+				}
+
+				Console.WriteLine( " " + tokens.Count + " total" );
+
+				// Parse statements from token stream
+				Queue<Statement> statements = Statement.ParseStatements( tokens );
+				Console.WriteLine( "\nStatements :" );
+				foreach ( Statement s in statements ) {
+					Console.WriteLine( "  " + s.ToString( ) );
+				}
+
+				Console.WriteLine( " " + statements.Count + " total" );
+
+				// Compile to binary
+				Queue<ulong> words = null; // TODO
+				foreach ( ulong w in words ) {
+					writer.Write( w );
+				}
+
+				Console.WriteLine( "Size of binary: " + words.Count + " words ( " + ( words.Count / sizeof( ulong ) ) + " bytes )" );
+			}
+			catch ( Exception e ) {
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Error.WriteLine( "BNAC caught Exception while compiling!:" );
+				Console.Error.WriteLine( e.ToString( ) );
+				Console.ResetColor( );
+			}
+			finally {
+				writer.Close( );
+				file.Close( );
+			}
+		}
+
 		/// <summary>
 		/// Compile a function to Python, or take input from the terminal
 		/// </summary>
@@ -65,9 +111,12 @@ namespace BNAC
 
 			// If no arguments, take input from command line
 			if ( args.Length == 0 ) {
+				Console.Write( "Output file name (.bb will be appended): " );
+				string filename = Console.ReadLine( );
+
 				while ( true ) {
 					// Usage
-					Console.WriteLine( "\nInsert BNA code to translate to Python (use '~' to end):" );
+					Console.WriteLine( "\nInsert BNA code to compile (use '~' to end):" );
 
 					// Read and queue lines
 					var lines = new Queue<string>( );
@@ -84,7 +133,7 @@ namespace BNAC
 					}
 
 					// Output 
-					CompileToPython( lines );
+					//CompileToPython( lines );
 
 					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 

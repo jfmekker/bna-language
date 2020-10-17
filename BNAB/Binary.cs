@@ -134,6 +134,8 @@ namespace BNAB
 		/// </summary>
 		public Binary( )
 		{
+			Data = new DataSegment( );
+			Text = new TextSegment( );
 		}
 
 		/// <summary>

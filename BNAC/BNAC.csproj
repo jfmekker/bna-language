@@ -62,7 +62,12 @@
     <Content Include="test\output.txt" />
     <Content Include="test\test.py" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\BNAB\BNAB.csproj">
+      <Project>{45BF8945-3A1F-49BC-906F-8A7188B0F7CB}</Project>
+      <Name>BNAB</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
