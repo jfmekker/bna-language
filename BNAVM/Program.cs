@@ -18,31 +18,47 @@ namespace BNAVM
 
 		static void Main( string[] args )
 		{
-			/// Intro banner
+			// Intro banner
 			Console.WriteLine( "================================================================================" );
 			Console.WriteLine( "Welcome to the BNA's Not Assembly Virtual Machine!" );
 			Console.WriteLine( "================================================================================" );
 
-			/// Read file
-			var file = File.Open( args[0] , FileMode.Open , FileAccess.Read );
+			// Get the file name
+			string filename;
+			if ( args.Length == 0 ) {
+				Console.Write( "filename: " );
+				filename = Console.ReadLine( );
+			}
+			else {
+				filename = args[0];
+			}
+
+			// Read file
+			var file = File.Open( filename , FileMode.Open , FileAccess.Read );
 			var reader = new BinaryReader( file );
 
-			/// Create Text and Data segments in Binary object
+			// Create Text and Data segments in Binary object
 			Console.WriteLine( "Parsing binary file..." );
 			var binary = new Binary( );
 			bool parsed = binary.Init( reader );
 			file.Close( );
-			if ( !parsed )
+			if ( !parsed ) // TODO replace with try catch?
 				return;
 
-			/// Create Handler and Executor
-			OperandHandler = new OperandHandler( binary.Data );
-			InstructionExecutor = new InstructionExecutor( binary.Text );
+			Console.WriteLine( "File parsed:\n" );
+			Console.WriteLine( binary.ToString( ) );
 
-			/// Execute
-			Console.WriteLine( "Running program..." );
-			int return_code = InstructionExecutor.ExecuteProgram( );
-			Console.WriteLine( "Program completed with return=" + return_code );
+			// Create Handler and Executor
+			//OperandHandler = new OperandHandler( binary.Data );
+			//InstructionExecutor = new InstructionExecutor( binary.Text );
+
+			// Execute
+			//Console.WriteLine( "Running program..." );
+			//int return_code = InstructionExecutor.ExecuteProgram( );
+			//Console.WriteLine( "Program completed with return=" + return_code );
+
+			Console.Write( "hit enter to exit..." );
+			Console.ReadLine( );
 		}
 	}
 }

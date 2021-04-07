@@ -56,8 +56,8 @@ namespace BNAB
 		/// </summary>
 		private void ReadEntries( )
 		{
-			if ( IntData != null && FloatData != null && StringData != null )
-				return;
+			if ( IntData.Count != 0 || FloatData.Count != 0 || StringData.Count != 0 )
+				throw new Exception( "Non-empty data segment told to read entries!" );
 
 			// Parse word-by-word
 			for ( int i = 0 ; i < Raw.Length ; ) {
@@ -70,14 +70,14 @@ namespace BNAB
 				i += 1;
 				switch ( type ) {
 					case DataEntryType.LITERAL_INT:
-						if ( length != 4 )
+						if ( length != sizeof(ulong) )
 							throw new Exception( "Bad length for literal integer." );
 						IntData.Add( id , (long)Raw[i] );
 						i += 1;
 						break;
 
 					case DataEntryType.LITERAL_FLOAT:
-						if ( length != 4 )
+						if ( length != sizeof(double) )
 							throw new Exception( "Bad length for literal float." );
 						FloatData.Add( id , BitHelper.WordToDouble( Raw[i] ) );
 						i += 1;
