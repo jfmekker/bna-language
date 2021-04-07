@@ -271,5 +271,30 @@ namespace BNAB
 				writer.Close( );
 			}
 		}
+
+		/// <summary>
+		/// Gives a readout of the binary as a string.
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString( )
+		{
+			string s = "";
+			s += "****************************************\n";
+			s += "**** BNA binary file *******************\n";
+			s += "****************************************\n\n";
+
+			s += "**** HEAD ****";
+			s += "\nMagic       = " + this.Magic.ToString( ); // TODO as hex
+			s += "\nVersion     = " + this.BNAVersion;
+			s += "\nData Length = " + this.DataLength + " words";
+			s += "\nText Length = " + this.TextLength + " words";
+			s += "\nChecksum    = " + this.Checksum + "(" + (this.ChecksumValid() ? "valid" : "invalid") + ")\n\n"; // TODO as hex
+
+			s += this.Data.ToString( ) + "\n";
+
+			s += this.Text.ToString( );
+
+			return s;
+		}
 	}
 }

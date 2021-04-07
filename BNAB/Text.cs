@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace BNAB
 {
@@ -70,6 +71,22 @@ namespace BNAB
 			for ( int i = 0 ; i < Raw.Length ; i += 1 ) {
 				Raw[i] = InstructionList[i].GetRawWord();
 			}
+		}
+
+		/// <summary>
+		/// Gives all the instructions in the text segment as a string.
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString( )
+		{
+			var str = new StringBuilder( );
+			str.AppendLine( "**** TEXT ****" );
+
+			for ( int i = 0 ; i < this.InstructionList.Count ; i += 1 ) {
+				str.AppendLine( this.InstructionList[i].ToString( ) );
+			}
+
+			return str.ToString( );
 		}
 	}
 }

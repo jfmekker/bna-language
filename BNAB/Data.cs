@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using BNAB.Util;
 
 namespace BNAB
@@ -210,6 +211,42 @@ namespace BNAB
 		public int GetNextId( )
 		{
 			return _next_id++;
+		}
+
+		/// <summary>
+		/// Give all the data entries in the data segment as a string.
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString( )
+		{
+			var str = new StringBuilder( );
+			str.AppendLine( "**** DATA ****" );
+
+			foreach ( KeyValuePair<int , long> pair in IntData ) {
+				str.Append( "Entry: type=int id=" );
+				str.Append( pair.Key );
+				str.Append( " value=" );
+				str.Append( pair.Value );
+				str.AppendLine( );
+			}
+
+			foreach ( KeyValuePair<int , double> pair in FloatData ) {
+				str.Append( "Entry: type=float id=" );
+				str.Append( pair.Key );
+				str.Append( " value=" );
+				str.Append( pair.Value );
+				str.AppendLine( );
+			}
+
+			foreach ( KeyValuePair<int , string> pair in StringData ) {
+				str.Append( "Entry: type=string id=" );
+				str.Append( pair.Key );
+				str.Append( " value=" );
+				str.Append( pair.Value );
+				str.AppendLine( );
+			}
+
+			return str.ToString();
 		}
 	}
 }

@@ -24,7 +24,7 @@ namespace BNAC
 
 				OpCode op_code = s.GetOpCode();
 
-				int op1 = 0, op2 = 0; // TODO check that 0 is invalid(?)
+				int op1 = 0, op2 = 0;
 				OperandType op2_type = OperandType.VARIABLE;
 
 				switch ( s.Type ) {
@@ -33,7 +33,17 @@ namespace BNAC
 					case StatementType.OP_WAIT:
 					case StatementType.OP_PRINT:
 					{
-						//TODO
+						// Operand 2
+						// TODO check for small literals
+						Token t = s.Operand2;
+						if ( dataIDs.TryGetValue( t , out int id ) ) {
+							op2 = id;
+						}
+						else {
+							id = data.GetNextId( );
+							op2 = id;
+							dataIDs.Add( t , id );
+						}
 						break;
 					}
 
@@ -44,7 +54,7 @@ namespace BNAC
 					case StatementType.OP_GOTO:
 					case StatementType.LABEL:
 					{
-						// TODO
+						// TODO ?
 						Token t = s.Operand1;
 						if ( t.Type != TokenType.VARIABLE )
 							throw new Exception( "First operand must be variable." );
@@ -58,7 +68,6 @@ namespace BNAC
 							dataIDs.Add( t , id );
 						}
 
-						op2 = 0;
 						break;
 					}
 						
@@ -85,11 +94,11 @@ namespace BNAC
 						// TODO check for small literals
 						t = s.Operand2;
 						if ( dataIDs.TryGetValue( t , out id ) ) {
-							op1 = id;
+							op2 = id;
 						}
 						else {
 							id = data.GetNextId( );
-							op1 = id;
+							op2 = id;
 							dataIDs.Add( t , id );
 						}
 						break;

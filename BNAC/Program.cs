@@ -84,6 +84,9 @@ namespace BNAC
 				int num_words = Binary.HEADER_SIZE_WORDS + bin.TextLength + bin.DataLength;
 
 				Console.WriteLine( "Size of binary: " + num_words + " words ( " + ( num_words * Binary.WORD_SIZE_BYTES ) + " bytes )" );
+
+				Console.WriteLine( );
+				Console.WriteLine( bin.ToString( ) );
 			}
 			catch ( Exception e ) {
 				Console.ForegroundColor = ConsoleColor.Red;
@@ -109,11 +112,20 @@ namespace BNAC
 
 			// If no arguments, take input from command line
 			if ( args.Length == 0 ) {
-				Console.Write( "Output file name (.bb will be appended): " );
-				string filename = Console.ReadLine( );
-
 				while ( true ) {
-					// Usage
+					// Get new filename
+					Console.Write( "Output file name (.bb will be appended): " );
+					string filename = Console.ReadLine( ) + ".bb";
+					if ( File.Exists( filename ) ) {
+						Console.Write( "File '" + filename + "' already exists, delete it? (y/n): " );
+						if ( Console.ReadLine( ).Equals("y") ) {
+							File.Delete( filename );
+						}
+						else {
+							continue;
+						}
+					}
+
 					Console.WriteLine( "\nInsert BNA code to compile (use '~' to end):" );
 
 					// Read and queue lines
@@ -134,7 +146,7 @@ namespace BNAC
 
 					// Open output file and output
 					try {
-						var file = File.Open( filename + ".bb" , FileMode.CreateNew , FileAccess.Write );
+						var file = File.Open( filename , FileMode.CreateNew , FileAccess.Write );
 						CompileToBinary( lines , file );
 					}
 					catch (Exception e) {

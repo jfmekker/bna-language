@@ -111,5 +111,14 @@ namespace BNAB
 		{
 			return _raw;
 		}
+
+		/// <summary>
+		/// Gives the instruction information as a string.
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString( )
+		{
+			return "[" + this.OpCode.ToString() + "] op1_id:" + this.Operand1 + " op2_id:" + this.Operand2; // TODO
+		}
 	}
 }
