@@ -59,5 +59,17 @@ namespace BNAB
 		{
 			return InstructionList.ToArray( );
 		}
+
+		/// <summary>
+		/// Writes the instructions in the current list to the raw array.
+		/// </summary>
+		public void WriteInstructions( )
+		{
+			Raw = new ulong[InstructionList.Count];
+
+			for ( int i = 0 ; i < Raw.Length ; i += 1 ) {
+				Raw[i] = InstructionList[i].GetRawWord();
+			}
+		}
 	}
 }

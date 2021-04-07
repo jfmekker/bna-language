@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BNAB;
 
 namespace BNAC
 {
@@ -54,10 +55,8 @@ namespace BNAC
 		}
 
 
-		private static void CompileToBinary( Queue<string> lines , string filename )
+		private static void CompileToBinary( Queue<string> lines , FileStream file )
 		{
-			// Create and open file for output
-			var file = File.Open( filename , FileMode.CreateNew , FileAccess.Write );
 			var writer = new BinaryWriter( file );
 
 			try {
@@ -80,12 +79,11 @@ namespace BNAC
 				Console.WriteLine( " " + statements.Count + " total" );
 
 				// Compile to binary
-				Queue<ulong> words = null; // TODO
-				foreach ( ulong w in words ) {
-					writer.Write( w );
-				}
+				Binary bin = Compiler.CompileStatements( statements );
+				bin.Write(writer);
+				int num_words = Binary.HEADER_SIZE_WORDS + bin.TextLength + bin.DataLength;
 
-				Console.WriteLine( "Size of binary: " + words.Count + " words ( " + ( words.Count / sizeof( ulong ) ) + " bytes )" );
+				Console.WriteLine( "Size of binary: " + num_words + " words ( " + ( num_words * Binary.WORD_SIZE_BYTES ) + " bytes )" );
 			}
 			catch ( Exception e ) {
 				Console.ForegroundColor = ConsoleColor.Red;
@@ -126,20 +124,24 @@ namespace BNAC
 
 						// end on tilda '~'
 						if ( input.Equals( "~" ) ) {
+							if ( lines.Count == 0 )
+								return;
 							break;
 						}
 
 						lines.Enqueue( input );
 					}
 
-					// Output 
-					//CompileToPython( lines );
-
-					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
-
-					// Wait to continue, check for exit
-					if ( Console.ReadLine( ).Equals( "~" ) ) {
-						break;
+					// Open output file and output
+					try {
+						var file = File.Open( filename + ".bb" , FileMode.CreateNew , FileAccess.Write );
+						CompileToBinary( lines , file );
+					}
+					catch (Exception e) {
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.Error.WriteLine( "BNAC caught Exception while compiling!:" );
+						Console.Error.WriteLine( e.ToString( ) );
+						Console.ResetColor( );
 					}
 				}
 			}

@@ -85,12 +85,12 @@ namespace BNAB
 		/// <param name="op1"><see cref="Operand1"/></param>
 		/// <param name="op2type"><see cref="Op2Type"/></param>
 		/// <param name="op2"><see cref="Operand2"/></param>
-		public Instruction( OpCode opCode , int op1 , int op2type , int op2 )
+		public Instruction( OpCode opCode , int op1 , OperandType op2type , int op2 )
 		{
 			_raw = 0;
 			OpCode = opCode;
 			Operand1 = op1;
-			Op2Type = op2type;
+			Op2Type = (int) op2type;
 			Operand2 = op2;
 		}
 
@@ -101,6 +101,15 @@ namespace BNAB
 		public Instruction( ulong raw )
 		{
 			_raw = raw;
+		}
+
+		/// <summary>
+		/// Gets the binay word of the Instruction.
+		/// </summary>
+		/// <returns>binary word of the instruction.</returns>
+		public ulong GetRawWord( )
+		{
+			return _raw;
 		}
 	}
 }

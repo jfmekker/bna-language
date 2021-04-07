@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BNAB;
 
 namespace BNAC
 {
@@ -277,13 +278,13 @@ namespace BNAC
 				//}
 
 				// APPEND var|lit TO var
-				case Keyword.APPEND: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
-					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
-					candidate.Type = StatementType.OP_APPEND;
-					break;
-				}
+				//case Keyword.APPEND: {
+				//	candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
+				//	candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
+				//	candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+				//	candidate.Type = StatementType.OP_APPEND;
+				//	break;
+				//}
 
 				// OPEN var|string AS READ|WRITE var
 				case Keyword.OPEN: {
@@ -397,6 +398,26 @@ namespace BNAC
 			}
 
 			return str + "}";
+		}
+
+		/// <summary>
+		/// Gives the proper OpCode based on the Statement's type.
+		/// </summary>
+		/// <returns>An OpCode for the Statement.</returns>
+		public OpCode GetOpCode( )
+		{
+			// TODO
+			switch ( this.Type ) {
+				case StatementType.OP_SET:
+					return OpCode.SET;
+				case StatementType.OP_ADD:
+					return OpCode.ADD;
+				case StatementType.OP_PRINT:
+					return OpCode.PRINT;
+			}
+
+			// unknown or not add here yet
+			throw new NotImplementedException( );
 		}
 	}
 }
