@@ -119,7 +119,7 @@ namespace BNAC
 						break;
 
 					default:
-						throw new Exception( "Invalid start of statement: " + token );
+						throw new CompiletimeException( "Invalid start of statement: " + token );
 
 				}
 
@@ -339,7 +339,7 @@ namespace BNAC
 				}
 
 				default:
-					throw new Exception( "Invalid start of statement: " + token.ToString( ) );
+					throw new CompiletimeException( "Invalid start of statement: " + token.ToString( ) );
 
 			}
 

@@ -115,7 +115,7 @@ namespace BNAC
 			if ( this.Type == TokenType.UNKNOWN ) {
 				// Sanity check the length
 				if ( this.Value.Length <= 0 ) {
-					throw new Exception( "Can not identify Token with empty value." );
+					throw new CompiletimeException( "Can not identify Token with empty value." );
 				}
 
 				// Literal
@@ -127,7 +127,7 @@ namespace BNAC
 						return TokenType.LITERAL;
 					}
 					else {
-						throw new Exception( "Failed to parse literal value: '" + this.Value + "'." );
+						throw new CompiletimeException( "Failed to parse literal value: '" + this.Value + "'." );
 					}
 				}
 
@@ -225,7 +225,7 @@ namespace BNAC
 						// Negative sign
 						case '-':
 							if ( candidate.Length > 0 ) {
-								throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+								throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 							}
 
 							candidate += c;
@@ -235,7 +235,7 @@ namespace BNAC
 						case '.':
 							foreach ( char ch in candidate ) {
 								if ( !char.IsDigit( ch ) || ch == '-' ) {
-									throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+									throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 								}
 							}
 
@@ -249,14 +249,14 @@ namespace BNAC
 							break;
 
 						default:
-							throw new Exception( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+							throw new CompiletimeException( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 					}
 				}
 			}
 
 			// Add last candidate
 			if ( inString ) {
-				throw new Exception( "Line ended before string: '" + candidate + "'." );
+				throw new CompiletimeException( "Line ended before string: '" + candidate + "'." );
 			}
 
 			if ( candidate.Length > 0 ) {
@@ -293,10 +293,10 @@ namespace BNAC
 		public static void ThrowIfNotType( Token token , TokenType type )
 		{
 			if ( token == null ) {
-				throw new Exception( "Expected " + type.ToString( ) + " token, instead got null." );
+				throw new CompiletimeException( "Expected " + type.ToString( ) + " token, instead got null." );
 			}
 			else if ( token.Type != type ) {
-				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString( ) + "." );
+				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString( ) + "." );
 			}
 		}
 
@@ -308,10 +308,10 @@ namespace BNAC
 		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
 		{
 			if ( token == null ) {
-				throw new Exception( "Expected " + types.ToString( ) + " token, instead got null." );
+				throw new CompiletimeException( "Expected " + types.ToString( ) + " token, instead got null." );
 			}
 			else if ( !types.Contains( token.Type ) ) {
-				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
+				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
 			}
 		}
 
@@ -323,7 +323,7 @@ namespace BNAC
 		{
 			ThrowIfNotType( this , TokenType.KEYWORD );
 			if ( Enum.TryParse( this.Value , out Keyword result ) && result != keyword ) {
-				throw new Exception( "Token not expected keyword " + keyword.ToString( ) + ": " + this.ToString( ) );
+				throw new CompiletimeException( "Token not expected keyword " + keyword.ToString( ) + ": " + this.ToString( ) );
 			}
 		}
 
@@ -350,7 +350,7 @@ namespace BNAC
 				}
 
 				message += "]: " + this.ToString( );
-				throw new Exception( message );
+				throw new CompiletimeException( message );
 			}
 		}
 
@@ -362,7 +362,7 @@ namespace BNAC
 		{
 			ThrowIfNotType( this , TokenType.SYMBOL );
 			if ( Enum.TryParse( this.Value , out Symbol result ) && result != symbol ) {
-				throw new Exception( "Token not expected keyword " + symbol.ToString( ) + ": " + this.ToString( ) );
+				throw new CompiletimeException( "Token not expected keyword " + symbol.ToString( ) + ": " + this.ToString( ) );
 			}
 		}
 
@@ -389,7 +389,7 @@ namespace BNAC
 				}
 
 				message += ": " + this.ToString( );
-				throw new Exception( message );
+				throw new CompiletimeException( message );
 			}
 		}
 

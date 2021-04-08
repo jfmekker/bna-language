@@ -5,9 +5,12 @@
 	/// </summary>
 	public enum OperandType
 	{
+		NONE = 0,
 		VARIABLE = 1,
 		LITERAL,
-		SMALL_LITERAL
+		ELEMENT,
+		LIST,
+		STRING
 	}
 
 	/// <summary>

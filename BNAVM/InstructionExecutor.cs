@@ -91,9 +91,9 @@ namespace BNAVM
 			else if ( (OperandType)instr.Op2Type == OperandType.VARIABLE ) {
 				op2 = Program.OperandHandler.GetVariable( instr.Operand2 );
 			}
-			else if ( (OperandType)instr.Op2Type == OperandType.SMALL_LITERAL ) {
-				op2 = new IntegerValue( instr.Operand2 );
-			}
+			//else if ( (OperandType)instr.Op2Type == OperandType.SMALL_LITERAL ) {
+			//	op2 = new IntegerValue( instr.Operand2 );
+			//}
 			else {
 				op2 = null;
 			}
@@ -113,7 +113,7 @@ namespace BNAVM
 				// TODO more cases
 
 				default:
-					throw new Exception("Unexpected instruction op code.");
+					throw new RuntimeException("Unexpected instruction op code.", ip, instr);
 			}
 		}
 	}

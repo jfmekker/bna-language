@@ -45,7 +45,8 @@ namespace BNAVM
 			if ( !parsed ) // TODO replace with try catch?
 				return;
 
-			Console.WriteLine( "File parsed:\n" );
+			int size = Binary.HEADER_SIZE_WORDS + binary.DataLength + binary.TextLength;
+			Console.WriteLine( "File parsed (" + (size * Binary.WORD_SIZE_BYTES) + " bytes):\n" );
 			Console.WriteLine( binary.ToString( ) );
 
 			// Create Handler and Executor

@@ -57,7 +57,7 @@ namespace BNAC
 						// TODO ?
 						Token t = s.Operand1;
 						if ( t.Type != TokenType.VARIABLE )
-							throw new Exception( "First operand must be variable." );
+							throw new CompiletimeException( "First operand must be variable." );
 
 						if ( dataIDs.TryGetValue( t , out int id ) ) {
 							op1 = id;
@@ -79,7 +79,7 @@ namespace BNAC
 						// Operand 1
 						Token t = s.Operand1;
 						if ( t.Type != TokenType.VARIABLE )
-							throw new Exception( "First operand must be variable." );
+							throw new CompiletimeException( "First operand must be variable." );
 
 						if ( dataIDs.TryGetValue( t , out int id ) ) {
 							op1 = id;
@@ -105,7 +105,7 @@ namespace BNAC
 					}
 					
 					default:
-						throw new Exception( "Unknown statement type in compiler: " + s.Type );
+						throw new CompiletimeException( "Unknown statement type in compiler: " + s.Type );
 				}
 
 				// Add instruction to Text
