@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BNAC
+namespace BNA
 {
 	/// <summary>
 	/// Coverts BNA statements to code

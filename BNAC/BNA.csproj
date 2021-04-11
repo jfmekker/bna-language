@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4B74E9C7-1FE3-4306-991C-76C9C6F146E7}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>BNAC</RootNamespace>
-    <AssemblyName>BNAC</AssemblyName>
+    <RootNamespace>BNA</RootNamespace>
+    <AssemblyName>BNA</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BNA.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Statement.cs" />

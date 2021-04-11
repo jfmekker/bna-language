@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BNAC
+namespace BNA
 {
 	/// <summary>
 	/// Valid statements or instructions
