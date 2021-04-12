@@ -332,7 +332,7 @@ namespace BNA
 
 				// PRINT var|lit|string
 				case Keyword.PRINT: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 1 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
 					candidate.Type = StatementType.OP_PRINT;
 					break;
 				}

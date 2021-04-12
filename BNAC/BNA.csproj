@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
@@ -47,17 +49,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BNA.cs" />
-    <Compile Include="Operands\ElementOperand.cs" />
-    <Compile Include="Operands\LiteralOperand.cs" />
-    <Compile Include="Operands\Operand.cs" />
-    <Compile Include="Operands\StringOperand.cs" />
-    <Compile Include="Operands\VariableOperand.cs" />
+    <Compile Include="CompiletimeException.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeException.cs" />
     <Compile Include="Statement.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Translator.cs" />
+    <Compile Include="Value.cs" />
     <Compile Include="Variable.cs" />
   </ItemGroup>
   <ItemGroup>

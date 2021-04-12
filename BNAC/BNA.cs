@@ -75,8 +75,22 @@ namespace BNA
 						lines.Enqueue( input );
 					}
 
-					// Output 
-					Compile( lines );
+					// Compile to program and run
+					try {
+						Console.WriteLine( "Compiling Program..." );
+						var prog = new Program( Compile( lines ) );
+						Console.WriteLine( "\nRunning Program...\n" );
+						prog.Run( );
+						Console.WriteLine( );
+					}
+					catch (CompiletimeException e) {
+						Console.WriteLine( "Compiletime Exception caught:" );
+						Console.WriteLine( e.Message );
+					}
+					catch (RuntimeException e) {
+						Console.WriteLine( "Runtime Exception caught:" );
+						Console.WriteLine( e.Message );
+					}
 
 					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 

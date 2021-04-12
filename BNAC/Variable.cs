@@ -6,46 +6,23 @@ using System.Threading.Tasks;
 
 namespace BNA
 {
-	public enum VariableType
-	{
-		INTEGER = 1,
-		FLOAT,
-		STRING,
-		LIST
-	}
-
 	public class Variable
 	{
-		public VariableType Type
-		{
-			get; private set;
-		}
-
-		public object Value
-		{
-			get; private set;
-		}
-
 		public Token Identifier
 		{
 			get; private set;
 		}
 
-		private Variable( )
+		public Value Value
 		{
+			get; set;
 		}
 
-		public static Variable GetVariable( Token token, Dictionary<Token, Variable> vars )
+		public Variable( Token token, Value value = new Value() )
 		{
-			if ( token.Type != TokenType.VARIABLE )
-				return null;
-
-			// TODO check element?
-			
-
-
-
-			return null;
+			this.Identifier = token;
+			this.Value = value;
 		}
+		
 	}
 }

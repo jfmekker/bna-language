@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BNA.Operands
+namespace BNA
 {
-	class ElementOperand : VariableOperand
+	public class CompiletimeException : Exception
 	{
 	}
 }

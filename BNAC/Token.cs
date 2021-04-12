@@ -77,7 +77,6 @@ namespace BNA
 	/// </summary>
 	public struct Token
 	{
-
 		/// <summary>
 		/// The TokenType of this Token.
 		/// </summary>
