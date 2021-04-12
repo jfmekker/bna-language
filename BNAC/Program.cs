@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BNA.Operands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,38 +11,77 @@ namespace BNA
 	/// </summary>
 	public class Program
 	{
-		/// <summary>
-		/// Compiles a queue of BNA lines of code to statements [test].
-		/// </summary>
-		/// <param name="lines">The lines of BNA code to compile</param>
-		/// <returns>String of the compile Python script</returns>
-		public static void Compile( Queue<string> lines )
-		{
-			try {
-				// Convert lines to token stream
-				Queue<Token> tokens = Token.TokenizeProgram( lines );
-				Console.WriteLine( "\nTokens :" );
-				foreach ( Token t in tokens.ToList( ) ) {
-					Console.WriteLine( "  " + t.ToString( ) );
-				}
-				Console.WriteLine( " " + tokens.Count + " total" );
+		private Statement[] Statements;
+		private Dictionary<Token , Variable> Variables;
 
-				// Parse statements from token stream
-				Queue<Statement> statements = Statement.ParseStatements( tokens );
-				Console.WriteLine( "\nStatements :" );
-				foreach ( Statement s in statements.ToList( ) ) {
-					Console.WriteLine( "  " + s.ToString( ) );
-				}
-				Console.WriteLine( " " + statements.Count + " total" );
-			}
-			catch ( Exception e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.Error.WriteLine( "BNA caught Exception while compiling!:" );
-				Console.Error.WriteLine( e.ToString( ) );
-				Console.ResetColor( );
-			}
+		public Program( Statement[] statements )
+		{
+			this.Statements = statements;
+			this.Variables = new Dictionary<Token , Variable>( );
 		}
 
-		
+		public void Run( )
+		{
+			int ip = 0;
+			bool running = true;
+			while ( running ) {
+				// Instruction pointer
+				if ( ip < 0 || ip >= Statements.Length )
+					throw new RuntimeException( null, "Bad instruction pointer value ( " + ip + " )" );
+
+				// Get current statement
+				Statement curr = Statements[ip];
+				if ( curr == null )
+					throw new RuntimeException( null , "No statement at instruction pointer ( " + ip + " )" );
+
+				// Get operand 1
+				Operand op1;
+				// TODO
+
+				// Get operand 2
+				Operand op2;
+				// TODO
+
+				// Execute statement
+				switch ( curr.Type ) {
+					case StatementType.OP_SET:
+						// TODO
+
+						// Get value of Op2
+
+						// Set var Op1 value in dict
+
+						break;
+
+					case StatementType.OP_ADD:
+						// TODO
+
+						// Get value of Op2
+
+						// Get value of Op1
+
+						// Add values
+
+						// Set var Op1 value in dict
+
+						break;
+
+					case StatementType.OP_PRINT:
+						// TODO
+						break;
+
+					case StatementType.LABEL:
+						// TODO
+						break;
+
+					default:
+						throw new RuntimeException( curr, "Unexpected statement type ( " + curr.Type.ToString() + " )" );
+				}
+
+				// Next statement or end
+				if ( ++ip == Statements.Length )
+					running = false;
+			}
+		}
 	}
 }

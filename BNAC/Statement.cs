@@ -57,7 +57,7 @@ namespace BNA
 	/// A collection of tokens that make up a whole valid statement or instruction.
 	/// Each statement maps to a "line of code".
 	/// </summary>
-	internal class Statement
+	public class Statement
 	{
 		/// <summary>
 		/// The StatementType of this Statement
@@ -391,12 +391,18 @@ namespace BNA
 		/// <returns>String description of this Statement</returns>
 		public override string ToString( )
 		{
-			string str = "[" + this.Type + "]   { ";
-			foreach ( Token t in this._tokens ) {
-				str += t.ToString( ) + " ";
-			}
+			string str = "[" + this.Type + "] \t";
 
-			return str + "}";
+			//str += "{";
+			//foreach ( Token t in this._tokens ) {
+			//	str += t.ToString( ) + " ";
+			//}
+			//str += "} ";
+
+			str += "op1=<" + Operand1.ToString( ) + ">  ";
+			str += "op2=<" + Operand2.ToString( ) + ">";
+
+			return str;
 		}
 	}
 }

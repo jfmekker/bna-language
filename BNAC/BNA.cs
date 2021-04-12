@@ -10,6 +10,42 @@ namespace BNA
 	public class BNA
 	{
 		/// <summary>
+		/// Compiles a queue of BNA lines of code to statements [test].
+		/// </summary>
+		/// <param name="lines">The lines of BNA code to compile</param>
+		/// <returns>String of the compile Python script</returns>
+		public static Statement[] Compile( Queue<string> lines )
+		{
+			try {
+				// Convert lines to token stream
+				Queue<Token> tokens = Token.TokenizeProgram( lines );
+				Console.WriteLine( "\nTokens :" );
+				foreach ( Token t in tokens.ToList( ) ) {
+					Console.WriteLine( "  " + t.ToString( ) );
+				}
+				Console.WriteLine( " " + tokens.Count + " total" );
+
+				// Parse statements from token stream
+				Queue<Statement> statements = Statement.ParseStatements( tokens );
+				Console.WriteLine( "\nStatements :" );
+				foreach ( Statement s in statements.ToList( ) ) {
+					Console.WriteLine( "  " + s.ToString( ) );
+				}
+				Console.WriteLine( " " + statements.Count + " total" );
+
+				// Return array of statements
+				return statements.ToArray( );
+			}
+			catch ( Exception e ) {
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Error.WriteLine( "BNA caught Exception while compiling!:" );
+				Console.Error.WriteLine( e.ToString( ) );
+				Console.ResetColor( );
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// Compile a function to Python, or take input from the terminal
 		/// </summary>
 		/// <param name="args">Names of files to compile to Python, can be none.</param>
@@ -40,7 +76,7 @@ namespace BNA
 					}
 
 					// Output 
-					Program.Compile( lines );
+					Compile( lines );
 
 					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 
@@ -78,7 +114,7 @@ namespace BNA
 
 						// Compile it
 						Console.WriteLine( "Compiling file..." );
-						Program.Compile( lines );
+						Compile( lines );
 
 						Console.WriteLine( "\nDone.\n" );
 					}

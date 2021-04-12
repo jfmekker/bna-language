@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BNA
 {
-	internal enum Keyword
+	public enum Keyword
 	{
 		// Empty keyword to represent unknown
 		_,
@@ -47,7 +47,7 @@ namespace BNA
 		AS,
 	}
 
-	internal enum Symbol
+	public enum Symbol
 	{
 		// Default to 'null' value
 		NULL = '\0',
@@ -61,9 +61,10 @@ namespace BNA
 		ACCESSOR = '@',
 	}
 
-	internal enum TokenType
+	public enum TokenType
 	{
-		UNKNOWN,
+		UNKNOWN = -1,
+		NULL = 0,
 		LITERAL,
 		VARIABLE,
 		STRING,
@@ -74,7 +75,7 @@ namespace BNA
 	/// <summary>
 	/// Group of related characters that form keywords/variables/etc.
 	/// </summary>
-	internal class Token
+	public struct Token
 	{
 
 		/// <summary>
@@ -98,7 +99,7 @@ namespace BNA
 		/// </summary>
 		/// <param name="value">The string input of the Token</param>
 		/// <param name="type">The Token's type; if unknown, will attempt identifying</param>
-		private Token( string value , TokenType type = TokenType.UNKNOWN )
+		public Token( string value , TokenType type = TokenType.UNKNOWN )
 		{
 			this.Value = value;
 			this.Type = type;
@@ -109,13 +110,13 @@ namespace BNA
 		/// Try to identify this Token's type if unknown.
 		/// </summary>
 		/// <returns>The potentially identified type</returns>
-		private TokenType IdentifyType( )
+		public TokenType IdentifyType( )
 		{
 			// Don't re-identify if we know it
 			if ( this.Type == TokenType.UNKNOWN ) {
-				// Sanity check the length
+				// Null
 				if ( this.Value.Length <= 0 ) {
-					throw new Exception( "Can not identify Token with empty value." );
+					return TokenType.NULL;
 				}
 
 				// Literal
@@ -292,10 +293,7 @@ namespace BNA
 		/// <param name="type">The TokenType to check for</param>
 		public static void ThrowIfNotType( Token token , TokenType type )
 		{
-			if ( token == null ) {
-				throw new Exception( "Expected " + type.ToString( ) + " token, instead got null." );
-			}
-			else if ( token.Type != type ) {
+			if ( token.Type != type ) {
 				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString( ) + "." );
 			}
 		}
@@ -307,10 +305,7 @@ namespace BNA
 		/// <param name="types">The TokenTypes to check for</param>
 		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
 		{
-			if ( token == null ) {
-				throw new Exception( "Expected " + types.ToString( ) + " token, instead got null." );
-			}
-			else if ( !types.Contains( token.Type ) ) {
+			if ( !types.Contains( token.Type ) ) {
 				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
 			}
 		}
@@ -435,7 +430,7 @@ namespace BNA
 		public override bool Equals( object obj )
 		{
 			if ( obj is Token ) {
-				return ( this.Type == ( obj as Token ).Type ) && ( this.Value == ( obj as Token ).Value );
+				return ( this.Type == ( (Token) obj ).Type ) && ( this.Value == ( (Token) obj ).Value );
 			}
 			return false;
 		}
@@ -458,15 +453,16 @@ namespace BNA
 		/// <returns>String description of the Token</returns>
 		public override string ToString( )
 		{
-			string str = "'" + this.Value + "' (" + this.Type;
+			string str = "(" + this.Type ;
 			if ( this.Type == TokenType.KEYWORD ) {
 				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , this.Value , true ) ).ToString( );
 			}
 			else if ( this.Type == TokenType.SYMBOL && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) ) {
 				str += ":" + Enum.GetName( typeof( Symbol ) , (int)this.Value[0] );
 			}
+			str += ") ";
 
-			return str + ")";
+			return str + this.Value;
 		}
 	}
 }
