@@ -293,7 +293,7 @@ namespace BNA
 		public static void ThrowIfNotType( Token token , TokenType type )
 		{
 			if ( token.Type != type ) {
-				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString( ) + "." );
+				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString( ) + "." );
 			}
 		}
 
@@ -305,7 +305,7 @@ namespace BNA
 		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
 		{
 			if ( !types.Contains( token.Type ) ) {
-				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
+				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
 			}
 		}
 
@@ -317,7 +317,7 @@ namespace BNA
 		{
 			ThrowIfNotType( this , TokenType.KEYWORD );
 			if ( Enum.TryParse( this.Value , out Keyword result ) && result != keyword ) {
-				throw new Exception( "Token not expected keyword " + keyword.ToString( ) + ": " + this.ToString( ) );
+				throw new CompiletimeException( "Token not expected keyword " + keyword.ToString( ) + ": " + this.ToString( ) );
 			}
 		}
 
@@ -344,7 +344,7 @@ namespace BNA
 				}
 
 				message += "]: " + this.ToString( );
-				throw new Exception( message );
+				throw new CompiletimeException( message );
 			}
 		}
 
@@ -356,7 +356,7 @@ namespace BNA
 		{
 			ThrowIfNotType( this , TokenType.SYMBOL );
 			if ( Enum.TryParse( this.Value , out Symbol result ) && result != symbol ) {
-				throw new Exception( "Token not expected keyword " + symbol.ToString( ) + ": " + this.ToString( ) );
+				throw new CompiletimeException( "Token not expected keyword " + symbol.ToString( ) + ": " + this.ToString( ) );
 			}
 		}
 
@@ -383,7 +383,7 @@ namespace BNA
 				}
 
 				message += ": " + this.ToString( );
-				throw new Exception( message );
+				throw new CompiletimeException( message );
 			}
 		}
 

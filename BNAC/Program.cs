@@ -23,17 +23,19 @@ namespace BNA
 
 		public void Run( )
 		{
+			if ( Statements == null )
+				throw new RuntimeException( "Program told to run but Statements is null" );
+
 			bool running = true;
 			while ( running ) {
 				// Instruction pointer
 				if ( IP < 0 || IP >= Statements.Length )
-					throw new RuntimeException( null, "Bad instruction pointer value ( " + IP + " )" );
+					throw new RuntimeException( "Bad instruction pointer value ( " + IP + " )" );
 
 				// Get current statement
 				Statement curr = Statements[IP];
 				if ( curr == null )
-					throw new RuntimeException( null , "No statement at instruction pointer ( " + IP + " )" );
-				//Console.WriteLine( "Running statement: " + curr.ToString( ) );
+					throw new RuntimeException( "No statement at instruction pointer ( " + IP + " )" );
 
 				Variable op1 = GetVariable( curr.Operand1 );
 				Value op2 = GetValue( curr.Operand2 );
@@ -55,7 +57,7 @@ namespace BNA
 					case StatementType.OP_MUL:
 					case StatementType.OP_DIV:
 						if ( op1 == null )
-							throw new RuntimeException( Statements[IP] , "Cannot use variable that has not been set: " + curr.Operand1.ToString( ) );
+							throw new RuntimeException( IP , curr , "Cannot use variable that has not been set: " + curr.Operand1.ToString( ) );
 						op1.Value = DoArithmeticOperation( op1.Value , op2 , curr.Type );
 						break;
 
@@ -67,12 +69,12 @@ namespace BNA
 					case StatementType.OP_WAIT:
 						op2 = GetValue( curr.Operand1 );
 						if ( op2.Type != ValueType.INTEGER || op2.Type != ValueType.FLOAT )
-							throw new RuntimeException( Statements[IP] , "Argument to WAIT must be numeric: " + op2.ToString( ) );
+							throw new RuntimeException( IP , curr , "Argument to WAIT must be numeric: " + op2.ToString( ) );
 						try {
 							System.Threading.Thread.Sleep( (int)( 1000 * (double)op2.Val ) );
 						}
 						catch (Exception e) {
-							throw new RuntimeException( Statements[IP] , "Exception caught while waiting:\n" + e.Message );
+							throw new RuntimeException( IP , curr , "Exception caught while waiting:\n" + e.Message );
 						}
 						break;
 					case StatementType.LABEL:
@@ -80,7 +82,7 @@ namespace BNA
 						break;
 
 					default:
-						throw new RuntimeException( curr, "Unexpected statement type ( " + curr.Type.ToString() + " )" );
+						throw new RuntimeException( IP , curr, "Unexpected statement type ( " + curr.Type.ToString() + " )" );
 				}
 
 				// Next statement or end
@@ -99,12 +101,12 @@ namespace BNA
 					else if ( double.TryParse( token.Value , out double dval ) )
 						return new Value( ValueType.FLOAT , dval );
 					else
-						throw new RuntimeException( Statements[IP] , "Could not parse value from literal: " + token );
+						throw new RuntimeException( IP , Statements[IP] , "Could not parse value from literal: " + token );
 
 				// Capture the string contents
 				case TokenType.STRING:
 					if ( token.Value.Length < 2 )
-						throw new RuntimeException( Statements[IP] , "String token too short to be valid: " + token );
+						throw new RuntimeException( IP , Statements[IP] , "String token too short to be valid: " + token );
 					return new Value( ValueType.STRING , token.Value.Substring( 1 , token.Value.Length - 2) );
 
 				// Get the Value of a variable
@@ -119,17 +121,17 @@ namespace BNA
 						}
 					}
 
-					throw new RuntimeException( Statements[IP] , "No value yet for variable operand: " + token.ToString( ) );
+					throw new RuntimeException( IP , Statements[IP] , "No value yet for variable operand: " + token.ToString( ) );
 
 				// Null operands for single operand statements
 				case TokenType.NULL:
 					return default;
 
 				default:
-					throw new RuntimeException( Statements[IP] , "Unexpected token type for operand: " + token.ToString( ) );
+					throw new RuntimeException( IP , Statements[IP] , "Unexpected token type for operand: " + token.ToString( ) );
 			}
 
-			throw new RuntimeException( Statements[IP] , "Failed to get value for operand: " + token.ToString( ) );
+			throw new RuntimeException( IP , Statements[IP] , "Failed to get value for operand: " + token.ToString( ) );
 		}
 
 		private Variable GetVariable( Token id )

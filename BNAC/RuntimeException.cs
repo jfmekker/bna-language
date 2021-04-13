@@ -8,13 +8,22 @@ namespace BNA
 {
 	public class RuntimeException : Exception
 	{
-		public readonly Statement statement;
+		public readonly Statement Line;
 
-		public RuntimeException( Statement badGuy, string message )
-			: base( message + "\nOffending Statement:\n"
-				  + ( badGuy == null ? "none" : badGuy.ToString() ) )
+		public readonly int LineNumber;
+
+		public RuntimeException( int line_number, Statement badGuy, string message )
+			: base( message + "\nRuntime error line " + line_number + ":\n\t" + ( badGuy == null ? "none" : badGuy.RawString( ) ) )
 		{
-			this.statement = badGuy;
+			this.Line = badGuy;
+			this.LineNumber = line_number;
+		}
+
+		public RuntimeException( string message )
+			: base( message + "\nRuntime error" )
+		{
+			this.Line = null;
+			this.LineNumber = -1;
 		}
 	}
 }

@@ -118,7 +118,7 @@ namespace BNA
 						break;
 
 					default:
-						throw new Exception( "Invalid start of statement: " + token );
+						throw new CompiletimeException( "Invalid start of statement: " + token );
 
 				}
 
@@ -249,11 +249,11 @@ namespace BNA
 							candidate.Type = StatementType.OP_TEST_EQ;
 						}
 						else {
-							throw new Exception( "Unexpected symbol: " + next.ToString( ) );
+							throw new CompiletimeException( "Unexpected symbol: " + next.ToString( ) );
 						}
 					}
 					else {
-						throw new Exception( "Expected symbol, but got other token: " + next.ToString( ) );
+						throw new CompiletimeException( "Expected symbol, but got other token: " + next.ToString( ) );
 					}
 					break;
 				}
@@ -338,7 +338,7 @@ namespace BNA
 				}
 
 				default:
-					throw new Exception( "Invalid start of statement: " + token.ToString( ) );
+					throw new CompiletimeException( "Invalid start of statement: " + token.ToString( ) );
 
 			}
 
@@ -393,15 +393,18 @@ namespace BNA
 		{
 			string str = "[" + this.Type + "] \t";
 
-			//str += "{";
-			//foreach ( Token t in this._tokens ) {
-			//	str += t.ToString( ) + " ";
-			//}
-			//str += "} ";
-
 			str += "op1=<" + Operand1.ToString( ) + ">  ";
 			str += "op2=<" + Operand2.ToString( ) + ">";
 
+			return str;
+		}
+
+		public string RawString( )
+		{
+			string str = "";
+			for ( int i = 0 ; i < _tokens.Count ; i += 1 ) {
+				str += _tokens[i].Value + " ";
+			}
 			return str;
 		}
 	}

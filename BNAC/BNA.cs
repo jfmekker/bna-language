@@ -16,33 +16,24 @@ namespace BNA
 		/// <returns>String of the compile Python script</returns>
 		public static Statement[] Compile( Queue<string> lines )
 		{
-			try {
-				// Convert lines to token stream
-				Queue<Token> tokens = Token.TokenizeProgram( lines );
-				Console.WriteLine( "\nTokens :" );
-				foreach ( Token t in tokens.ToList( ) ) {
-					Console.WriteLine( "  " + t.ToString( ) );
-				}
-				Console.WriteLine( " " + tokens.Count + " total" );
-
-				// Parse statements from token stream
-				Queue<Statement> statements = Statement.ParseStatements( tokens );
-				Console.WriteLine( "\nStatements :" );
-				foreach ( Statement s in statements.ToList( ) ) {
-					Console.WriteLine( "  " + s.ToString( ) );
-				}
-				Console.WriteLine( " " + statements.Count + " total" );
-
-				// Return array of statements
-				return statements.ToArray( );
+			// Convert lines to token stream
+			Queue<Token> tokens = Token.TokenizeProgram( lines );
+			Console.WriteLine( "\nTokens :" );
+			foreach ( Token t in tokens.ToList( ) ) {
+				Console.WriteLine( "  " + t.ToString( ) );
 			}
-			catch ( Exception e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.Error.WriteLine( "BNA caught Exception while compiling!:" );
-				Console.Error.WriteLine( e.ToString( ) );
-				Console.ResetColor( );
+			Console.WriteLine( " " + tokens.Count + " total" );
+
+			// Parse statements from token stream
+			Queue<Statement> statements = Statement.ParseStatements( tokens );
+			Console.WriteLine( "\nStatements :" );
+			foreach ( Statement s in statements.ToList( ) ) {
+				Console.WriteLine( "  " + s.ToString( ) );
 			}
-			return null;
+			Console.WriteLine( " " + statements.Count + " total" );
+
+			// Return array of statements
+			return statements.ToArray( );
 		}
 
 		/// <summary>
@@ -84,12 +75,16 @@ namespace BNA
 						Console.WriteLine( );
 					}
 					catch (CompiletimeException e) {
+						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine( "Compiletime Exception caught:" );
 						Console.WriteLine( e.Message );
+						Console.ResetColor( );
 					}
 					catch (RuntimeException e) {
+						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine( "Runtime Exception caught:" );
 						Console.WriteLine( e.Message );
+						Console.ResetColor( );
 					}
 
 					Console.WriteLine( "Press enter to continue (use '~' to exit)." );

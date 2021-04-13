@@ -47,6 +47,7 @@ namespace BNA
 		/// </summary>
 		/// <param name="statements">Queue of BNA statements</param>
 		/// <returns>Python script in a string</returns>
+		[Obsolete( "Translation to Python will not be supported in later versions." , false )]
 		public static string ToPython( Queue<Statement> statements , string program_name = "program" )
 		{
 			var str = new StringBuilder( );
