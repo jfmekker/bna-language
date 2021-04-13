@@ -51,21 +51,95 @@ namespace BNA
 						op1.Value = op2;
 						break;
 
-					// Arithmetic operations
+					// Numeric two-operand operations
 					case StatementType.OP_ADD:
 					case StatementType.OP_SUB:
 					case StatementType.OP_MUL:
 					case StatementType.OP_DIV:
+					case StatementType.OP_MOD:
+					case StatementType.OP_LOG:
+					case StatementType.OP_POW:
+					case StatementType.OP_AND:
+					case StatementType.OP_OR:
+					case StatementType.OP_XOR:
+					case StatementType.OP_RAND:
 						if ( op1 == null )
 							throw new RuntimeException( IP , curr , "Cannot use variable that has not been set: " + curr.Operand1.ToString( ) );
-						op1.Value = DoArithmeticOperation( op1.Value , op2 , curr.Type );
+						if ( op1.Value.Type != ValueType.INTEGER && op1.Value.Type != ValueType.FLOAT )
+							throw new RuntimeException( IP , curr , "Operand 1 of incorrect type (" + op1.Value.Type.ToString( ) + ") for numeric operation" );
+						if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT )
+							throw new RuntimeException( IP , curr , "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
+						op1.Value = Value.DoNumericOperation( op1.Value , op2 , curr.Type );
 						break;
 
-					// No side effect operations
+					// Numeric one-operand operations
+					case StatementType.OP_NEG:
+					case StatementType.OP_ROUND:
+						throw new NotImplementedException( );
+
+					// List operations
+					case StatementType.OP_LIST:
+					case StatementType.OP_APPEND:
+						throw new NotImplementedException( );
+
+					// I/O operations
+					case StatementType.OP_OPEN_R:
+					case StatementType.OP_OPEN_W:
+					case StatementType.OP_WRITE:
+					case StatementType.OP_READ:
+					case StatementType.OP_CLOSE:
+						throw new NotImplementedException( );
 					case StatementType.OP_PRINT:
 						// TODO different print stream ?
-						Console.WriteLine( "BNA: " + op2.ToString( ) );
+						Console.WriteLine( op2.ToString( ) );
 						break;
+					case StatementType.OP_INPUT:
+						Console.Write( op2.ToString( ) );
+						var token = new Token( Console.ReadLine( ) );
+						switch ( token.Type ) {
+							case TokenType.LITERAL:
+								if ( long.TryParse( token.Value , out long lval ) ) {
+									if ( op1.Value.Type != ValueType.INTEGER )
+										throw new RuntimeException( IP , curr , "Tried to input integer value to variable of type " + op1.Value.Type.ToString( ) );
+									op1.Value = new Value( ValueType.INTEGER , lval );
+								}
+								else if ( double.TryParse( token.Value , out double dval ) ) {
+									if ( op1.Value.Type != ValueType.FLOAT )
+										throw new RuntimeException( IP , curr , "Tried to input float value to variable of type " + op1.Value.Type.ToString( ) );
+									op1.Value = new Value( ValueType.FLOAT , dval );
+								}
+								else {
+									throw new Exception( "Tokenized identified literal that could not be parsed: " + token.ToString( ) );
+								}
+								break;
+
+							case TokenType.STRING:
+								if ( op1.Value.Type != ValueType.STRING )
+									throw new RuntimeException( IP , curr , "Tried to input string value to variable of type " + op1.Value.Type.ToString( ) );
+								if ( token.Value.Length < 2 )
+									throw new Exception( "Tokenized identified string that is too short: " + token.ToString( ) );
+								op1.Value = new Value( ValueType.STRING , token.Value.Substring( 1 , token.Value.Length - 2 ) );
+								break;
+
+							default:
+								throw new RuntimeException( IP , curr , "Unexpected token input: " + token.ToString( ) );
+						}
+						break;
+
+					// Test operations
+					case StatementType.OP_TEST_EQ:
+					case StatementType.OP_TEST_GT:
+					case StatementType.OP_TEST_LT:
+						// TODO determine special 'test' variable name
+						Variable test = GetVariable( new Token( "test" , TokenType.VARIABLE ) );
+						if ( test == null ) {
+							test = new Variable( new Token( "test" , TokenType.VARIABLE ) );
+							Variables.Add( test );
+						}
+						test.Value = Value.DoComparisonOperation( op1.Value , op2 , curr.Type );
+						break;
+
+					// Misc operaions
 					case StatementType.OP_WAIT:
 						op2 = GetValue( curr.Operand1 );
 						if ( op2.Type != ValueType.INTEGER || op2.Type != ValueType.FLOAT )
@@ -77,6 +151,12 @@ namespace BNA
 							throw new RuntimeException( IP , curr , "Exception caught while waiting:\n" + e.Message );
 						}
 						break;
+					case StatementType.OP_GOTO:
+						throw new NotImplementedException( );
+
+					// Non-operations
+					case StatementType.NULL:
+					case StatementType.COMMENT:
 					case StatementType.LABEL:
 						// Do nothing
 						break;
@@ -91,6 +171,11 @@ namespace BNA
 			}
 		}
 
+		/// <summary>
+		/// Get the value of an operand based on a Token.
+		/// </summary>
+		/// <param name="token">Token to identify/convert to a value</param>
+		/// <returns>Value of the operand</returns>
 		private Value GetValue( Token token )
 		{
 			switch ( token.Type ) {
@@ -134,6 +219,11 @@ namespace BNA
 			throw new RuntimeException( IP , Statements[IP] , "Failed to get value for operand: " + token.ToString( ) );
 		}
 
+		/// <summary>
+		/// Get a reference to the <see cref="Variable"/> object identified by a token.
+		/// </summary>
+		/// <param name="id">Token to ID the variable with</param>
+		/// <returns>Reference object to the variable</returns>
 		private Variable GetVariable( Token id )
 		{
 			// TODO
@@ -148,12 +238,6 @@ namespace BNA
 			}
 
 			return null;
-		}
-
-		public Value DoArithmeticOperation( Value op1 , Value op2 , StatementType operation )
-		{
-			// TODO
-			return new Value();
 		}
 	}
 }

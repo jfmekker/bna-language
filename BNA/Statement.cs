@@ -8,13 +8,14 @@ namespace BNA
 	/// </summary>
 	public enum StatementType
 	{
-		// default to unknown
-		UNKNOWN,
+		UNKNOWN = -1,
 
 		// non-operations
+		NULL = 0,
+		COMMENT,
 		LABEL,
 
-		// arithmetic operations
+		// numeric operations
 		OP_SET,
 		OP_ADD,
 		OP_SUB,

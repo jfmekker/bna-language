@@ -18,6 +18,16 @@ namespace BNA
 
 	public struct Value
 	{
+		public static Value DoNumericOperation( Value op1 , Value op2 , StatementType operation )
+		{
+			throw new NotImplementedException( );
+		}
+
+		public static Value DoComparisonOperation( Value op1 , Value op2 , StatementType operation )
+		{
+			throw new NotImplementedException( );
+		}
+
 		public ValueType Type
 		{
 			get; set;

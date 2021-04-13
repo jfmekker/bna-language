@@ -86,6 +86,12 @@ namespace BNA
 						Console.WriteLine( e.Message );
 						Console.ResetColor( );
 					}
+					catch (NotImplementedException e) {
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine( "Not Implemented Exception caught:" );
+						Console.WriteLine( e.Message );
+						Console.ResetColor( );
+					}
 
 					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 
