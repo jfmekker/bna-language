@@ -40,7 +40,7 @@ namespace BNA
 		/// Compile a function to Python, or take input from the terminal
 		/// </summary>
 		/// <param name="args">Names of files to compile to Python, can be none.</param>
-		private static void Main( string[] args )
+		public static void Main( string[] args )
 		{
 			Console.WriteLine( "================================================================================" );
 			Console.WriteLine( "Welcome to the BNA's Not Assembly Interpreter!" );

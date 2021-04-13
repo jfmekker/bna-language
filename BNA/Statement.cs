@@ -228,7 +228,7 @@ namespace BNA
 
 				// WAIT var|lit
 				case Keyword.WAIT: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 1 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.Type = StatementType.OP_WAIT;
 					break;
 				}
@@ -399,6 +399,10 @@ namespace BNA
 			return str;
 		}
 
+		/// <summary>
+		/// Gives the raw string of the line that created this Statement.
+		/// </summary>
+		/// <returns>String of the raw input that made this Statement.</returns>
 		public string RawString( )
 		{
 			string str = "";
