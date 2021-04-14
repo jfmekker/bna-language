@@ -18,19 +18,19 @@ namespace BNA
 		{
 			// Convert lines to token stream
 			Queue<Token> tokens = Token.TokenizeProgram( lines );
-			Console.WriteLine( "\nTokens :" );
+			Debug.AddLine( "\nTokens :" );
 			foreach ( Token t in tokens.ToList( ) ) {
-				Console.WriteLine( "  " + t.ToString( ) );
+				Debug.AddLine( "  " + t.ToString( ) );
 			}
-			Console.WriteLine( " " + tokens.Count + " total" );
+			Debug.AddLine( " " + tokens.Count + " total" );
 
 			// Parse statements from token stream
 			Queue<Statement> statements = Statement.ParseStatements( tokens );
-			Console.WriteLine( "\nStatements :" );
+			Debug.AddLine( "\nStatements :" );
 			foreach ( Statement s in statements.ToList( ) ) {
-				Console.WriteLine( "  " + s.ToString( ) );
+				Debug.AddLine( "  " + s.ToString( ) );
 			}
-			Console.WriteLine( " " + statements.Count + " total" );
+			Debug.AddLine( " " + statements.Count + " total" );
 
 			// Return array of statements
 			return statements.ToArray( );
