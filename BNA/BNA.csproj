@@ -56,7 +56,6 @@
     <Compile Include="RuntimeException.cs" />
     <Compile Include="Statement.cs" />
     <Compile Include="Token.cs" />
-    <Compile Include="Translator.cs" />
     <Compile Include="Value.cs" />
     <Compile Include="Variable.cs" />
   </ItemGroup>
