@@ -43,13 +43,15 @@ namespace BNA
 				// Execute statement
 				switch ( curr.Type ) {
 					// Set operation
-					case StatementType.OP_SET:
+					case StatementType.OP_SET: {
 						if ( op1 == null ) {
 							op1 = new Variable( curr.Operand1 );
 							Variables.Add( op1 );
 						}
 						op1.Value = op2;
 						break;
+					}
+
 
 					// Numeric two-operand operations
 					case StatementType.OP_ADD:
@@ -62,7 +64,7 @@ namespace BNA
 					case StatementType.OP_AND:
 					case StatementType.OP_OR:
 					case StatementType.OP_XOR:
-					case StatementType.OP_RAND:
+					case StatementType.OP_RAND: {
 						if ( op1 == null )
 							throw new RuntimeException( IP , curr , "Cannot use variable that has not been set: " + curr.Operand1.ToString( ) );
 						if ( op1.Value.Type != ValueType.INTEGER && op1.Value.Type != ValueType.FLOAT )
@@ -71,17 +73,21 @@ namespace BNA
 							throw new RuntimeException( IP , curr , "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
 						op1.Value = Value.DoNumericOperation( op1.Value , op2 , curr.Type );
 						break;
+					}
+
 
 					// Numeric one-operand operations
 					case StatementType.OP_NEG:
 					case StatementType.OP_ROUND:
 						throw new NotImplementedException( );
 
+
 					// List operations
 					case StatementType.OP_LIST:
 					case StatementType.OP_APPEND:
 						throw new NotImplementedException( );
 
+					
 					// I/O operations
 					case StatementType.OP_OPEN_R:
 					case StatementType.OP_OPEN_W:
@@ -89,11 +95,13 @@ namespace BNA
 					case StatementType.OP_READ:
 					case StatementType.OP_CLOSE:
 						throw new NotImplementedException( );
-					case StatementType.OP_PRINT:
-						// TODO different print stream ?
+
+					case StatementType.OP_PRINT: {
 						Console.WriteLine( op2.ToString( ) );
 						break;
-					case StatementType.OP_INPUT:
+					}
+						
+					case StatementType.OP_INPUT: {
 						Console.Write( op2.ToString( ) );
 						var token = new Token( Console.ReadLine( ) );
 						switch ( token.Type ) {
@@ -125,11 +133,13 @@ namespace BNA
 								throw new RuntimeException( IP , curr , "Unexpected token input: " + token.ToString( ) );
 						}
 						break;
+					}
+
 
 					// Test operations
 					case StatementType.OP_TEST_EQ:
 					case StatementType.OP_TEST_GT:
-					case StatementType.OP_TEST_LT:
+					case StatementType.OP_TEST_LT: {
 						// TODO determine special 'test' variable name
 						Variable test = GetVariable( new Token( "test" , TokenType.VARIABLE ) );
 						if ( test == null ) {
@@ -138,9 +148,11 @@ namespace BNA
 						}
 						test.Value = Value.DoComparisonOperation( op1.Value , op2 , curr.Type );
 						break;
+					}
+
 
 					// Misc operaions
-					case StatementType.OP_WAIT:
+					case StatementType.OP_WAIT: {
 						op2 = GetValue( curr.Operand2 );
 						if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT )
 							throw new RuntimeException( IP , curr , "Argument to WAIT must be numeric: " + op2.ToString( ) );
@@ -148,19 +160,24 @@ namespace BNA
 						try {
 							System.Threading.Thread.Sleep( ms );
 						}
-						catch (Exception e) {
+						catch ( Exception e ) {
 							throw new RuntimeException( IP , curr , "Exception caught while waiting:\n" + e.Message );
 						}
 						break;
+					}
+
 					case StatementType.OP_GOTO:
 						throw new NotImplementedException( );
 
+					
 					// Non-operations
 					case StatementType.NULL:
 					case StatementType.COMMENT:
-					case StatementType.LABEL:
+					case StatementType.LABEL: {
 						// Do nothing
 						break;
+					}
+
 
 					default:
 						throw new RuntimeException( IP , curr, "Unexpected statement type ( " + curr.Type.ToString() + " )" );
