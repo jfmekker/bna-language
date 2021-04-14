@@ -141,11 +141,12 @@ namespace BNA
 
 					// Misc operaions
 					case StatementType.OP_WAIT:
-						op2 = GetValue( curr.Operand1 );
-						if ( op2.Type != ValueType.INTEGER || op2.Type != ValueType.FLOAT )
+						op2 = GetValue( curr.Operand2 );
+						if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT )
 							throw new RuntimeException( IP , curr , "Argument to WAIT must be numeric: " + op2.ToString( ) );
+						int ms = (int)( 1000 * ( op2.Type == ValueType.INTEGER ? (long)op2.Val : (double)op2.Val ) );
 						try {
-							System.Threading.Thread.Sleep( (int)( 1000 * (double)op2.Val ) );
+							System.Threading.Thread.Sleep( ms );
 						}
 						catch (Exception e) {
 							throw new RuntimeException( IP , curr , "Exception caught while waiting:\n" + e.Message );
