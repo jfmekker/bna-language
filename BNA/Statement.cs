@@ -394,8 +394,8 @@ namespace BNA
 		{
 			string str = "[" + this.Type + "] \t";
 
-			str += "op1=<" + Operand1.ToString( ) + ">  ";
-			str += "op2=<" + Operand2.ToString( ) + ">";
+			str += "op1=<" + this.Operand1.ToString( ) + ">  ";
+			str += "op2=<" + this.Operand2.ToString( ) + ">";
 
 			return str;
 		}
@@ -407,8 +407,8 @@ namespace BNA
 		public string RawString( )
 		{
 			string str = "";
-			for ( int i = 0 ; i < _tokens.Count ; i += 1 ) {
-				str += _tokens[i].Value + " ";
+			for ( int i = 0 ; i < this._tokens.Count ; i += 1 ) {
+				str += this._tokens[i].Value + " ";
 			}
 			return str;
 		}

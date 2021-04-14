@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BNA
 {
@@ -74,19 +72,19 @@ namespace BNA
 						prog.Run( );
 						Console.WriteLine( );
 					}
-					catch (CompiletimeException e) {
+					catch ( CompiletimeException e ) {
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine( "Compiletime Exception caught:" );
 						Console.WriteLine( e.Message );
 						Console.ResetColor( );
 					}
-					catch (RuntimeException e) {
+					catch ( RuntimeException e ) {
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine( "Runtime Exception caught:" );
 						Console.WriteLine( e.Message );
 						Console.ResetColor( );
 					}
-					catch (NotImplementedException e) {
+					catch ( NotImplementedException e ) {
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine( "Not Implemented Exception caught:" );
 						Console.WriteLine( e.Message );

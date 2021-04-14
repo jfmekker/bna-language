@@ -3,10 +3,13 @@ using System.Collections.Generic;
 
 namespace BNA
 {
+	/// <summary>
+	/// The recognized and reserved keywords of BNA.
+	/// </summary>
 	public enum Keyword
 	{
 		// Empty keyword to represent unknown
-		_,
+		_ = 0,
 
 		// Operation start keywords
 		SET,
@@ -47,6 +50,9 @@ namespace BNA
 		AS,
 	}
 
+	/// <summary>
+	/// Special symbols within the BNA language.
+	/// </summary>
 	public enum Symbol
 	{
 		// Default to 'null' value
@@ -61,6 +67,9 @@ namespace BNA
 		ACCESSOR = '@',
 	}
 
+	/// <summary>
+	/// What a given Token is identified as.
+	/// </summary>
 	public enum TokenType
 	{
 		UNKNOWN = -1,
@@ -429,7 +438,7 @@ namespace BNA
 		public override bool Equals( object obj )
 		{
 			if ( obj is Token ) {
-				return ( this.Type == ( (Token) obj ).Type ) && ( this.Value == ( (Token) obj ).Value );
+				return ( this.Type == ( (Token)obj ).Type ) && ( this.Value == ( (Token)obj ).Value );
 			}
 			return false;
 		}
@@ -452,7 +461,7 @@ namespace BNA
 		/// <returns>String description of the Token</returns>
 		public override string ToString( )
 		{
-			string str = "(" + this.Type ;
+			string str = "(" + this.Type;
 			if ( this.Type == TokenType.KEYWORD ) {
 				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , this.Value , true ) ).ToString( );
 			}

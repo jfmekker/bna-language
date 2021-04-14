@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BNA
 {
@@ -10,10 +9,25 @@ namespace BNA
 	/// </summary>
 	public class Program
 	{
+		/// <summary>
+		/// The statements that make up what the program does.
+		/// </summary>
 		private Statement[] Statements;
+
+		/// <summary>
+		/// Instruction pointer; what statement is the program currently on.
+		/// </summary>
 		private int IP;
+
+		/// <summary>
+		/// Running list of variables held by the program while running, starts empty.
+		/// </summary>
 		private List<Variable> Variables;
 
+		/// <summary>
+		/// Create a new <see cref="Program"/> instance.
+		/// </summary>
+		/// <param name="statements">Statements that make up the program</param>
 		public Program( Statement[] statements )
 		{
 			this.Statements = statements;
@@ -21,24 +35,30 @@ namespace BNA
 			this.Variables = new List<Variable>( );
 		}
 
+		/// <summary>
+		/// Run a program statement by statement.
+		/// </summary>
 		public void Run( )
 		{
-			if ( Statements == null )
+			if ( this.Statements == null ) {
 				throw new RuntimeException( "Program told to run but Statements is null" );
+			}
 
 			bool running = true;
 			while ( running ) {
 				// Instruction pointer
-				if ( IP < 0 || IP >= Statements.Length )
-					throw new RuntimeException( "Bad instruction pointer value ( " + IP + " )" );
+				if ( this.IP < 0 || this.IP >= this.Statements.Length ) {
+					throw new RuntimeException( "Bad instruction pointer value ( " + this.IP + " )" );
+				}
 
 				// Get current statement
-				Statement curr = Statements[IP];
-				if ( curr == null )
-					throw new RuntimeException( "No statement at instruction pointer ( " + IP + " )" );
+				Statement curr = this.Statements[this.IP];
+				if ( curr == null ) {
+					throw new RuntimeException( "No statement at instruction pointer ( " + this.IP + " )" );
+				}
 
-				Variable op1 = GetVariable( curr.Operand1 );
-				Value op2 = GetValue( curr.Operand2 );
+				Variable op1 = this.GetVariable( curr.Operand1 );
+				Value op2 = this.GetValue( curr.Operand2 );
 
 				// Execute statement
 				switch ( curr.Type ) {
@@ -46,7 +66,7 @@ namespace BNA
 					case StatementType.OP_SET: {
 						if ( op1 == null ) {
 							op1 = new Variable( curr.Operand1 );
-							Variables.Add( op1 );
+							this.Variables.Add( op1 );
 						}
 						op1.Value = op2;
 						break;
@@ -65,12 +85,18 @@ namespace BNA
 					case StatementType.OP_OR:
 					case StatementType.OP_XOR:
 					case StatementType.OP_RAND: {
-						if ( op1 == null )
-							throw new RuntimeException( IP , curr , "Cannot use variable that has not been set: " + curr.Operand1.ToString( ) );
-						if ( op1.Value.Type != ValueType.INTEGER && op1.Value.Type != ValueType.FLOAT )
-							throw new RuntimeException( IP , curr , "Operand 1 of incorrect type (" + op1.Value.Type.ToString( ) + ") for numeric operation" );
-						if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT )
-							throw new RuntimeException( IP , curr , "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
+						if ( op1 == null ) {
+							throw new RuntimeException( this.IP , curr , "Cannot use variable that has not been set: " + curr.Operand1.ToString( ) );
+						}
+
+						if ( op1.Value.Type != ValueType.INTEGER && op1.Value.Type != ValueType.FLOAT ) {
+							throw new RuntimeException( this.IP , curr , "Operand 1 of incorrect type (" + op1.Value.Type.ToString( ) + ") for numeric operation" );
+						}
+
+						if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT ) {
+							throw new RuntimeException( this.IP , curr , "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
+						}
+
 						op1.Value = Value.DoNumericOperation( op1.Value , op2 , curr.Type );
 						break;
 					}
@@ -87,7 +113,7 @@ namespace BNA
 					case StatementType.OP_APPEND:
 						throw new NotImplementedException( );
 
-					
+
 					// I/O operations
 					case StatementType.OP_OPEN_R:
 					case StatementType.OP_OPEN_W:
@@ -100,20 +126,24 @@ namespace BNA
 						Console.WriteLine( op2.ToString( ) );
 						break;
 					}
-						
+
 					case StatementType.OP_INPUT: {
 						Console.Write( op2.ToString( ) );
 						var token = new Token( Console.ReadLine( ) );
 						switch ( token.Type ) {
 							case TokenType.LITERAL:
 								if ( long.TryParse( token.Value , out long lval ) ) {
-									if ( op1.Value.Type != ValueType.INTEGER )
-										throw new RuntimeException( IP , curr , "Tried to input integer value to variable of type " + op1.Value.Type.ToString( ) );
+									if ( op1.Value.Type != ValueType.INTEGER ) {
+										throw new RuntimeException( this.IP , curr , "Tried to input integer value to variable of type " + op1.Value.Type.ToString( ) );
+									}
+
 									op1.Value = new Value( ValueType.INTEGER , lval );
 								}
 								else if ( double.TryParse( token.Value , out double dval ) ) {
-									if ( op1.Value.Type != ValueType.FLOAT )
-										throw new RuntimeException( IP , curr , "Tried to input float value to variable of type " + op1.Value.Type.ToString( ) );
+									if ( op1.Value.Type != ValueType.FLOAT ) {
+										throw new RuntimeException( this.IP , curr , "Tried to input float value to variable of type " + op1.Value.Type.ToString( ) );
+									}
+
 									op1.Value = new Value( ValueType.FLOAT , dval );
 								}
 								else {
@@ -122,15 +152,19 @@ namespace BNA
 								break;
 
 							case TokenType.STRING:
-								if ( op1.Value.Type != ValueType.STRING )
-									throw new RuntimeException( IP , curr , "Tried to input string value to variable of type " + op1.Value.Type.ToString( ) );
-								if ( token.Value.Length < 2 )
+								if ( op1.Value.Type != ValueType.STRING ) {
+									throw new RuntimeException( this.IP , curr , "Tried to input string value to variable of type " + op1.Value.Type.ToString( ) );
+								}
+
+								if ( token.Value.Length < 2 ) {
 									throw new Exception( "Tokenized identified string that is too short: " + token.ToString( ) );
+								}
+
 								op1.Value = new Value( ValueType.STRING , token.Value.Substring( 1 , token.Value.Length - 2 ) );
 								break;
 
 							default:
-								throw new RuntimeException( IP , curr , "Unexpected token input: " + token.ToString( ) );
+								throw new RuntimeException( this.IP , curr , "Unexpected token input: " + token.ToString( ) );
 						}
 						break;
 					}
@@ -141,10 +175,10 @@ namespace BNA
 					case StatementType.OP_TEST_GT:
 					case StatementType.OP_TEST_LT: {
 						// TODO determine special 'test' variable name
-						Variable test = GetVariable( new Token( "test" , TokenType.VARIABLE ) );
+						Variable test = this.GetVariable( new Token( "test" , TokenType.VARIABLE ) );
 						if ( test == null ) {
 							test = new Variable( new Token( "test" , TokenType.VARIABLE ) );
-							Variables.Add( test );
+							this.Variables.Add( test );
 						}
 						test.Value = Value.DoComparisonOperation( op1.Value , op2 , curr.Type );
 						break;
@@ -153,15 +187,17 @@ namespace BNA
 
 					// Misc operaions
 					case StatementType.OP_WAIT: {
-						op2 = GetValue( curr.Operand2 );
-						if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT )
-							throw new RuntimeException( IP , curr , "Argument to WAIT must be numeric: " + op2.ToString( ) );
+						op2 = this.GetValue( curr.Operand2 );
+						if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT ) {
+							throw new RuntimeException( this.IP , curr , "Argument to WAIT must be numeric: " + op2.ToString( ) );
+						}
+
 						int ms = (int)( 1000 * ( op2.Type == ValueType.INTEGER ? (long)op2.Val : (double)op2.Val ) );
 						try {
 							System.Threading.Thread.Sleep( ms );
 						}
 						catch ( Exception e ) {
-							throw new RuntimeException( IP , curr , "Exception caught while waiting:\n" + e.Message );
+							throw new RuntimeException( this.IP , curr , "Exception caught while waiting:\n" + e.Message );
 						}
 						break;
 					}
@@ -169,7 +205,7 @@ namespace BNA
 					case StatementType.OP_GOTO:
 						throw new NotImplementedException( );
 
-					
+
 					// Non-operations
 					case StatementType.NULL:
 					case StatementType.COMMENT:
@@ -180,12 +216,13 @@ namespace BNA
 
 
 					default:
-						throw new RuntimeException( IP , curr, "Unexpected statement type ( " + curr.Type.ToString() + " )" );
+						throw new RuntimeException( this.IP , curr , "Unexpected statement type ( " + curr.Type.ToString( ) + " )" );
 				}
 
 				// Next statement or end
-				if ( ++IP == Statements.Length )
+				if ( ++this.IP == this.Statements.Length ) {
 					running = false;
+				}
 			}
 		}
 
@@ -199,42 +236,49 @@ namespace BNA
 			switch ( token.Type ) {
 				// Parse the literal value from the token
 				case TokenType.LITERAL:
-					if ( long.TryParse( token.Value , out long lval ) )
+					if ( long.TryParse( token.Value , out long lval ) ) {
 						return new Value( ValueType.INTEGER , lval );
-					else if ( double.TryParse( token.Value , out double dval ) )
+					}
+					else if ( double.TryParse( token.Value , out double dval ) ) {
 						return new Value( ValueType.FLOAT , dval );
-					else
-						throw new RuntimeException( IP , Statements[IP] , "Could not parse value from literal: " + token );
+					}
+					else {
+						throw new RuntimeException( this.IP , this.Statements[this.IP] , "Could not parse value from literal: " + token );
+					}
 
 				// Capture the string contents
 				case TokenType.STRING:
-					if ( token.Value.Length < 2 )
-						throw new RuntimeException( IP , Statements[IP] , "String token too short to be valid: " + token );
-					return new Value( ValueType.STRING , token.Value.Substring( 1 , token.Value.Length - 2) );
+					if ( token.Value.Length < 2 ) {
+						throw new RuntimeException( this.IP , this.Statements[this.IP] , "String token too short to be valid: " + token );
+					}
+
+					return new Value( ValueType.STRING , token.Value.Substring( 1 , token.Value.Length - 2 ) );
 
 				// Get the Value of a variable
 				case TokenType.VARIABLE:
 					// TODO
-					if ( token.Value.Contains( Symbol.ACCESSOR.ToString( ) ) ) return default; // TODO is element? (change token to x@# if so)
+					if ( token.Value.Contains( Symbol.ACCESSOR.ToString( ) ) ) {
+						return default; // TODO is element? (change token to x@# if so)
+					}
 
 					// Find variable
-					foreach ( Variable v in Variables ) {
+					foreach ( Variable v in this.Variables ) {
 						if ( v.Identifier.Equals( token ) ) {
 							return v.Value;
 						}
 					}
 
-					throw new RuntimeException( IP , Statements[IP] , "No value yet for variable operand: " + token.ToString( ) );
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , "No value yet for variable operand: " + token.ToString( ) );
 
 				// Null operands for single operand statements
 				case TokenType.NULL:
 					return default;
 
 				default:
-					throw new RuntimeException( IP , Statements[IP] , "Unexpected token type for operand: " + token.ToString( ) );
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Unexpected token type for operand: " + token.ToString( ) );
 			}
 
-			throw new RuntimeException( IP , Statements[IP] , "Failed to get value for operand: " + token.ToString( ) );
+			throw new RuntimeException( this.IP , this.Statements[this.IP] , "Failed to get value for operand: " + token.ToString( ) );
 		}
 
 		/// <summary>
@@ -249,7 +293,7 @@ namespace BNA
 			//	return null; // TODO is element? (change token to x@# if so)
 
 			// Find variable
-			foreach ( Variable v in Variables ) {
+			foreach ( Variable v in this.Variables ) {
 				if ( v.Identifier.Equals( id ) ) {
 					return v;
 				}
