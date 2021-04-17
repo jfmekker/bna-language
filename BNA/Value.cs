@@ -79,17 +79,43 @@ namespace BNA
 						? new Value( ValueType.INTEGER , Math.Log( (long)op1.Val , (long)op2.Val ) )
 						: new Value( ValueType.FLOAT , Math.Log( (double)op1.Val , (double)op2.Val ) );
 
-				case StatementType.OP_MOD:
-				case StatementType.OP_AND:
-				case StatementType.OP_OR:
-				case StatementType.OP_XOR:
-					throw new NotImplementedException( );
-
 				default:
-					throw new Exception( "Unexpected operation type for numeric operation." );
+					throw new Exception( "Unexpected operation type for numeric operation (" + operation.ToString() + ")." );
+			}
+		}
+
+		/// <summary>
+		/// Perform a bitwise operation on two values.
+		/// </summary>
+		/// <param name="op1">First operand</param>
+		/// <param name="op2">Second operand</param>
+		/// <param name="operation">Which operation to perform</param>
+		/// <returns>Result of the operation</returns>
+		public static Value DoBitwiseOperation( Value op1 , Value op2 , StatementType operation )
+		{
+			// Check type
+			if ( op1.Type != ValueType.INTEGER || op2.Type != ValueType.INTEGER ) {
+				throw new Exception( "Value told to do bitwise operation on non-integer type(s): "
+					+ "op1:(" + op1.Type.ToString( ) + ") op2:(" + op2.Type.ToString( ) + ")" );
 			}
 
-			throw new NotImplementedException( );
+			// Complete operation
+			switch ( operation ) {
+				case StatementType.OP_MOD:
+					return new Value( ValueType.INTEGER , (long)op1.Val % (long)op2.Val );
+
+				case StatementType.OP_AND:
+					return new Value( ValueType.INTEGER , (long)op1.Val & (long)op2.Val );
+
+				case StatementType.OP_OR:
+					return new Value( ValueType.INTEGER , (long)op1.Val | (long)op2.Val );
+
+				case StatementType.OP_XOR:
+					return new Value( ValueType.INTEGER , (long)op1.Val ^ (long)op2.Val );
+
+				default:
+					throw new Exception( "Unexpected operation type for bitwise operation (" + operation.ToString( ) + ")." );
+			}
 		}
 
 		/// <summary>

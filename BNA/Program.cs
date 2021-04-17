@@ -78,12 +78,8 @@ namespace BNA
 					case StatementType.OP_SUB:
 					case StatementType.OP_MUL:
 					case StatementType.OP_DIV:
-					case StatementType.OP_MOD:
 					case StatementType.OP_LOG:
-					case StatementType.OP_POW:
-					case StatementType.OP_AND:
-					case StatementType.OP_OR:
-					case StatementType.OP_XOR: {
+					case StatementType.OP_POW: {
 						if ( op1 == null ) {
 							throw new RuntimeException( this.IP , curr , "Cannot use variable that has not been set: " + curr.Operand1.ToString( ) );
 						}
@@ -99,6 +95,21 @@ namespace BNA
 						op1.Value = Value.DoNumericOperation( op1.Value , op2 , curr.Type );
 						break;
 					}
+
+
+					// Bitwise operations
+					case StatementType.OP_MOD:
+					case StatementType.OP_AND:
+					case StatementType.OP_OR:
+					case StatementType.OP_XOR:
+						if ( op1.Value.Type != ValueType.INTEGER ) {
+							throw new RuntimeException( this.IP , curr , "Operand 1 of incorrect type (" + op1.Value.Type.ToString( ) + ") for bitwise operation" );
+						}
+						else if ( op2.Type != ValueType.INTEGER ) {
+							throw new RuntimeException( this.IP , curr , "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for bitwise operation" );
+						}
+						op1.Value = Value.DoBitwiseOperation( op1.Value , op2 , curr.Type );
+						break;
 
 
 					// Numeric one-operand operations
