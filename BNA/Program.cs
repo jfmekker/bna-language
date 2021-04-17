@@ -83,8 +83,7 @@ namespace BNA
 					case StatementType.OP_POW:
 					case StatementType.OP_AND:
 					case StatementType.OP_OR:
-					case StatementType.OP_XOR:
-					case StatementType.OP_RAND: {
+					case StatementType.OP_XOR: {
 						if ( op1 == null ) {
 							throw new RuntimeException( this.IP , curr , "Cannot use variable that has not been set: " + curr.Operand1.ToString( ) );
 						}
@@ -103,9 +102,38 @@ namespace BNA
 
 
 					// Numeric one-operand operations
-					case StatementType.OP_NEG:
-					case StatementType.OP_ROUND:
-						throw new NotImplementedException( );
+					case StatementType.OP_RAND: {
+						if ( op2.Type == ValueType.INTEGER ) {
+							op1.Value = new Value( ValueType.INTEGER , BNA.RNG.Next( (int)(long)op2.Val ) );
+						}
+						else if ( op2.Type == ValueType.FLOAT ) {
+							op1.Value = new Value( ValueType.INTEGER , BNA.RNG.NextDouble( ) * (double)op2.Val );
+						}
+						else {
+							throw new RuntimeException( this.IP , curr , "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
+						}
+						break;
+					}
+
+					case StatementType.OP_NEG: {
+						if ( op1.Value.Type == ValueType.INTEGER ) {
+							op1.Value = new Value( ValueType.INTEGER , ( (ulong)(long)op1.Value.Val ) ^ ulong.MaxValue );
+						}
+						else {
+							throw new RuntimeException( this.IP , curr , "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
+						}
+						break;
+					}
+
+					case StatementType.OP_ROUND: {
+						if ( op1.Value.Type == ValueType.FLOAT ) {
+							op1.Value = new Value( ValueType.INTEGER , (long)Math.Round( (double)op1.Value.Val ) );
+						}
+						else if ( op1.Value.Type != ValueType.INTEGER ) {
+							throw new RuntimeException( this.IP , curr , "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
+						}
+						break;
+					}
 
 
 					// List operations

@@ -7,6 +7,8 @@ namespace BNA
 {
 	public class BNA
 	{
+		public static Random RNG;
+
 		/// <summary>
 		/// Compiles a queue of BNA lines of code to statements [test].
 		/// </summary>
@@ -43,6 +45,8 @@ namespace BNA
 			Console.WriteLine( "================================================================================" );
 			Console.WriteLine( "Welcome to the BNA's Not Assembly Interpreter!" );
 			Console.WriteLine( "================================================================================" );
+
+			RNG = new Random( DateTime.Now.Millisecond );
 
 			// If no arguments, take input from command line
 			if ( args.Length == 0 ) {

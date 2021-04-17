@@ -50,23 +50,39 @@ namespace BNA
 			// Complete operation
 			switch ( operation ) {
 				case StatementType.OP_ADD:
-					if ( operationType == ValueType.INTEGER ) {
-						return new Value( ValueType.INTEGER , (long)op1.Val + (long)op2.Val );
-					}
-					else {
-						return new Value( ValueType.FLOAT , (double)op1.Val + (double)op2.Val );
-					}
+					return operationType == ValueType.INTEGER
+						? new Value( ValueType.INTEGER , (long)op1.Val + (long)op2.Val )
+						: new Value( ValueType.FLOAT , (double)op1.Val + (double)op2.Val );
 
 				case StatementType.OP_SUB:
+					return operationType == ValueType.INTEGER
+						? new Value( ValueType.INTEGER , (long)op1.Val - (long)op2.Val )
+						: new Value( ValueType.FLOAT , (double)op1.Val - (double)op2.Val );
+
 				case StatementType.OP_MUL:
+					return operationType == ValueType.INTEGER
+						? new Value( ValueType.INTEGER , (long)op1.Val * (long)op2.Val )
+						: new Value( ValueType.FLOAT , (double)op1.Val * (double)op2.Val );
+
 				case StatementType.OP_DIV:
-				case StatementType.OP_MOD:
-				case StatementType.OP_LOG:
+					return operationType == ValueType.INTEGER
+						? new Value( ValueType.INTEGER , (long)op1.Val / (long)op2.Val )
+						: new Value( ValueType.FLOAT , (double)op1.Val / (double)op2.Val );
+
 				case StatementType.OP_POW:
+					return operationType == ValueType.INTEGER
+						? new Value( ValueType.INTEGER , Math.Pow( (long)op1.Val , (long)op2.Val ) )
+						: new Value( ValueType.FLOAT , Math.Pow( (double)op1.Val , (double)op2.Val ) );
+
+				case StatementType.OP_LOG:
+					return operationType == ValueType.INTEGER
+						? new Value( ValueType.INTEGER , Math.Log( (long)op1.Val , (long)op2.Val ) )
+						: new Value( ValueType.FLOAT , Math.Log( (double)op1.Val , (double)op2.Val ) );
+
+				case StatementType.OP_MOD:
 				case StatementType.OP_AND:
 				case StatementType.OP_OR:
 				case StatementType.OP_XOR:
-				case StatementType.OP_RAND:
 					throw new NotImplementedException( );
 
 				default:
