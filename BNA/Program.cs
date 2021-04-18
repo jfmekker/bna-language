@@ -101,7 +101,7 @@ namespace BNA
 					case StatementType.OP_MOD:
 					case StatementType.OP_AND:
 					case StatementType.OP_OR:
-					case StatementType.OP_XOR:
+					case StatementType.OP_XOR: {
 						if ( op1.Value.Type != ValueType.INTEGER ) {
 							throw new RuntimeException( this.IP , curr , "Operand 1 of incorrect type (" + op1.Value.Type.ToString( ) + ") for bitwise operation" );
 						}
@@ -110,14 +110,23 @@ namespace BNA
 						}
 						op1.Value = Value.DoBitwiseOperation( op1.Value , op2 , curr.Type );
 						break;
+					}
 
 
 					// Numeric one-operand operations
 					case StatementType.OP_RAND: {
 						if ( op2.Type == ValueType.INTEGER ) {
+							if ( op1 == null ) {
+								op1 = new Variable( curr.Operand1 );
+								this.Variables.Add( op1 );
+							}
 							op1.Value = new Value( ValueType.INTEGER , BNA.RNG.Next( (int)(long)op2.Val ) );
 						}
 						else if ( op2.Type == ValueType.FLOAT ) {
+							if ( op1 == null ) {
+								op1 = new Variable( curr.Operand1 );
+								this.Variables.Add( op1 );
+							}
 							op1.Value = new Value( ValueType.INTEGER , BNA.RNG.NextDouble( ) * (double)op2.Val );
 						}
 						else {
@@ -154,13 +163,6 @@ namespace BNA
 
 
 					// I/O operations
-					case StatementType.OP_OPEN_R:
-					case StatementType.OP_OPEN_W:
-					case StatementType.OP_WRITE:
-					case StatementType.OP_READ:
-					case StatementType.OP_CLOSE:
-						throw new NotImplementedException( );
-
 					case StatementType.OP_PRINT: {
 						Console.WriteLine( op2.ToString( ) );
 						break;
@@ -208,18 +210,31 @@ namespace BNA
 						break;
 					}
 
+					case StatementType.OP_OPEN_R:
+					case StatementType.OP_OPEN_W:
+					case StatementType.OP_WRITE:
+					case StatementType.OP_READ:
+					case StatementType.OP_CLOSE:
+						throw new NotImplementedException( );
+
 
 					// Test operations
 					case StatementType.OP_TEST_EQ:
 					case StatementType.OP_TEST_GT:
 					case StatementType.OP_TEST_LT: {
-						// TODO determine special 'test' variable name
-						Variable test = this.GetVariable( new Token( "test" , TokenType.VARIABLE ) );
+						Variable test = this.GetVariable( SpecialVariables.TEST_RESULT );
 						if ( test == null ) {
-							test = new Variable( new Token( "test" , TokenType.VARIABLE ) );
+							test = new Variable( SpecialVariables.TEST_RESULT );
 							this.Variables.Add( test );
 						}
-						test.Value = Value.DoComparisonOperation( op1.Value , op2 , curr.Type );
+
+						var v = Value.DoComparisonOperation( op1.Value , op2 , curr.Type );
+						if ( v.Equals( Value.NAN ) ) {
+							throw new RuntimeException( IP , curr , "Could not compare operands: "
+								+ "op1=" + curr.Operand1.ToString( ) + " op2=" + curr.Operand2.ToString( ) );
+						}
+
+						test.Value = v;
 						break;
 					}
 
@@ -242,7 +257,21 @@ namespace BNA
 					}
 
 					case StatementType.OP_GOTO:
-						throw new NotImplementedException( );
+						Token label = curr.Operand1;
+						int line = -1;
+						for ( int i = 0 ; i < this.Statements.Length ; i += 1 ) {
+							if ( this.Statements[i].Type == StatementType.LABEL ) {
+								if ( this.Statements[i].Operand1.Equals( label ) ) {
+									line = i;
+									break;
+								}
+							}
+						}
+						if ( line < 0 ) {
+							throw new RuntimeException( this.IP , curr , "Found no label with token " + label.ToString( ) );
+						}
+						this.IP = line;
+						break;
 
 
 					// Non-operations

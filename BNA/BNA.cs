@@ -94,6 +94,14 @@ namespace BNA
 						Console.WriteLine( e.Message );
 						Console.ResetColor( );
 					}
+					catch ( Exception e ) {
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine( "Unexpected Exception caught:" );
+						Console.WriteLine( e.Message );
+						Console.ResetColor( );
+						Console.ReadLine( );
+						return;
+					}
 
 					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 

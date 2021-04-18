@@ -20,6 +20,9 @@ namespace BNA
 	/// </summary>
 	public struct Value
 	{
+		public static readonly Value NULL = new Value( ValueType.NULL , 0 );
+		public static readonly Value NAN = new Value( ValueType.INVALID , 0 );
+
 		/// <summary>
 		/// Perform a numeric operation on two values.
 		/// </summary>
@@ -80,7 +83,7 @@ namespace BNA
 						: new Value( ValueType.FLOAT , Math.Log( (double)op1.Val , (double)op2.Val ) );
 
 				default:
-					throw new Exception( "Unexpected operation type for numeric operation (" + operation.ToString() + ")." );
+					throw new Exception( "Unexpected operation type for numeric operation (" + operation.ToString( ) + ")." );
 			}
 		}
 
@@ -124,10 +127,68 @@ namespace BNA
 		/// <param name="op1">First operand</param>
 		/// <param name="op2">Second operand</param>
 		/// <param name="operation">Which operation to perform</param>
-		/// <returns>Result of the operation</returns>
+		/// <returns>Result of the operation, or a null value if the types are incompatiible</returns>
 		public static Value DoComparisonOperation( Value op1 , Value op2 , StatementType operation )
 		{
-			throw new NotImplementedException( );
+			var true_value = new Value( ValueType.INTEGER , 1 );
+			var false_value = new Value( ValueType.INTEGER , 0 );
+
+			switch ( op1.Type ) {
+
+				case ValueType.INTEGER:
+				case ValueType.FLOAT: {
+					if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT ) {
+						return NAN;
+					}
+
+					double v1 = ( op1.Type == ValueType.INTEGER ) ? (long)op1.Val : (double)op1.Val;
+					double v2 = ( op2.Type == ValueType.INTEGER ) ? (long)op2.Val : (double)op2.Val;
+
+					switch ( operation ) {
+						case StatementType.OP_TEST_EQ:
+							return ( v1 == v2 ) ? true_value : false_value;
+						case StatementType.OP_TEST_GT:
+							return ( v1 > v2 ) ? true_value : false_value;
+						case StatementType.OP_TEST_LT:
+							return ( v1 < v2 ) ? true_value : false_value;
+						default:
+							throw new Exception( "Unexpected operation type for comparison operation (" + operation.ToString( ) + ")." );
+					}
+				}
+
+				case ValueType.STRING: {
+					if ( op2.Type == ValueType.STRING ) {
+						return ( (string)op1.Val ).Equals( (string)op2.Val ) ? true_value : false_value;
+					}
+					else if ( op2.Type == ValueType.INTEGER ) {
+						// TODO do we want this to be a valid comparison?
+						string s = (string)op1.Val;
+						long i = (long)op2.Val;
+						switch ( operation ) {
+							case StatementType.OP_TEST_EQ:
+								return ( s.Length == i ) ? true_value : false_value;
+							case StatementType.OP_TEST_GT:
+								return ( s.Length > i ) ? true_value : false_value;
+							case StatementType.OP_TEST_LT:
+								return ( s.Length < i ) ? true_value : false_value;
+							default:
+								throw new Exception( "Unexpected operation type for comparison operation (" + operation.ToString( ) + ")." );
+						}
+					}
+					else {
+						return NAN;
+					}
+				}
+
+				case ValueType.LIST: {
+					throw new NotImplementedException( );
+				}
+
+
+				default:
+					throw new Exception( "Invalid token type for comparison operation: "
+						+ "op1:(" + op1.Type.ToString( ) + ") op2:(" + op2.Type.ToString( ) + ")" );
+			}
 		}
 
 		/// <summary>
