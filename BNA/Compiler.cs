@@ -41,7 +41,7 @@ namespace BNA
 				Debug.Add( "  Line " + i + ": " );
 				foreach ( Token t in tokenLines[i] ) {
 					total += 1;
-					Debug.Add( t.ToString( ) );
+					Debug.Add( t.ToString( ) + " " );
 				}
 				Debug.AddLine( );
 			}

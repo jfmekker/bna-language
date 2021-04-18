@@ -392,8 +392,7 @@ namespace BNA
 		{
 			string str = "[" + this.Type + "] \t";
 
-			str += $"op1={this.Operand1.ToString( ),-24} ";
-			str += $"op2={this.Operand2.ToString( ),-24}";
+			str += $"op1={this.Operand1.ToString( ),-24} op2={this.Operand2.ToString( ),-24}";
 
 			return str;
 		}

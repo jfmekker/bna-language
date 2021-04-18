@@ -179,8 +179,8 @@ namespace BNA
 		{
 			var tokens = new List<Token>( );
 
-			// Ignore if the line is a comment or empty
-			if ( line.Equals( "" ) || line[0] == (char)Symbol.COMMENT ) {
+			// Ignore if the line empty
+			if ( line.Equals( "" ) ) {
 				return tokens;
 			}
 
@@ -203,14 +203,14 @@ namespace BNA
 						candidate = "";
 					}
 				}
-				// Comments end the line early
+				// Comments end the line
 				else if ( c == (char)Symbol.COMMENT ) {
 					if ( candidate.Length > 0 ) {
 						throw new CompiletimeException( "Comment must be separated by whitespace" );
 					}
 
 					while ( i < line.Length ) {
-						candidate += c;
+						candidate += line[i];
 						i += 1;
 					}
 
