@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BNA.cs" />
+    <Compile Include="Compiler.cs" />
     <Compile Include="CompiletimeException.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="Program.cs" />

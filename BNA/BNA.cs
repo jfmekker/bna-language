@@ -10,33 +10,6 @@ namespace BNA
 		public static Random RNG;
 
 		/// <summary>
-		/// Compiles a queue of BNA lines of code to statements [test].
-		/// </summary>
-		/// <param name="lines">The lines of BNA code to compile</param>
-		/// <returns>String of the compile Python script</returns>
-		public static Statement[] Compile( Queue<string> lines )
-		{
-			// Convert lines to token stream
-			Queue<Token> tokens = Token.TokenizeProgram( lines );
-			Debug.AddLine( "\nTokens :" );
-			foreach ( Token t in tokens.ToList( ) ) {
-				Debug.AddLine( "  " + t.ToString( ) );
-			}
-			Debug.AddLine( " " + tokens.Count + " total" );
-
-			// Parse statements from token stream
-			Queue<Statement> statements = Statement.ParseStatements( tokens );
-			Debug.AddLine( "\nStatements :" );
-			foreach ( Statement s in statements.ToList( ) ) {
-				Debug.AddLine( "  " + s.ToString( ) );
-			}
-			Debug.AddLine( " " + statements.Count + " total" );
-
-			// Return array of statements
-			return statements.ToArray( );
-		}
-
-		/// <summary>
 		/// Compile a function to Python, or take input from the terminal
 		/// </summary>
 		/// <param name="args">Names of files to compile to Python, can be none.</param>
@@ -55,7 +28,7 @@ namespace BNA
 					Console.WriteLine( "\nInsert BNA code to do stuff (use '~' to end):" );
 
 					// Read and queue lines
-					var lines = new Queue<string>( );
+					var lines = new List<string>( );
 					while ( true ) {
 						// get a line
 						string input = Console.ReadLine( );
@@ -65,13 +38,14 @@ namespace BNA
 							break;
 						}
 
-						lines.Enqueue( input );
+						lines.Add( input );
 					}
 
 					// Compile to program and run
 					try {
 						Console.WriteLine( "Compiling Program..." );
-						var prog = new Program( Compile( lines ) );
+						var comp = new Compiler( lines );
+						var prog = comp.Compile( );
 						Console.WriteLine( "\nRunning Program...\n" );
 						prog.Run( );
 						Console.WriteLine( );
@@ -127,19 +101,20 @@ namespace BNA
 
 					// Output file contents
 					Console.WriteLine( "Reading file..." );
-					var lines = new Queue<string>( );
+					var lines = new List<string>( );
 					using ( StreamReader sr = File.OpenText( ".\\" + file ) ) {
 						string line;
 						while ( ( line = sr.ReadLine( ) ) != null ) {
 							Console.WriteLine( line );
-							lines.Enqueue( line );
+							lines.Add( line );
 						}
 					}
 
 					// Compile to program and run
 					try {
 						Console.WriteLine( "Compiling Program..." );
-						var prog = new Program( Compile( lines ) );
+						var comp = new Compiler( lines );
+						var prog = comp.Compile( );
 						Console.WriteLine( "\nRunning Program...\n" );
 						prog.Run( );
 						Console.WriteLine( );

@@ -89,58 +89,56 @@ namespace BNA
 			get; private set;
 		}
 
-		/// <summary>
-		/// Parse valid Statements from a stream of Tokens.
-		/// </summary>
-		/// <param name="tokenStream">A stream of tokens that represent a set of statements</param>
-		/// <returns>Queue of parsed Statements</returns>
-		public static Queue<Statement> ParseStatements( Queue<Token> tokenStream )
+		
+		public static Statement ParseStatement( List<Token> tokenList )
 		{
-			var statements = new Queue<Statement>( );
-
-			// Go through each token, assume we start on the start of a statement
-			while ( tokenStream.Count > 0 ) {
-				Token token = tokenStream.Dequeue( );
-				var candidate = new Statement( );
-
-				switch ( token.Type ) {
-
-					case TokenType.KEYWORD:
-						statements.Enqueue( ParseKeywordStatement( token , tokenStream ) );
-						break;
-
-					case TokenType.SYMBOL:
-						// LABEL_START var LABEL_END:
-						candidate.AddTokenOfSymbols( token , new List<Symbol> { Symbol.LABEL_START } );
-						candidate.AddTokenOfTypes( tokenStream.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
-						candidate.AddTokenOfSymbols( tokenStream.Dequeue( ) , new List<Symbol> { Symbol.LABEL_END } );
-						candidate.Type = StatementType.LABEL;
-						statements.Enqueue( candidate );
-						break;
-
-					default:
-						throw new CompiletimeException( "Invalid start of statement: " + token );
-
-				}
-
+			if ( tokenList.Count == 0 ) {
+				var s = new Statement( );
+				s._tokens.Add( new Token( "" ) );
+				s.Type = StatementType.NULL;
+				return s;
 			}
-
-			return statements;
+			else if ( tokenList[0].Type == TokenType.COMMENT ) {
+				var s = new Statement( );
+				s._tokens.Add( tokenList[0] );
+				s.Type = StatementType.COMMENT;
+				return s;
+			}
+			else if ( tokenList[0].Type == TokenType.KEYWORD ) {
+				return ParseKeywordStatement( tokenList );
+			}
+			else if ( tokenList[0].Type == TokenType.SYMBOL ) {
+				return ParseSymbolStatement( tokenList );
+			}
+			else {
+				throw new CompiletimeException( "Invalid start of statement: " + tokenList[0].ToString( ) );
+			}
 		}
 
-		/// <summary>
-		/// Parse a Statement from a queue, starting with a keyword. Removes items from the queue.
-		/// </summary>
-		/// <param name="token">Starting keyword Token</param>
-		/// <param name="tokens">Token queue to parse from</param>
-		/// <returns>Single parsed Statement</returns>
-		private static Statement ParseKeywordStatement( Token token , Queue<Token> tokens )
+		
+		private static Statement ParseSymbolStatement( List<Token> tokenList )
 		{
+			var tokens = new Queue<Token>( tokenList );
 			var candidate = new Statement( );
-			candidate._tokens.Add( token );
+
+			// LABEL_START var LABEL_END:
+			candidate.AddTokenOfSymbols( tokens.Dequeue( ) , new List<Symbol> { Symbol.LABEL_START } );
+			candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+			candidate.AddTokenOfSymbols( tokens.Dequeue( ) , new List<Symbol> { Symbol.LABEL_END } );
+			candidate.Type = StatementType.LABEL;
+			return candidate;
+		}
+
+		
+		private static Statement ParseKeywordStatement( List<Token> tokenList )
+		{
+			var tokens = new Queue<Token>( tokenList );
+			Token startToken = tokens.Dequeue( );
+			var candidate = new Statement( );
+			candidate._tokens.Add( startToken );
 
 			// Based on starting token, try to parse the appropriate statement
-			var start = (Keyword)Enum.Parse( typeof( Keyword ) , token.Value , true );
+			var start = (Keyword)Enum.Parse( typeof( Keyword ) , startToken.Value , true );
 			switch ( start ) {
 
 				// SET var TO var|lit|string
@@ -339,7 +337,7 @@ namespace BNA
 				}
 
 				default:
-					throw new CompiletimeException( "Invalid start of statement: " + token.ToString( ) );
+					throw new CompiletimeException( "Invalid start of statement: " + startToken.ToString( ) );
 
 			}
 
@@ -394,8 +392,8 @@ namespace BNA
 		{
 			string str = "[" + this.Type + "] \t";
 
-			str += "op1=<" + this.Operand1.ToString( ) + ">  ";
-			str += "op2=<" + this.Operand2.ToString( ) + ">";
+			str += $"op1={this.Operand1.ToString( ),-24} ";
+			str += $"op2={this.Operand2.ToString( ),-24}";
 
 			return str;
 		}

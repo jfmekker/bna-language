@@ -72,6 +72,7 @@ namespace BNA
 	/// </summary>
 	public enum TokenType
 	{
+		INVALID = -2,
 		UNKNOWN = -1,
 		NULL = 0,
 		LITERAL,
@@ -79,6 +80,7 @@ namespace BNA
 		STRING,
 		KEYWORD,
 		SYMBOL,
+		COMMENT
 	}
 
 	/// <summary>
@@ -136,14 +138,20 @@ namespace BNA
 						return TokenType.LITERAL;
 					}
 					else {
-						throw new Exception( "Failed to parse literal value: '" + this.Value + "'." );
+						return TokenType.INVALID;
 					}
 				}
 
 				// String
-				if ( this.Value.Length >= 2 && this.Value[0] == '"' && this.Value[this.Value.Length - 1] == '"' ) {
-					return TokenType.STRING;
+				if ( this.Value[0] == '"' ) {
+					if ( this.Value.Length >= 2 && this.Value[this.Value.Length - 1] == '"' ) {
+						return TokenType.STRING;
+					}
+					else {
+						return TokenType.INVALID;
+					}
 				}
+
 
 				// Keyword
 				if ( TryParseKeyword( this.Value.ToUpper( ) , out Keyword keyword ) ) {
@@ -163,13 +171,13 @@ namespace BNA
 		}
 
 		/// <summary>
-		/// Break a line of characters into a queue of Tokens.
+		/// Break a line of characters into a list of Tokens.
 		/// </summary>
 		/// <param name="line">The string of the line to be tokenized</param>
-		/// <returns>Queue of Tokens in order that they appear</returns>
-		public static Queue<Token> TokenizeLine( string line )
+		/// <returns>List of Tokens in order that they appear</returns>
+		public static List<Token> TokenizeLine( string line )
 		{
-			var tokens = new Queue<Token>( );
+			var tokens = new List<Token>( );
 
 			// Ignore if the line is a comment or empty
 			if ( line.Equals( "" ) || line[0] == (char)Symbol.COMMENT ) {
@@ -179,7 +187,8 @@ namespace BNA
 			// Parse character by character
 			string candidate = "";
 			bool inString = false;
-			foreach ( char c in line ) {
+			for ( int i = 0 ; i < line.Length ; i += 1 ) {
+				char c = line[i];
 				// Letters, numbers, underscores, accessor, or anything in a string passes
 				if ( char.IsLetterOrDigit( c )
 					|| c == '_'
@@ -190,19 +199,28 @@ namespace BNA
 
 					if ( c == '"' ) {
 						inString = false;
-						tokens.Enqueue( new Token( candidate , TokenType.STRING ) );
+						tokens.Add( new Token( candidate , TokenType.STRING ) );
 						candidate = "";
 					}
 				}
 				// Comments end the line early
 				else if ( c == (char)Symbol.COMMENT ) {
+					if ( candidate.Length > 0 ) {
+						throw new CompiletimeException( "Comment must be separated by whitespace" );
+					}
+
+					while ( i < line.Length ) {
+						candidate += c;
+						i += 1;
+					}
+
+					tokens.Add( new Token( candidate , TokenType.COMMENT ) );
+					candidate = "";
 					break;
 				}
 				// Other special characters
 				else {
 					switch ( c ) {
-						// ACCESSOR
-						case (char)Symbol.ACCESSOR:
 						// LABEL_START
 						case (char)Symbol.LABEL_START:
 						// LABEL_END
@@ -214,18 +232,25 @@ namespace BNA
 						// EQUAL
 						case (char)Symbol.EQUAL:
 							if ( candidate.Length > 0 ) {
-								tokens.Enqueue( new Token( candidate ) );
+								var t = new Token( candidate );
+								if ( t.Type == TokenType.INVALID ) {
+									throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
+								}
+								tokens.Add( t );
 							}
 
-							candidate = "";
-							tokens.Enqueue( new Token( c.ToString( ) , TokenType.SYMBOL ) );
+							tokens.Add( new Token( c.ToString( ) , TokenType.SYMBOL ) );
 							break;
 
 						// Whitespace
 						case ' ':
 						case '\t':
 							if ( candidate.Length > 0 ) {
-								tokens.Enqueue( new Token( candidate ) );
+								var t = new Token( candidate );
+								if ( t.Type == TokenType.INVALID ) {
+									throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
+								}
+								tokens.Add( t );
 							}
 
 							candidate = "";
@@ -234,7 +259,7 @@ namespace BNA
 						// Negative sign
 						case '-':
 							if ( candidate.Length > 0 ) {
-								throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+								throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 							}
 
 							candidate += c;
@@ -244,7 +269,7 @@ namespace BNA
 						case '.':
 							foreach ( char ch in candidate ) {
 								if ( !char.IsDigit( ch ) || ch == '-' ) {
-									throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+									throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 								}
 							}
 
@@ -258,37 +283,22 @@ namespace BNA
 							break;
 
 						default:
-							throw new Exception( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+							throw new CompiletimeException( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 					}
 				}
 			}
 
 			// Add last candidate
 			if ( inString ) {
-				throw new Exception( "Line ended before string: '" + candidate + "'." );
+				throw new CompiletimeException( "Line ended before string: '" + candidate + "'." );
 			}
 
 			if ( candidate.Length > 0 ) {
-				tokens.Enqueue( new Token( candidate ) );
-			}
-
-			return tokens;
-		}
-
-		/// <summary>
-		/// Tokenize a whole Queue of lines.
-		/// </summary>
-		/// <param name="lines">The program to be tokenized, broken into lines</param>
-		/// <returns>Queue of Tokens in order that they appear</returns>
-		public static Queue<Token> TokenizeProgram( Queue<string> lines )
-		{
-			var tokens = new Queue<Token>( );
-
-			while ( lines.Count > 0 ) {
-				Queue<Token> line_tokens = TokenizeLine( lines.Dequeue( ) );
-				while ( line_tokens.Count > 0 ) {
-					tokens.Enqueue( line_tokens.Dequeue( ) );
+				var t = new Token( candidate );
+				if ( t.Type == TokenType.INVALID ) {
+					throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
 				}
+				tokens.Add( t );
 			}
 
 			return tokens;
@@ -461,16 +471,16 @@ namespace BNA
 		/// <returns>String description of the Token</returns>
 		public override string ToString( )
 		{
-			string str = "(" + this.Type;
+			string str = "<(" + this.Type;
 			if ( this.Type == TokenType.KEYWORD ) {
 				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , this.Value , true ) ).ToString( );
 			}
 			else if ( this.Type == TokenType.SYMBOL && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) ) {
 				str += ":" + Enum.GetName( typeof( Symbol ) , (int)this.Value[0] );
 			}
-			str += ") ";
+			str += ( this.Type == TokenType.NULL ) ? ")>" : ( ") " + this.Value + ">" );
 
-			return str + this.Value;
+			return str;
 		}
 	}
 }

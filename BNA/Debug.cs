@@ -29,7 +29,7 @@ namespace BNA
 		/// Add a string followed by a new line to the debug output.
 		/// </summary>
 		/// <param name="message">String to print</param>
-		public static void AddLine( string message )
+		public static void AddLine( string message = "" )
 		{
 #if DEBUG
 			Console.ForegroundColor = DEBUG_CONSOLE_COLOR;
