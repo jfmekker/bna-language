@@ -230,7 +230,7 @@ namespace BNA
 
 						var v = Value.DoComparisonOperation( op1.Value , op2 , curr.Type );
 						if ( v.Equals( Value.NAN ) ) {
-							throw new RuntimeException( IP , curr , "Could not compare operands: "
+							throw new RuntimeException( this.IP , curr , "Could not compare operands: "
 								+ "op1=" + curr.Operand1.ToString( ) + " op2=" + curr.Operand2.ToString( ) );
 						}
 
@@ -256,7 +256,7 @@ namespace BNA
 						break;
 					}
 
-					case StatementType.OP_GOTO:
+					case StatementType.OP_GOTO: {
 						Token label = curr.Operand1;
 						int line = -1;
 						for ( int i = 0 ; i < this.Statements.Length ; i += 1 ) {
@@ -267,11 +267,14 @@ namespace BNA
 								}
 							}
 						}
+
 						if ( line < 0 ) {
 							throw new RuntimeException( this.IP , curr , "Found no label with token " + label.ToString( ) );
 						}
+
 						this.IP = line;
 						break;
+					}
 
 
 					// Non-operations
