@@ -225,11 +225,37 @@ namespace BNA
 		/// <returns></returns>
 		public override string ToString( )
 		{
-			if ( this.Val == null ) {
-				return "";
-			}
+			switch ( this.Type ) {
+				case ValueType.INVALID:
+					return "NaN";
 
-			return this.Val.ToString( );
+				case ValueType.NULL:
+					return "null";
+
+				case ValueType.INTEGER:
+				case ValueType.FLOAT:
+				case ValueType.STRING:
+					return this.Val.ToString( );
+
+				case ValueType.LIST:
+					var list = (List<Value>)this.Val;
+
+					string str = "{ ";
+					int i = 0;
+					while ( i < list.Count ) {
+						str += list[i].ToString( );
+						if ( i < list.Count - 1 ) {
+							str += " , ";
+						}
+						i += 1;
+					}
+					str += " }";
+
+					return str;
+
+				default:
+					throw new Exception( "Unexpected value type in ToString: " + this.Type );
+			}
 		}
 
 		/// <summary>
@@ -268,6 +294,27 @@ namespace BNA
 		public static bool operator !=( Value first , Value second )
 		{
 			return !first.Equals( second );
+		}
+
+		public static Value DeepCopy( Value listValue )
+		{
+			if ( listValue.Type != ValueType.LIST ) {
+				throw new Exception( "Can not deep copy a non-list value." );
+			}
+
+			var list = (List<Value>)listValue.Val;
+			var newList = new List<Value>( );
+
+			foreach ( Value v in list ) {
+				if ( v.Type == ValueType.LIST ) {
+					newList.Add( DeepCopy( v ) );
+				}
+				else {
+					newList.Add( v );
+				}
+			}
+
+			return new Value( ValueType.LIST , newList );
 		}
 	}
 }

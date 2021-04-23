@@ -64,7 +64,13 @@ namespace BNA
 				switch ( curr.Type ) {
 					// Set operation
 					case StatementType.OP_SET: {
-						this.SetValue( curr.Operand1 , op2 , true );
+						if ( op2.Type == ValueType.LIST ) {
+							var l = Value.DeepCopy( op2 );
+							this.SetValue( curr.Operand1 , l , true );
+						}
+						else {
+							this.SetValue( curr.Operand1 , op2 , true );
+						}
 						break;
 					}
 
@@ -171,10 +177,17 @@ namespace BNA
 
 					case StatementType.OP_APPEND: {
 						if ( op1.Type == ValueType.LIST ) {
-							( (List<Value>)op1.Val ).Add( op2 );
+							if ( op2.Type == ValueType.LIST ) {
+								var l = Value.DeepCopy( op2 );
+								( (List<Value>)op1.Val ).Add( l );
+							}
+							else {
+								( (List<Value>)op1.Val ).Add( op2 );
+							}
 						}
 						else if ( op1.Type == ValueType.STRING ) {
-							( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , (string)op2.Val );
+							// TODO ?
+							( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , op2.Val.ToString( ) );
 						}
 						else {
 							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Can not append to non-list-like type: " + op1.Type );
@@ -233,7 +246,7 @@ namespace BNA
 					case StatementType.OP_TEST_LT: {
 						if ( op1.Type == ValueType.INVALID || op1.Type == ValueType.NULL
 							|| op2.Type == ValueType.INVALID || op2.Type == ValueType.NULL ) {
-							throw new RuntimeException( IP , curr , "Both operands must have valid values to compare" );
+							throw new RuntimeException( this.IP , curr , "Both operands must have valid values to compare" );
 						}
 
 						var result = Value.DoComparisonOperation( op1 , op2 , curr.Type );
@@ -448,7 +461,10 @@ namespace BNA
 			}
 
 			// Set or add value
-			if ( this.Variables.ContainsKey( token ) || add ) {
+			if ( this.Variables.ContainsKey( token ) ) {
+				this.Variables[token] = newValue;
+			}
+			else if ( add ) {
 				this.Variables.Add( token , newValue );
 			}
 			else {
