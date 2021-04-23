@@ -16,7 +16,7 @@
 		/// <summary>
 		/// The <see cref="Value"/> stored by the variable.
 		/// </summary>
-		public Value Value
+		public virtual Value Value
 		{
 			get; set;
 		}
@@ -31,6 +31,5 @@
 			this.Identifier = token;
 			this.Value = value;
 		}
-
 	}
 }

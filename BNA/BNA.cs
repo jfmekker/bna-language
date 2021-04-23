@@ -68,14 +68,18 @@ namespace BNA
 						Console.WriteLine( e.Message );
 						Console.ResetColor( );
 					}
+#if DEBUG
+#else
 					catch ( Exception e ) {
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine( "Unexpected Exception caught:" );
 						Console.WriteLine( e.Message );
+						Console.WriteLine( "Please report this issue on github (https://github.com/jfmekker/bna-language/issues)!" );
 						Console.ResetColor( );
 						Console.ReadLine( );
 						return;
 					}
+#endif
 
 					Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 

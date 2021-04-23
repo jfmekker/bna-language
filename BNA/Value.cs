@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BNA
 {
@@ -229,6 +230,32 @@ namespace BNA
 			}
 
 			return this.Val.ToString( );
+		}
+
+		/// <summary>
+		/// Compare equality of two Values.
+		/// </summary>
+		/// <param name="obj">Value to compare against</param>
+		/// <returns>True if the two values are equal</returns>
+		public override bool Equals( object obj )
+		{
+			if ( !( obj is Value ) ) {
+				return false;
+			}
+
+			var value = (Value)obj;
+			return this.Type == value.Type &&
+					EqualityComparer<object>.Default.Equals( this.Val , value.Val );
+		}
+
+		public static bool operator ==( Value first, Value second )
+		{
+			return first.Equals( second );
+		}
+
+		public static bool operator !=( Value first , Value second )
+		{
+			return !first.Equals( second );
 		}
 	}
 }
