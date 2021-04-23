@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BNAC
+namespace BNA
 {
 	/// <summary>
 	/// Valid statements or instructions
 	/// </summary>
 	public enum StatementType
 	{
-		// default to unknown
-		UNKNOWN,
+		UNKNOWN = -1,
 
 		// non-operations
+		NULL = 0,
+		COMMENT,
 		LABEL,
 
-		// arithmetic operations
+		// numeric operations
 		OP_SET,
 		OP_ADD,
 		OP_SUB,
@@ -57,7 +58,7 @@ namespace BNAC
 	/// A collection of tokens that make up a whole valid statement or instruction.
 	/// Each statement maps to a "line of code".
 	/// </summary>
-	internal class Statement
+	public class Statement
 	{
 		/// <summary>
 		/// The StatementType of this Statement
@@ -89,57 +90,70 @@ namespace BNAC
 		}
 
 		/// <summary>
-		/// Parse valid Statements from a stream of Tokens.
+		/// Parse a valid statement from a <see cref="Token"/> list.
 		/// </summary>
-		/// <param name="tokenStream">A stream of tokens that represent a set of statements</param>
-		/// <returns>Queue of parsed Statements</returns>
-		public static Queue<Statement> ParseStatements( Queue<Token> tokenStream )
+		/// <param name="tokenList">List of tokens to parse</param>
+		/// <returns>A valid statement</returns>
+		/// <exception cref="CompiletimeException">Excepts for invalid statements</exception>
+		public static Statement ParseStatement( List<Token> tokenList )
 		{
-			var statements = new Queue<Statement>( );
-
-			// Go through each token, assume we start on the start of a statement
-			while ( tokenStream.Count > 0 ) {
-				Token token = tokenStream.Dequeue( );
-				var candidate = new Statement( );
-
-				switch ( token.Type ) {
-
-					case TokenType.KEYWORD:
-						statements.Enqueue( ParseKeywordStatement( token , tokenStream ) );
-						break;
-
-					case TokenType.SYMBOL:
-						// LABEL_START var LABEL_END:
-						candidate.AddTokenOfSymbols( token , new List<Symbol> { Symbol.LABEL_START } );
-						candidate.AddTokenOfTypes( tokenStream.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
-						candidate.AddTokenOfSymbols( tokenStream.Dequeue( ) , new List<Symbol> { Symbol.LABEL_END } );
-						candidate.Type = StatementType.LABEL;
-						statements.Enqueue( candidate );
-						break;
-
-					default:
-						throw new Exception( "Invalid start of statement: " + token );
-
-				}
-
+			if ( tokenList.Count == 0 ) {
+				var s = new Statement( );
+				s._tokens.Add( new Token( "" ) );
+				s.Type = StatementType.NULL;
+				return s;
 			}
-
-			return statements;
+			else if ( tokenList[0].Type == TokenType.COMMENT ) {
+				var s = new Statement( );
+				s._tokens.Add( tokenList[0] );
+				s.Type = StatementType.COMMENT;
+				return s;
+			}
+			else if ( tokenList[0].Type == TokenType.KEYWORD ) {
+				return ParseKeywordStatement( tokenList );
+			}
+			else if ( tokenList[0].Type == TokenType.SYMBOL ) {
+				return ParseSymbolStatement( tokenList );
+			}
+			else {
+				throw new CompiletimeException( "Invalid start of statement: " + tokenList[0].ToString( ) );
+			}
 		}
 
 		/// <summary>
-		/// Parse a Statement from a queue, starting with a keyword. Removes items from the queue.
+		/// Parse a valid statement that starts with a <see cref="Symbol"/>.
 		/// </summary>
-		/// <param name="token">Starting keyword Token</param>
-		/// <param name="tokens">Token queue to parse from</param>
-		/// <returns>Single parsed Statement</returns>
-		private static Statement ParseKeywordStatement( Token token , Queue<Token> tokens )
+		/// <param name="tokenList">List of tokens to parse</param>
+		/// <returns>A valid statement</returns>
+		/// <exception cref="CompiletimeException">Excepts for invalid statements</exception>
+		private static Statement ParseSymbolStatement( List<Token> tokenList )
 		{
+			var tokens = new Queue<Token>( tokenList );
 			var candidate = new Statement( );
-			candidate._tokens.Add( token );
+
+			// LABEL_START var LABEL_END:
+			candidate.AddTokenOfSymbols( tokens.Dequeue( ) , new List<Symbol> { Symbol.LABEL_START } );
+			candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+			candidate.AddTokenOfSymbols( tokens.Dequeue( ) , new List<Symbol> { Symbol.LABEL_END } );
+			candidate.Type = StatementType.LABEL;
+			return candidate;
+		}
+
+		/// <summary>
+		/// Parse a valid statement that starts with a <see cref="Keyword"/>.
+		/// </summary>
+		/// <param name="tokenList">List of tokens to parse</param>
+		/// <returns>A valid statement</returns>
+		/// <exception cref="CompiletimeException">Excepts for invalid statements</exception>
+		private static Statement ParseKeywordStatement( List<Token> tokenList )
+		{
+			var tokens = new Queue<Token>( tokenList );
+			Token startToken = tokens.Dequeue( );
+			var candidate = new Statement( );
+			candidate._tokens.Add( startToken );
 
 			// Based on starting token, try to parse the appropriate statement
-			var start = (Keyword)Enum.Parse( typeof( Keyword ) , token.Value , true );
+			var start = (Keyword)Enum.Parse( typeof( Keyword ) , startToken.Value , true );
 			switch ( start ) {
 
 				// SET var TO var|lit|string
@@ -228,7 +242,7 @@ namespace BNAC
 
 				// WAIT var|lit
 				case Keyword.WAIT: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 1 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.Type = StatementType.OP_WAIT;
 					break;
 				}
@@ -239,22 +253,22 @@ namespace BNAC
 					// Have to do TEST a little manually because I don't want to allow string value comparison (only equals)
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					Token next = tokens.Dequeue( );
-					if ( Token.TryParseSymbol( next.Value[0] , out Symbol symbol ) ) {
-						if ( symbol == Symbol.GREATER_THAN || symbol == Symbol.LESS_THAN ) {
-							candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
-							candidate.Type = symbol == Symbol.GREATER_THAN ? StatementType.OP_TEST_GT : StatementType.OP_TEST_LT;
-						}
-						else if ( symbol == Symbol.EQUAL ) {
-							candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
-							candidate.Type = StatementType.OP_TEST_EQ;
-						}
-						else {
-							throw new Exception( "Unexpected symbol: " + next.ToString( ) );
-						}
+
+					candidate.AddTokenOfSymbols( next , new List<Symbol> { Symbol.GREATER_THAN , Symbol.LESS_THAN , Symbol.EQUAL } );
+					var symbol = (Symbol)next.Value[0];
+
+					if ( symbol == Symbol.GREATER_THAN || symbol == Symbol.LESS_THAN ) {
+						candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
+						candidate.Type = symbol == Symbol.GREATER_THAN ? StatementType.OP_TEST_GT : StatementType.OP_TEST_LT;
+					}
+					else if ( symbol == Symbol.EQUAL ) {
+						candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
+						candidate.Type = StatementType.OP_TEST_EQ;
 					}
 					else {
-						throw new Exception( "Expected symbol, but got other token: " + next.ToString( ) );
+						throw new CompiletimeException( "Unexpected symbol: " + next.ToString( ) );
 					}
+
 					break;
 				}
 
@@ -278,7 +292,7 @@ namespace BNAC
 
 				// APPEND var|lit TO var
 				case Keyword.APPEND: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_APPEND;
@@ -332,13 +346,13 @@ namespace BNAC
 
 				// PRINT var|lit|string
 				case Keyword.PRINT: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 1 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
 					candidate.Type = StatementType.OP_PRINT;
 					break;
 				}
 
 				default:
-					throw new Exception( "Invalid start of statement: " + token.ToString( ) );
+					throw new CompiletimeException( "Invalid start of statement: " + startToken.ToString( ) );
 
 			}
 
@@ -391,12 +405,24 @@ namespace BNAC
 		/// <returns>String description of this Statement</returns>
 		public override string ToString( )
 		{
-			string str = "[" + this.Type + "]   { ";
-			foreach ( Token t in this._tokens ) {
-				str += t.ToString( ) + " ";
-			}
+			string str = "[" + this.Type + "] \t";
 
-			return str + "}";
+			str += $"op1={this.Operand1.ToString( ),-24} op2={this.Operand2.ToString( ),-24}";
+
+			return str;
+		}
+
+		/// <summary>
+		/// Gives the raw string of the line that created this Statement.
+		/// </summary>
+		/// <returns>String of the raw input that made this Statement.</returns>
+		public string RawString( )
+		{
+			string str = "";
+			for ( int i = 0 ; i < this._tokens.Count ; i += 1 ) {
+				str += this._tokens[i].Value + " ";
+			}
+			return str;
 		}
 	}
 }

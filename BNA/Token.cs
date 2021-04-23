@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BNAC
+namespace BNA
 {
-	internal enum Keyword
+	/// <summary>
+	/// The recognized and reserved keywords of BNA.
+	/// </summary>
+	public enum Keyword
 	{
 		// Empty keyword to represent unknown
-		_,
+		_ = 0,
 
 		// Operation start keywords
 		SET,
@@ -47,7 +50,10 @@ namespace BNAC
 		AS,
 	}
 
-	internal enum Symbol
+	/// <summary>
+	/// Special symbols within the BNA language.
+	/// </summary>
+	public enum Symbol
 	{
 		// Default to 'null' value
 		NULL = '\0',
@@ -61,22 +67,27 @@ namespace BNAC
 		ACCESSOR = '@',
 	}
 
-	internal enum TokenType
+	/// <summary>
+	/// What a given Token is identified as.
+	/// </summary>
+	public enum TokenType
 	{
-		UNKNOWN,
+		INVALID = -2,
+		UNKNOWN = -1,
+		NULL = 0,
 		LITERAL,
 		VARIABLE,
 		STRING,
 		KEYWORD,
 		SYMBOL,
+		COMMENT
 	}
 
 	/// <summary>
 	/// Group of related characters that form keywords/variables/etc.
 	/// </summary>
-	internal class Token
+	public struct Token
 	{
-
 		/// <summary>
 		/// The TokenType of this Token.
 		/// </summary>
@@ -98,7 +109,7 @@ namespace BNAC
 		/// </summary>
 		/// <param name="value">The string input of the Token</param>
 		/// <param name="type">The Token's type; if unknown, will attempt identifying</param>
-		private Token( string value , TokenType type = TokenType.UNKNOWN )
+		public Token( string value , TokenType type = TokenType.UNKNOWN )
 		{
 			this.Value = value;
 			this.Type = type;
@@ -109,13 +120,13 @@ namespace BNAC
 		/// Try to identify this Token's type if unknown.
 		/// </summary>
 		/// <returns>The potentially identified type</returns>
-		private TokenType IdentifyType( )
+		public TokenType IdentifyType( )
 		{
 			// Don't re-identify if we know it
 			if ( this.Type == TokenType.UNKNOWN ) {
-				// Sanity check the length
+				// Null
 				if ( this.Value.Length <= 0 ) {
-					throw new Exception( "Can not identify Token with empty value." );
+					return TokenType.NULL;
 				}
 
 				// Literal
@@ -127,22 +138,28 @@ namespace BNAC
 						return TokenType.LITERAL;
 					}
 					else {
-						throw new Exception( "Failed to parse literal value: '" + this.Value + "'." );
+						return TokenType.INVALID;
 					}
 				}
 
 				// String
-				if ( this.Value.Length >= 2 && this.Value[0] == '"' && this.Value[this.Value.Length - 1] == '"' ) {
-					return TokenType.STRING;
+				if ( this.Value[0] == '"' ) {
+					if ( this.Value.Length >= 2 && this.Value[this.Value.Length - 1] == '"' ) {
+						return TokenType.STRING;
+					}
+					else {
+						return TokenType.INVALID;
+					}
 				}
 
+
 				// Keyword
-				if ( TryParseKeyword( this.Value.ToUpper( ) , out Keyword keyword ) ) {
+				if ( Enum.TryParse( this.Value.ToUpper( ) , out Keyword keyword ) ) {
 					return TokenType.KEYWORD;
 				}
 
 				// Symbol
-				if ( this.Value.Length == 1 && TryParseSymbol( this.Value[0] , out Symbol symbol ) ) {
+				if ( this.Value.Length == 1 && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) ) {
 					return TokenType.SYMBOL;
 				}
 
@@ -154,23 +171,24 @@ namespace BNAC
 		}
 
 		/// <summary>
-		/// Break a line of characters into a queue of Tokens.
+		/// Break a line of characters into a list of Tokens.
 		/// </summary>
 		/// <param name="line">The string of the line to be tokenized</param>
-		/// <returns>Queue of Tokens in order that they appear</returns>
-		public static Queue<Token> TokenizeLine( string line )
+		/// <returns>List of Tokens in order that they appear</returns>
+		public static List<Token> TokenizeLine( string line )
 		{
-			var tokens = new Queue<Token>( );
+			var tokens = new List<Token>( );
 
-			// Ignore if the line is a comment or empty
-			if ( line.Equals( "" ) || line[0] == (char)Symbol.COMMENT ) {
+			// Ignore if the line empty
+			if ( line.Equals( "" ) ) {
 				return tokens;
 			}
 
 			// Parse character by character
 			string candidate = "";
 			bool inString = false;
-			foreach ( char c in line ) {
+			for ( int i = 0 ; i < line.Length ; i += 1 ) {
+				char c = line[i];
 				// Letters, numbers, underscores, accessor, or anything in a string passes
 				if ( char.IsLetterOrDigit( c )
 					|| c == '_'
@@ -181,19 +199,28 @@ namespace BNAC
 
 					if ( c == '"' ) {
 						inString = false;
-						tokens.Enqueue( new Token( candidate , TokenType.STRING ) );
+						tokens.Add( new Token( candidate , TokenType.STRING ) );
 						candidate = "";
 					}
 				}
-				// Comments end the line early
+				// Comments end the line
 				else if ( c == (char)Symbol.COMMENT ) {
+					if ( candidate.Length > 0 ) {
+						throw new CompiletimeException( "Comment must be separated by whitespace" );
+					}
+
+					while ( i < line.Length ) {
+						candidate += line[i];
+						i += 1;
+					}
+
+					tokens.Add( new Token( candidate , TokenType.COMMENT ) );
+					candidate = "";
 					break;
 				}
 				// Other special characters
 				else {
 					switch ( c ) {
-						// ACCESSOR
-						case (char)Symbol.ACCESSOR:
 						// LABEL_START
 						case (char)Symbol.LABEL_START:
 						// LABEL_END
@@ -205,18 +232,25 @@ namespace BNAC
 						// EQUAL
 						case (char)Symbol.EQUAL:
 							if ( candidate.Length > 0 ) {
-								tokens.Enqueue( new Token( candidate ) );
+								var t = new Token( candidate );
+								if ( t.Type == TokenType.INVALID ) {
+									throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
+								}
+								tokens.Add( t );
 							}
 
-							candidate = "";
-							tokens.Enqueue( new Token( c.ToString( ) , TokenType.SYMBOL ) );
+							tokens.Add( new Token( c.ToString( ) , TokenType.SYMBOL ) );
 							break;
 
 						// Whitespace
 						case ' ':
 						case '\t':
 							if ( candidate.Length > 0 ) {
-								tokens.Enqueue( new Token( candidate ) );
+								var t = new Token( candidate );
+								if ( t.Type == TokenType.INVALID ) {
+									throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
+								}
+								tokens.Add( t );
 							}
 
 							candidate = "";
@@ -225,7 +259,7 @@ namespace BNAC
 						// Negative sign
 						case '-':
 							if ( candidate.Length > 0 ) {
-								throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+								throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 							}
 
 							candidate += c;
@@ -235,7 +269,7 @@ namespace BNAC
 						case '.':
 							foreach ( char ch in candidate ) {
 								if ( !char.IsDigit( ch ) || ch == '-' ) {
-									throw new Exception( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+									throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 								}
 							}
 
@@ -249,55 +283,25 @@ namespace BNAC
 							break;
 
 						default:
-							throw new Exception( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
+							throw new CompiletimeException( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 					}
 				}
 			}
 
 			// Add last candidate
 			if ( inString ) {
-				throw new Exception( "Line ended before string: '" + candidate + "'." );
+				throw new CompiletimeException( "Line ended before string: '" + candidate + "'." );
 			}
 
 			if ( candidate.Length > 0 ) {
-				tokens.Enqueue( new Token( candidate ) );
-			}
-
-			return tokens;
-		}
-
-		/// <summary>
-		/// Tokenize a whole Queue of lines.
-		/// </summary>
-		/// <param name="lines">The program to be tokenized, broken into lines</param>
-		/// <returns>Queue of Tokens in order that they appear</returns>
-		public static Queue<Token> TokenizeProgram( Queue<string> lines )
-		{
-			var tokens = new Queue<Token>( );
-
-			while ( lines.Count > 0 ) {
-				Queue<Token> line_tokens = TokenizeLine( lines.Dequeue( ) );
-				while ( line_tokens.Count > 0 ) {
-					tokens.Enqueue( line_tokens.Dequeue( ) );
+				var t = new Token( candidate );
+				if ( t.Type == TokenType.INVALID ) {
+					throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
 				}
+				tokens.Add( t );
 			}
 
 			return tokens;
-		}
-
-		/// <summary>
-		/// Throw an exception if the given Token is not of the given TokenType.
-		/// </summary>
-		/// <param name="token">Token to check type of (can be null)</param>
-		/// <param name="type">The TokenType to check for</param>
-		public static void ThrowIfNotType( Token token , TokenType type )
-		{
-			if ( token == null ) {
-				throw new Exception( "Expected " + type.ToString( ) + " token, instead got null." );
-			}
-			else if ( token.Type != type ) {
-				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString( ) + "." );
-			}
 		}
 
 		/// <summary>
@@ -307,23 +311,8 @@ namespace BNAC
 		/// <param name="types">The TokenTypes to check for</param>
 		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
 		{
-			if ( token == null ) {
-				throw new Exception( "Expected " + types.ToString( ) + " token, instead got null." );
-			}
-			else if ( !types.Contains( token.Type ) ) {
-				throw new Exception( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
-			}
-		}
-
-		/// <summary>
-		/// Throw an exception if the given Token is not a given Keyword.
-		/// </summary>
-		/// <param name="keyword">The Keyword to check for</param>
-		public void ThrowIfNotKeyword( Keyword keyword )
-		{
-			ThrowIfNotType( this , TokenType.KEYWORD );
-			if ( Enum.TryParse( this.Value , out Keyword result ) && result != keyword ) {
-				throw new Exception( "Token not expected keyword " + keyword.ToString( ) + ": " + this.ToString( ) );
+			if ( !types.Contains( token.Type ) ) {
+				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected {" + string.Join( ", " , types ) + "}." );
 			}
 		}
 
@@ -331,38 +320,11 @@ namespace BNAC
 		/// Throw an exception if the given Token is not one of the given Kymbols.
 		/// </summary>
 		/// <param name="symbols">List of valid keywords</param>
-		public void ThrowIfNotKeywords( IEnumerable<Keyword> keywords )
+		public void ThrowIfNotKeywords( ICollection<Keyword> keywords )
 		{
-			bool success = false;
-			foreach ( Keyword keyword in keywords ) {
-				try {
-					this.ThrowIfNotKeyword( keyword );
-					success = true;
-				}
-				catch ( Exception ) {
-					// Do nothing
-				}
-			}
-			if ( !success ) {
-				string message = "Token not of given keywords [ ";
-				foreach ( Keyword s in keywords ) {
-					message += s.ToString( ) + " ";
-				}
-
-				message += "]: " + this.ToString( );
-				throw new Exception( message );
-			}
-		}
-
-		/// <summary>
-		/// Throw an exception if the given Token is not a given Symbol.
-		/// </summary>
-		/// <param name="symbol">The Symbol to check for</param>
-		public void ThrowIfNotSymbol( Symbol symbol )
-		{
-			ThrowIfNotType( this , TokenType.SYMBOL );
-			if ( Enum.TryParse( this.Value , out Symbol result ) && result != symbol ) {
-				throw new Exception( "Token not expected keyword " + symbol.ToString( ) + ": " + this.ToString( ) );
+			ThrowIfNotTypes( this , new List<TokenType> { TokenType.KEYWORD } );
+			if ( Enum.TryParse( this.Value , out Keyword result ) && !keywords.Contains( result ) ) {
+				throw new CompiletimeException( "Unexpected keyword '" + this.ToString( ) + "', expected {" + string.Join( ", " , keywords ) + "}." );
 			}
 		}
 
@@ -370,45 +332,12 @@ namespace BNAC
 		/// Throw an exception if the given Token is not one of the given Symbols.
 		/// </summary>
 		/// <param name="symbols">List of valid symbols</param>
-		public void ThrowIfNotSymbols( IEnumerable<Symbol> symbols )
+		public void ThrowIfNotSymbols( ICollection<Symbol> symbols )
 		{
-			bool success = false;
-			foreach ( Symbol symbol in symbols ) {
-				try {
-					this.ThrowIfNotSymbol( symbol );
-					success = true;
-				}
-				catch ( Exception ) {
-					// Do nothing
-				}
+			ThrowIfNotTypes( this , new List<TokenType> { TokenType.SYMBOL } );
+			if ( Enum.TryParse( this.Value , out Symbol result ) && !symbols.Contains( result ) ) {
+				throw new CompiletimeException( "Unexpected symbol '" + this.ToString( ) + "', expected {" + string.Join( ", " , symbols ) + "}." );
 			}
-			if ( !success ) {
-				string message = "Token not of given symbols [ ";
-				foreach ( Symbol s in symbols ) {
-					message += s.ToString( ) + " ";
-				}
-
-				message += ": " + this.ToString( );
-				throw new Exception( message );
-			}
-		}
-
-		/// <summary>
-		/// Try to parse a Keyword from a string ignoring case
-		/// </summary>
-		/// <param name="word">The string to parse</param>
-		/// <param name="value">Output value</param>
-		/// <returns>True if the word was parsed as a Keyword</returns>
-		public static bool TryParseKeyword( string word , out Keyword value )
-		{
-			try {
-				value = (Keyword)Enum.Parse( typeof( Keyword ) , word , true );
-			}
-			catch {
-				value = Keyword._;
-				return false;
-			}
-			return true;
 		}
 
 		/// <summary>
@@ -435,7 +364,7 @@ namespace BNAC
 		public override bool Equals( object obj )
 		{
 			if ( obj is Token ) {
-				return ( this.Type == ( obj as Token ).Type ) && ( this.Value == ( obj as Token ).Value );
+				return ( this.Type == ( (Token)obj ).Type ) && ( this.Value == ( (Token)obj ).Value );
 			}
 			return false;
 		}
@@ -458,15 +387,16 @@ namespace BNAC
 		/// <returns>String description of the Token</returns>
 		public override string ToString( )
 		{
-			string str = "'" + this.Value + "' (" + this.Type;
+			string str = "<(" + this.Type;
 			if ( this.Type == TokenType.KEYWORD ) {
 				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , this.Value , true ) ).ToString( );
 			}
 			else if ( this.Type == TokenType.SYMBOL && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) ) {
 				str += ":" + Enum.GetName( typeof( Symbol ) , (int)this.Value[0] );
 			}
+			str += ( this.Type == TokenType.NULL ) ? ")>" : ( ") " + this.Value + ">" );
 
-			return str + ")";
+			return str;
 		}
 	}
 }

@@ -1,0 +1,14 @@
+PRINT "Hello, World!"
+
+LIST numList SIZE 0
+
+APPEND 69 TO numList
+APPEND 420 TO numList
+
+PRINT numList@1
+
+APPEND numList@0 TO numList
+MULTIPLY numList@2 BY numList@1
+
+PRINT "69 x 420 ="
+PRINT numList@2
