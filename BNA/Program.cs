@@ -440,6 +440,7 @@ namespace BNA
 					}
 
 					l[i] = newValue;
+					return;
 				}
 				else {
 					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Can not set specific index of string." );
