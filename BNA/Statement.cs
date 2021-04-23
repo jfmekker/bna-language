@@ -89,7 +89,12 @@ namespace BNA
 			get; private set;
 		}
 
-		
+		/// <summary>
+		/// Parse a valid statement from a <see cref="Token"/> list.
+		/// </summary>
+		/// <param name="tokenList">List of tokens to parse</param>
+		/// <returns>A valid statement</returns>
+		/// <exception cref="CompiletimeException">Excepts for invalid statements</exception>
 		public static Statement ParseStatement( List<Token> tokenList )
 		{
 			if ( tokenList.Count == 0 ) {
@@ -115,7 +120,12 @@ namespace BNA
 			}
 		}
 
-		
+		/// <summary>
+		/// Parse a valid statement that starts with a <see cref="Symbol"/>.
+		/// </summary>
+		/// <param name="tokenList">List of tokens to parse</param>
+		/// <returns>A valid statement</returns>
+		/// <exception cref="CompiletimeException">Excepts for invalid statements</exception>
 		private static Statement ParseSymbolStatement( List<Token> tokenList )
 		{
 			var tokens = new Queue<Token>( tokenList );
@@ -129,7 +139,12 @@ namespace BNA
 			return candidate;
 		}
 
-		
+		/// <summary>
+		/// Parse a valid statement that starts with a <see cref="Keyword"/>.
+		/// </summary>
+		/// <param name="tokenList">List of tokens to parse</param>
+		/// <returns>A valid statement</returns>
+		/// <exception cref="CompiletimeException">Excepts for invalid statements</exception>
 		private static Statement ParseKeywordStatement( List<Token> tokenList )
 		{
 			var tokens = new Queue<Token>( tokenList );
@@ -238,22 +253,22 @@ namespace BNA
 					// Have to do TEST a little manually because I don't want to allow string value comparison (only equals)
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					Token next = tokens.Dequeue( );
-					if ( Token.TryParseSymbol( next.Value[0] , out Symbol symbol ) ) {
-						if ( symbol == Symbol.GREATER_THAN || symbol == Symbol.LESS_THAN ) {
-							candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
-							candidate.Type = symbol == Symbol.GREATER_THAN ? StatementType.OP_TEST_GT : StatementType.OP_TEST_LT;
-						}
-						else if ( symbol == Symbol.EQUAL ) {
-							candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
-							candidate.Type = StatementType.OP_TEST_EQ;
-						}
-						else {
-							throw new CompiletimeException( "Unexpected symbol: " + next.ToString( ) );
-						}
+
+					candidate.AddTokenOfSymbols( next , new List<Symbol> { Symbol.GREATER_THAN , Symbol.LESS_THAN , Symbol.EQUAL } );
+					var symbol = (Symbol)next.Value[0];
+
+					if ( symbol == Symbol.GREATER_THAN || symbol == Symbol.LESS_THAN ) {
+						candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
+						candidate.Type = symbol == Symbol.GREATER_THAN ? StatementType.OP_TEST_GT : StatementType.OP_TEST_LT;
+					}
+					else if ( symbol == Symbol.EQUAL ) {
+						candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
+						candidate.Type = StatementType.OP_TEST_EQ;
 					}
 					else {
-						throw new CompiletimeException( "Expected symbol, but got other token: " + next.ToString( ) );
+						throw new CompiletimeException( "Unexpected symbol: " + next.ToString( ) );
 					}
+
 					break;
 				}
 
@@ -277,7 +292,7 @@ namespace BNA
 
 				// APPEND var|lit TO var
 				case Keyword.APPEND: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_APPEND;

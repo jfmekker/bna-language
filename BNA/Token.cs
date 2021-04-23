@@ -154,12 +154,12 @@ namespace BNA
 
 
 				// Keyword
-				if ( TryParseKeyword( this.Value.ToUpper( ) , out Keyword keyword ) ) {
+				if ( Enum.TryParse( this.Value.ToUpper( ) , out Keyword keyword ) ) {
 					return TokenType.KEYWORD;
 				}
 
 				// Symbol
-				if ( this.Value.Length == 1 && TryParseSymbol( this.Value[0] , out Symbol symbol ) ) {
+				if ( this.Value.Length == 1 && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) ) {
 					return TokenType.SYMBOL;
 				}
 
@@ -305,18 +305,6 @@ namespace BNA
 		}
 
 		/// <summary>
-		/// Throw an exception if the given Token is not of the given TokenType.
-		/// </summary>
-		/// <param name="token">Token to check type of (can be null)</param>
-		/// <param name="type">The TokenType to check for</param>
-		public static void ThrowIfNotType( Token token , TokenType type )
-		{
-			if ( token.Type != type ) {
-				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected " + type.ToString( ) + "." );
-			}
-		}
-
-		/// <summary>
 		/// Throw an exception if the given Token is not one of the given TokenTypes.
 		/// </summary>
 		/// <param name="token">Token to check type of (can be null)</param>
@@ -324,19 +312,7 @@ namespace BNA
 		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
 		{
 			if ( !types.Contains( token.Type ) ) {
-				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected " + types.ToString( ) + "." );
-			}
-		}
-
-		/// <summary>
-		/// Throw an exception if the given Token is not a given Keyword.
-		/// </summary>
-		/// <param name="keyword">The Keyword to check for</param>
-		public void ThrowIfNotKeyword( Keyword keyword )
-		{
-			ThrowIfNotType( this , TokenType.KEYWORD );
-			if ( Enum.TryParse( this.Value , out Keyword result ) && result != keyword ) {
-				throw new CompiletimeException( "Token not expected keyword " + keyword.ToString( ) + ": " + this.ToString( ) );
+				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected {" + string.Join( ", " , types ) + "}." );
 			}
 		}
 
@@ -344,38 +320,11 @@ namespace BNA
 		/// Throw an exception if the given Token is not one of the given Kymbols.
 		/// </summary>
 		/// <param name="symbols">List of valid keywords</param>
-		public void ThrowIfNotKeywords( IEnumerable<Keyword> keywords )
+		public void ThrowIfNotKeywords( ICollection<Keyword> keywords )
 		{
-			bool success = false;
-			foreach ( Keyword keyword in keywords ) {
-				try {
-					this.ThrowIfNotKeyword( keyword );
-					success = true;
-				}
-				catch ( Exception ) {
-					// Do nothing
-				}
-			}
-			if ( !success ) {
-				string message = "Token not of given keywords [ ";
-				foreach ( Keyword s in keywords ) {
-					message += s.ToString( ) + " ";
-				}
-
-				message += "]: " + this.ToString( );
-				throw new CompiletimeException( message );
-			}
-		}
-
-		/// <summary>
-		/// Throw an exception if the given Token is not a given Symbol.
-		/// </summary>
-		/// <param name="symbol">The Symbol to check for</param>
-		public void ThrowIfNotSymbol( Symbol symbol )
-		{
-			ThrowIfNotType( this , TokenType.SYMBOL );
-			if ( Enum.TryParse( this.Value , out Symbol result ) && result != symbol ) {
-				throw new CompiletimeException( "Token not expected keyword " + symbol.ToString( ) + ": " + this.ToString( ) );
+			ThrowIfNotTypes( this , new List<TokenType> { TokenType.KEYWORD } );
+			if ( Enum.TryParse( this.Value , out Keyword result ) && !keywords.Contains( result ) ) {
+				throw new CompiletimeException( "Unexpected keyword '" + this.ToString( ) + "', expected {" + string.Join( ", " , keywords ) + "}." );
 			}
 		}
 
@@ -383,45 +332,12 @@ namespace BNA
 		/// Throw an exception if the given Token is not one of the given Symbols.
 		/// </summary>
 		/// <param name="symbols">List of valid symbols</param>
-		public void ThrowIfNotSymbols( IEnumerable<Symbol> symbols )
+		public void ThrowIfNotSymbols( ICollection<Symbol> symbols )
 		{
-			bool success = false;
-			foreach ( Symbol symbol in symbols ) {
-				try {
-					this.ThrowIfNotSymbol( symbol );
-					success = true;
-				}
-				catch ( Exception ) {
-					// Do nothing
-				}
+			ThrowIfNotTypes( this , new List<TokenType> { TokenType.SYMBOL } );
+			if ( Enum.TryParse( this.Value , out Symbol result ) && !symbols.Contains( result ) ) {
+				throw new CompiletimeException( "Unexpected symbol '" + this.ToString( ) + "', expected {" + string.Join( ", " , symbols ) + "}." );
 			}
-			if ( !success ) {
-				string message = "Token not of given symbols [ ";
-				foreach ( Symbol s in symbols ) {
-					message += s.ToString( ) + " ";
-				}
-
-				message += ": " + this.ToString( );
-				throw new CompiletimeException( message );
-			}
-		}
-
-		/// <summary>
-		/// Try to parse a Keyword from a string ignoring case
-		/// </summary>
-		/// <param name="word">The string to parse</param>
-		/// <param name="value">Output value</param>
-		/// <returns>True if the word was parsed as a Keyword</returns>
-		public static bool TryParseKeyword( string word , out Keyword value )
-		{
-			try {
-				value = (Keyword)Enum.Parse( typeof( Keyword ) , word , true );
-			}
-			catch {
-				value = Keyword._;
-				return false;
-			}
-			return true;
 		}
 
 		/// <summary>

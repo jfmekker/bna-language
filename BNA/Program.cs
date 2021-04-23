@@ -231,6 +231,11 @@ namespace BNA
 					case StatementType.OP_TEST_EQ:
 					case StatementType.OP_TEST_GT:
 					case StatementType.OP_TEST_LT: {
+						if ( op1.Type == ValueType.INVALID || op1.Type == ValueType.NULL
+							|| op2.Type == ValueType.INVALID || op2.Type == ValueType.NULL ) {
+							throw new RuntimeException( IP , curr , "Both operands must have valid values to compare" );
+						}
+
 						var result = Value.DoComparisonOperation( op1 , op2 , curr.Type );
 						if ( result.Equals( Value.NAN ) ) {
 							throw new RuntimeException( this.IP , curr , "Could not compare operands: "
