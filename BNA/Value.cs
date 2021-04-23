@@ -248,11 +248,23 @@ namespace BNA
 					EqualityComparer<object>.Default.Equals( this.Val , value.Val );
 		}
 
+		/// <summary>
+		/// Defined '==' operator for Value.
+		/// </summary>
+		/// <param name="first">First value to compare</param>
+		/// <param name="second">Second value to compare</param>
+		/// <returns>True if the two values are equal</returns>
 		public static bool operator ==( Value first, Value second )
 		{
 			return first.Equals( second );
 		}
 
+		/// <summary>
+		/// Defined '!=' operator for Value.
+		/// </summary>
+		/// <param name="first">First value to compare</param>
+		/// <param name="second">Second value to compare</param>
+		/// <returns>True if the two values are not equal</returns>
 		public static bool operator !=( Value first , Value second )
 		{
 			return !first.Equals( second );

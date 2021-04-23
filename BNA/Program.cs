@@ -165,7 +165,7 @@ namespace BNA
 							list.Add( new Value( ) );
 						}
 
-						this.SetValue( curr.Operand1 , new Value( ValueType.LIST , new List<Value>( ) ) , true );
+						this.SetValue( curr.Operand1 , new Value( ValueType.LIST , list ) , true );
 						break;
 					}
 
