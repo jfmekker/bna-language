@@ -12,14 +12,9 @@ The acronym takes inspiration from other recursive acronyms, primarily GNU (GNU'
 ## Contributing
 Contributions to BNA are very welcome. Check the issues list for work to pickup, or open issues for bugs, feature requests, or wiki updates.
 
-## Future Plans
-BNA currently translates BNA code to equivalent Python. However, this is somewhat limiting when it comes to type-enforcement and dynamic jumps. The next few minor releases will see more functionality added to this, as well as cleaning things up for a full semi-stable release.
+## Roadmap
 
-In the (hopefully near) future, verison `v1.0-beta` will be released which will no longer support translation to Python. Instead, BNA will be compiled directly to our own custom bytecode/binary format. This can then be run through a BNA runtime virtual environment similiar to the Java virtual machine. In future releases, we may support translation to other langauges like C, C++, C#, etc.
-
-### Roadmap
-
-Versions supporting BNA translation to Python:
+### Released versions:
 
  - `v0.1-alpha` Functioning proof of concept for the BNA compiler.
  - `v0.2-alpha` Basic control flow and bit operations.
@@ -27,10 +22,10 @@ Versions supporting BNA translation to Python:
  - `v0.4-alpha` Strings.
  - `v0.5-beta`  Lists.
  - `v0.6-beta`  Command line and file input/output.
- - `v0.7-beta`  **PLANNED** Improved language specification based on pedagogical feedback.
- - `v0.8`       **PLANNED** Included education materials.
+ - `v0.7`       Full BNA interpreter, removed Python translation.
 
- Tentaive future versioning:
+### Tentaive future versioning:
 
-  - `v1.0-beta`  **PLANNED** BNA virtual environment.
-  - `v1.1-beta`  **PLANNED** Dynamic jumps and scopes.
+  - `v0.8`      Re-add file input/output.
+  - `v0.9`      Dynamic jumps and scopes.
+  - `v1.0`      Improved language specification.

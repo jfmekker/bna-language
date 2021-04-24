@@ -290,7 +290,7 @@ namespace BNA
 					break;
 				}
 
-				// APPEND var|lit TO var
+				// APPEND var|lit|string TO var
 				case Keyword.APPEND: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
