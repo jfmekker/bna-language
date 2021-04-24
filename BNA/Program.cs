@@ -278,6 +278,7 @@ namespace BNA
 					}
 
 					case StatementType.OP_GOTO: {
+						// Find line
 						Token label = curr.Operand1;
 						int line = -1;
 						for ( int i = 0 ; i < this.Statements.Length ; i += 1 ) {
@@ -288,12 +289,18 @@ namespace BNA
 								}
 							}
 						}
-
 						if ( line < 0 ) {
 							throw new RuntimeException( this.IP , curr , "Found no label with token " + label.ToString( ) );
 						}
 
-						this.IP = line;
+						// Test condition
+						if ( op2.Type != ValueType.INTEGER ) {
+							throw new RuntimeException( IP , curr , "GOTO given incorrect conditional value type: " + op2.Type.ToString( ) );
+						}
+						else if ( (long)op2.Val != 0 ) {
+							this.IP = line;
+						}
+						
 						break;
 					}
 

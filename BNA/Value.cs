@@ -131,8 +131,8 @@ namespace BNA
 		/// <returns>Result of the operation, or a null value if the types are incompatiible</returns>
 		public static Value DoComparisonOperation( Value op1 , Value op2 , StatementType operation )
 		{
-			var true_value = new Value( ValueType.INTEGER , 1 );
-			var false_value = new Value( ValueType.INTEGER , 0 );
+			var true_value = new Value( ValueType.INTEGER , 1L );
+			var false_value = new Value( ValueType.INTEGER , 0L );
 
 			switch ( op1.Type ) {
 
