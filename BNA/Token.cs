@@ -362,6 +362,13 @@ namespace BNA
 				tokens.Add( t );
 			}
 
+			// If any list tokens, try tokenizing the contents to catch compile errors here
+			foreach ( Token t in tokens ) {
+				if ( t.Type == TokenType.LIST ) {
+					TokenizeLine( t.Value.Substring( 1 , t.Value.Length - 2 ) );
+				}
+			}
+
 			return tokens;
 		}
 
