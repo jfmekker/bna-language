@@ -6,13 +6,26 @@ namespace BNA
 {
 	public class BNA
 	{
+		public enum ReturnCode : byte
+		{
+			SUCCESS = 0,
+			COMPILE_ERROR = 1 << 0,
+			RUNTIME_ERROR = 1 << 1,
+			NOT_IMPLEMENTED_ERROR = 1 << 2,
+			// UNUSED = 1 << 3,
+			// UNUSED = 1 << 4,
+			// UNUSED = 1 << 5,
+			// UNUSED = 1 << 6,
+			UNEXPECTED_ERROR = 1 << 7
+		}
+
 		public static Random RNG;
 
 		/// <summary>
 		/// Compile a function to Python, or take input from the terminal
 		/// </summary>
 		/// <param name="args">Names of files to compile to Python, can be none.</param>
-		public static void Main( string[] args )
+		public static int Main( string[] args )
 		{
 			Console.WriteLine( "================================================================================" );
 			Console.WriteLine( "Welcome to the BNA's Not Assembly Interpreter!" );
@@ -22,16 +35,24 @@ namespace BNA
 
 			// If no arguments, take input from command line
 			if ( args.Length == 0 ) {
-				RunFromInput( );
+				ReturnCode r = RunFromInput( );
+				return (int)r;
 			}
 			// else, take in files
 			else {
-				RunFromFiles( args );
+				ReturnCode r = RunFromFiles( args );
+#if DEBUG
+				// Wait to close so user can read output
+				Console.WriteLine( "Finished, press enter to exit..." );
+				Console.ReadLine( );
+#endif
+				return (int)r;
 			}
 		}
 
-		public static void RunFromFiles( string[] files )
+		public static ReturnCode RunFromFiles( string[] files )
 		{
+			ReturnCode return_val = 0;
 			foreach ( string file in files ) {
 				// Output the BNA filename
 				Console.WriteLine( file + ":" );
@@ -56,7 +77,7 @@ namespace BNA
 						}
 					}
 				}
-				catch(FileNotFoundException e) {
+				catch ( FileNotFoundException e ) {
 					Console.ForegroundColor = ConsoleColor.Red;
 					Console.WriteLine( "Failed to find file: " + file );
 					Console.WriteLine( e.Message );
@@ -65,19 +86,18 @@ namespace BNA
 
 				// Compile to program and run
 				if ( lines.Count > 0 ) {
-					CompileAndRun( lines );
+					return_val |= CompileAndRun( lines );
 				}
 
 				Console.WriteLine( "Done with file.\n" );
 			}
-
-			// Wait to close so user can read output
-			Console.WriteLine( "Finished, press enter to exit..." );
-			Console.ReadLine( );
+			return return_val;
 		}
 
-		public static void RunFromInput( )
+		public static ReturnCode RunFromInput( )
 		{
+			ReturnCode return_val = ReturnCode.SUCCESS;
+
 			while ( true ) {
 				// Usage
 				Console.WriteLine( "\nInsert BNA code to do stuff or type '$filename.bna' to run a file (use '~' to end):" );
@@ -112,9 +132,9 @@ namespace BNA
 
 				// Check if we run the user input
 				if ( run ) {
-					CompileAndRun( lines );
+					return_val = CompileAndRun( lines );
 				}
-				
+
 				Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 
 				// Wait to continue, check for exit
@@ -122,9 +142,11 @@ namespace BNA
 					break;
 				}
 			}
+
+			return return_val;
 		}
 
-		public static void CompileAndRun( List<string> lines )
+		public static ReturnCode CompileAndRun( List<string> lines )
 		{
 			// Compile to program and run
 			try {
@@ -134,24 +156,28 @@ namespace BNA
 				Console.WriteLine( "\nRunning Program...\n" );
 				prog.Run( );
 				Console.WriteLine( );
+				return ReturnCode.SUCCESS;
 			}
 			catch ( CompiletimeException e ) {
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine( "Compiletime Exception caught:" );
 				Console.WriteLine( e.Message );
 				Console.ResetColor( );
+				return ReturnCode.COMPILE_ERROR;
 			}
 			catch ( RuntimeException e ) {
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine( "Runtime Exception caught:" );
 				Console.WriteLine( e.Message );
 				Console.ResetColor( );
+				return ReturnCode.RUNTIME_ERROR;
 			}
 			catch ( NotImplementedException e ) {
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine( "Not Implemented Exception caught:" );
 				Console.WriteLine( e.Message );
 				Console.ResetColor( );
+				return ReturnCode.NOT_IMPLEMENTED_ERROR;
 			}
 #if DEBUG
 #else
@@ -162,7 +188,7 @@ namespace BNA
 				Console.WriteLine( "Please report this issue on github (https://github.com/jfmekker/bna-language/issues)!" );
 				Console.ResetColor( );
 				Console.ReadLine( );
-				return;
+				return ReturnCode.UNEXPECTED_ERROR;
 			}
 #endif
 		}
