@@ -208,7 +208,10 @@ namespace BNA
 				if ( char.IsLetterOrDigit( c )
 					|| c == '_'
 					|| c == (char)Symbol.ACCESSOR
-					|| ( list_nest_level > 0 && c != (char)Symbol.LIST_END ) ) {
+					|| ( list_nest_level > 0
+						&& c != (char)Symbol.LIST_END
+						&& c != (char)Symbol.LIST_START )
+					) {
 
 					candidate += c;
 				}
@@ -236,13 +239,15 @@ namespace BNA
 						case (char)Symbol.LABEL_END:
 						case (char)Symbol.GREATER_THAN:
 						case (char)Symbol.LESS_THAN:
-						case (char)Symbol.EQUAL: {
+						case (char)Symbol.EQUAL:
+						case (char)Symbol.LIST_SEPERATOR: {
 							if ( candidate.Length > 0 ) {
 								var t = new Token( candidate );
 								if ( t.Type == TokenType.INVALID ) {
 									throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
 								}
 								tokens.Add( t );
+								candidate = "";
 							}
 
 							tokens.Add( new Token( c.ToString( ) , TokenType.SYMBOL ) );
@@ -309,18 +314,23 @@ namespace BNA
 
 						// List
 						case (char)Symbol.LIST_START: {
-							list_nest_level += 1;
 							candidate += c;
+
+							if ( list_nest_level == 0 && candidate.Length > 1 ) {
+								throw new CompiletimeException( "List start must be start of new token: '" + candidate + "'" );
+							}
+
+							list_nest_level += 1;
 							break;
 						}
 						case (char)Symbol.LIST_END: {
-							list_nest_level -= 1;
 							candidate += c;
 
-							if ( list_nest_level < 0 ) {
+							if ( list_nest_level == 0 ) {
 								throw new CompiletimeException( "List ending with no matching start: '" + candidate + "'" );
 							}
 
+							list_nest_level -= 1;
 							break;
 						}
 

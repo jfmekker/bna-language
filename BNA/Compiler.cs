@@ -22,10 +22,12 @@ namespace BNA
 
 		public Program Compile( )
 		{
+			// Start with empty line to one-index lines and avoid 0-line programs
+			this.Lines.Insert( 0 , "" );
+
 			// Convert lines to token stream
 			Debug.AddLine( "\nTokenizing..." );
 			var tokenLines = new List<List<Token>>( );
-			tokenLines.Add( Token.TokenizeLine( "" ) ); // start with empty line to zero index lines
 			for ( int i = 0 ; i < this.Lines.Count ; i += 1 ) {
 				try {
 					tokenLines.Add( Token.TokenizeLine( this.Lines[i] ) );
@@ -38,7 +40,7 @@ namespace BNA
 			// Print all Tokens for debugging
 			Debug.AddLine( "\nTokens:" );
 			int total = 0;
-			for ( int i = 0 ; i < tokenLines.Count ; i += 1 ) {
+			for ( int i = 1 ; i < tokenLines.Count ; i += 1 ) {
 				Debug.Add( "  Line " + i + ": " );
 				foreach ( Token t in tokenLines[i] ) {
 					total += 1;
@@ -46,7 +48,7 @@ namespace BNA
 				}
 				Debug.AddLine( );
 			}
-			Debug.AddLine( "" + total + " total from " + tokenLines.Count + " lines" );
+			Debug.AddLine( "" + total + " total from " + ( tokenLines.Count - 1 ) + " lines" );
 
 			// Parse Statements from Token lines
 			Debug.AddLine( "\nParsing..." );
@@ -62,10 +64,10 @@ namespace BNA
 
 			// Print all Statements for debugging
 			Debug.AddLine( "\nStatements:" );
-			for ( int i = 0 ; i < tokenLines.Count ; i += 1 ) {
+			for ( int i = 1 ; i < tokenLines.Count ; i += 1 ) {
 				Debug.AddLine( "  Line " + i + ": " + statements[i] );
 			}
-			Debug.AddLine( "" + statements.Count + " lines" );
+			Debug.AddLine( "" + ( statements.Count - 1 ) + " lines" );
 
 			// Create Program object
 			return new Program( statements.ToArray( ) );

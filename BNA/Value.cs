@@ -316,5 +316,13 @@ namespace BNA
 
 			return new Value( ValueType.LIST , newList );
 		}
+
+		public override int GetHashCode( )
+		{
+			var hashCode = 1893053585;
+			hashCode = hashCode * -1521134295 + this.Type.GetHashCode( );
+			hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode( this.Val );
+			return hashCode;
+		}
 	}
 }
