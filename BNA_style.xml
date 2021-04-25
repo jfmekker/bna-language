@@ -1,7 +1,3 @@
-<!--
-Add this file to %APPDATA%\Notepad++\userDefineLangs for
-custom BNA syntax highlighting.
--->
 <NotepadPlus>
     <UserLang name="BNA" ext="bna" udlVersion="2.1">
         <Settings>
@@ -17,7 +13,7 @@ custom BNA syntax highlighting.
             <Keywords name="Numbers, suffix1"></Keywords>
             <Keywords name="Numbers, suffix2"></Keywords>
             <Keywords name="Numbers, range"></Keywords>
-            <Keywords name="Operators1">@</Keywords>
+            <Keywords name="Operators1">@ ( , )</Keywords>
             <Keywords name="Operators2"></Keywords>
             <Keywords name="Folders in code1, open"></Keywords>
             <Keywords name="Folders in code1, middle"></Keywords>
@@ -29,7 +25,7 @@ custom BNA syntax highlighting.
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
             <Keywords name="Keywords1">add subtract multiply divide set&#x000D;&#x000A;goto wait random&#x000D;&#x000A;test and or xor negate&#x000D;&#x000A;raise mod log round&#x000D;&#x000A;list append&#x000D;&#x000A;open close read write input print&#x000D;&#x000A;to by from max if with of size as</Keywords>
-            <Keywords name="Keywords2">success&#x000D;&#x000A;&gt;&#x000D;&#x000A;&lt;&#x000D;&#x000A;=&#x000D;&#x000A;@</Keywords>
+            <Keywords name="Keywords2">success&#x000D;&#x000A;&gt;&#x000D;&#x000A;&lt;&#x000D;&#x000A;=</Keywords>
             <Keywords name="Keywords3"></Keywords>
             <Keywords name="Keywords4"></Keywords>
             <Keywords name="Keywords5"></Keywords>
@@ -45,7 +41,7 @@ custom BNA syntax highlighting.
             <WordsStyle name="NUMBERS" fgColor="FF0080" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS1" fgColor="FF8000" bgColor="FFFFFF" fontName="hide" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS2" fgColor="00FFFF" bgColor="FFFFFF" fontName="&#x0003;" fontStyle="0" nesting="0" />
-            <WordsStyle name="KEYWORDS3" fgColor="000000" bgColor="FFFFFF" fontName="&#x080E;&#x0002;" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS3" fgColor="FFFF00" bgColor="FFFFFF" fontName="&#x080E;&#x0002;" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS4" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS5" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS6" fgColor="000000" bgColor="FFFFFF" fontName="&#x0307;&#x5000;" fontStyle="0" nesting="0" />
