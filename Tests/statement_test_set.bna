@@ -1,0 +1,53 @@
+PRINT "Statement Test: SET"
+
+# Set integer
+PRINT ""
+PRINT "Integers:"
+SET a TO 12345
+SET b TO 0
+SET c TO -12345
+PRINT a
+PRINT b
+PRINT c
+
+# Set float
+PRINT ""
+PRINT "Floats:"
+SET d TO 12345.6789
+SET e TO 0.10101
+SET f TO 0.0
+SET g TO -0.10101
+SET h TO -12345.6789
+PRINT d
+PRINT e
+PRINT f
+PRINT g
+PRINT h
+
+# Set string
+PRINT ""
+PRINT "Strings:"
+SET i TO "short string"
+SET j TO "looooooooooooooooooooooooooooooooooooooooong string"
+SET k TO ""
+SET l TO ".,/';][{}\|=+-_)(*&^%$#@!`~:<>?"
+PRINT i
+PRINT j
+PRINT k
+PRINT l
+
+# Set list
+PRINT ""
+PRINT "Lists:"
+#SET m TO ( 1 , 2 , 3 )
+#SET n TO ( 1 , 2.0 , "three" )
+#SET o TO ( a , d , i , m )
+#SET p TO ( m , ( 4 , 5 , 6 ) )
+#SET q TO ( )
+PRINT m
+PRINT n
+PRINT o
+PRINT p
+PRINT q
+
+# Done

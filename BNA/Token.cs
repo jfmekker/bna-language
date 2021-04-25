@@ -64,7 +64,11 @@ namespace BNA
 		LABEL_START = '^',
 		LABEL_END = ':',
 		LINE_END = '\n',
+		STRING_MARKER = '"',
 		ACCESSOR = '@',
+		LIST_START = '(',
+		LIST_END = ')',
+		LIST_SEPERATOR = ',',
 	}
 
 	/// <summary>
@@ -78,6 +82,7 @@ namespace BNA
 		LITERAL,
 		VARIABLE,
 		STRING,
+		LIST,
 		KEYWORD,
 		SYMBOL,
 		COMMENT
@@ -143,8 +148,8 @@ namespace BNA
 				}
 
 				// String
-				if ( this.Value[0] == '"' ) {
-					if ( this.Value.Length >= 2 && this.Value[this.Value.Length - 1] == '"' ) {
+				if ( this.Value[0] == (char)Symbol.STRING_MARKER ) {
+					if ( this.Value.Length >= 2 && this.Value[this.Value.Length - 1] == (char)Symbol.STRING_MARKER ) {
 						return TokenType.STRING;
 					}
 					else {
@@ -152,6 +157,16 @@ namespace BNA
 					}
 				}
 
+				// List
+				if ( this.Value[0] == (char)Symbol.LIST_START ) {
+					if ( this.Value.Length >= 2 && this.Value[this.Value.Length - 1] == (char)Symbol.LIST_END ) {
+						// TODO parse list
+						return TokenType.LIST;
+					}
+					else {
+						return TokenType.INVALID;
+					}
+				}
 
 				// Keyword
 				if ( Enum.TryParse( this.Value.ToUpper( ) , out Keyword keyword ) ) {
@@ -186,51 +201,42 @@ namespace BNA
 
 			// Parse character by character
 			string candidate = "";
-			bool inString = false;
+			int list_nest_level = 0;
 			for ( int i = 0 ; i < line.Length ; i += 1 ) {
 				char c = line[i];
-				// Letters, numbers, underscores, accessor, or anything in a string passes
+				// Letters, numbers, underscores, accessor, or we are in a list
 				if ( char.IsLetterOrDigit( c )
 					|| c == '_'
 					|| c == (char)Symbol.ACCESSOR
-					|| inString ) {
+					|| ( list_nest_level > 0 && c != (char)Symbol.LIST_END ) ) {
 
 					candidate += c;
-
-					if ( c == '"' ) {
-						inString = false;
-						tokens.Add( new Token( candidate , TokenType.STRING ) );
-						candidate = "";
-					}
-				}
-				// Comments end the line
-				else if ( c == (char)Symbol.COMMENT ) {
-					if ( candidate.Length > 0 ) {
-						throw new CompiletimeException( "Comment must be separated by whitespace" );
-					}
-
-					while ( i < line.Length ) {
-						candidate += line[i];
-						i += 1;
-					}
-
-					tokens.Add( new Token( candidate , TokenType.COMMENT ) );
-					candidate = "";
-					break;
 				}
 				// Other special characters
 				else {
 					switch ( c ) {
-						// LABEL_START
+						// Comment
+						case (char)Symbol.COMMENT: {
+							if ( candidate.Length > 0 ) {
+								throw new CompiletimeException( "Comment must be separated by whitespace" );
+							}
+
+							while ( i < line.Length ) {
+								candidate += line[i];
+								i += 1;
+							}
+
+							tokens.Add( new Token( candidate , TokenType.COMMENT ) );
+							candidate = "";
+							break;
+						}
+
+						// Standalone symbol tokens
 						case (char)Symbol.LABEL_START:
-						// LABEL_END
 						case (char)Symbol.LABEL_END:
-						// GREATER_THAN
 						case (char)Symbol.GREATER_THAN:
-						// LESS_THAN
 						case (char)Symbol.LESS_THAN:
-						// EQUAL
-						case (char)Symbol.EQUAL:
+						case (char)Symbol.EQUAL: {
 							if ( candidate.Length > 0 ) {
 								var t = new Token( candidate );
 								if ( t.Type == TokenType.INVALID ) {
@@ -241,10 +247,11 @@ namespace BNA
 
 							tokens.Add( new Token( c.ToString( ) , TokenType.SYMBOL ) );
 							break;
+						}
 
 						// Whitespace
 						case ' ':
-						case '\t':
+						case '\t': {
 							if ( candidate.Length > 0 ) {
 								var t = new Token( candidate );
 								if ( t.Type == TokenType.INVALID ) {
@@ -255,33 +262,70 @@ namespace BNA
 
 							candidate = "";
 							break;
+						}
+
 
 						// Negative sign
-						case '-':
+						case '-': {
 							if ( candidate.Length > 0 ) {
 								throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 							}
 
 							candidate += c;
 							break;
+						}
+
 
 						// Decimal point
-						case '.':
-							foreach ( char ch in candidate ) {
-								if ( !char.IsDigit( ch ) || ch == '-' ) {
+						case '.': {
+							for ( int j = 0 ; j < candidate.Length ; j += 1 ) {
+								// Candidate must be all digits except for potential negative sign at the start
+								if ( !char.IsDigit( candidate[j] ) && candidate[j] != '-' && j == 0 ) {
 									throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 								}
 							}
 
 							candidate += c;
 							break;
+						}
 
-						// String start
-						case '"':
-							inString = true;
+
+						// String
+						case (char)Symbol.STRING_MARKER: {
+							if ( candidate.Length > 0 && candidate[0] != (char)Symbol.STRING_MARKER ) {
+								throw new CompiletimeException( "String must be separated by whitespace" );
+							}
+
+							while ( i < line.Length ) {
+								candidate += line[i];
+								i += 1;
+							}
+
+							tokens.Add( new Token( candidate , TokenType.STRING ) );
+							candidate = "";
+							break;
+						}
+
+
+						// List
+						case (char)Symbol.LIST_START: {
+							list_nest_level += 1;
 							candidate += c;
 							break;
+						}
+						case (char)Symbol.LIST_END: {
+							list_nest_level -= 1;
+							candidate += c;
 
+							if ( list_nest_level < 0 ) {
+								throw new CompiletimeException( "List ending with no matching start: '" + candidate + "'" );
+							}
+
+							break;
+						}
+
+
+						// Unexpected
 						default:
 							throw new CompiletimeException( "Illegal symbol: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 					}
@@ -289,11 +333,11 @@ namespace BNA
 			}
 
 			// Add last candidate
-			if ( inString ) {
-				throw new CompiletimeException( "Line ended before string: '" + candidate + "'." );
-			}
-
 			if ( candidate.Length > 0 ) {
+				if ( list_nest_level > 0 ) {
+					throw new CompiletimeException( "Line ended before list: '" + candidate + "'" );
+				}
+
 				var t = new Token( candidate );
 				if ( t.Type == TokenType.INVALID ) {
 					throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
