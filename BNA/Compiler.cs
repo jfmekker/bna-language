@@ -25,6 +25,7 @@ namespace BNA
 			// Convert lines to token stream
 			Debug.AddLine( "\nTokenizing..." );
 			var tokenLines = new List<List<Token>>( );
+			tokenLines.Add( Token.TokenizeLine( "" ) ); // start with empty line to zero index lines
 			for ( int i = 0 ; i < this.Lines.Count ; i += 1 ) {
 				try {
 					tokenLines.Add( Token.TokenizeLine( this.Lines[i] ) );
