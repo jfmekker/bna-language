@@ -344,9 +344,9 @@ namespace BNA
 					break;
 				}
 
-				// PRINT var|lit|string
+				// PRINT var|lit|string|list
 				case Keyword.PRINT: {
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
 					candidate.Type = StatementType.OP_PRINT;
 					break;
 				}

@@ -295,12 +295,12 @@ namespace BNA
 
 						// Test condition
 						if ( op2.Type != ValueType.INTEGER ) {
-							throw new RuntimeException( IP , curr , "GOTO given incorrect conditional value type: " + op2.Type.ToString( ) );
+							throw new RuntimeException( this.IP , curr , "GOTO given incorrect conditional value type: " + op2.Type.ToString( ) );
 						}
 						else if ( (long)op2.Val != 0 ) {
 							this.IP = line;
 						}
-						
+
 						break;
 					}
 
@@ -405,9 +405,29 @@ namespace BNA
 					return Value.NULL;
 				}
 
+				// Tokenize and evaluate the contents of a list literal
+				case TokenType.LIST: {
+					List<Token> listTokens = Token.TokenizeLine( token.Value.Substring( 1 , token.Value.Length - 2 ) );
+					var listValues = new List<Value>( );
+
+					foreach ( Token t in listTokens ) {
+						if ( t.Type != TokenType.SYMBOL || t.Value[0] != (char)Symbol.LIST_SEPERATOR ) {
+							listValues.Add( this.GetValue( t ) );
+						}
+					}
+
+					return new Value( ValueType.LIST , listValues );
+				}
+
 				// Null operands for single operand statements
 				case TokenType.NULL: {
 					return Value.NULL;
+				}
+
+				// Invalid token
+				case TokenType.INVALID:
+				case TokenType.UNKNOWN: {
+					throw new RuntimeException( IP , Statements[IP] , "Can not get value from invalid or unknown token: " + token.ToString( ) );
 				}
 
 				default:

@@ -240,16 +240,16 @@ namespace BNA
 				case ValueType.LIST:
 					var list = (List<Value>)this.Val;
 
-					string str = "{ ";
+					string str = "" + (char)Symbol.LIST_START + " ";
 					int i = 0;
 					while ( i < list.Count ) {
 						str += list[i].ToString( );
 						if ( i < list.Count - 1 ) {
-							str += " , ";
+							str += " " + (char)Symbol.LIST_SEPERATOR + " ";
 						}
 						i += 1;
 					}
-					str += " }";
+					str += " " + (char)Symbol.LIST_END;
 
 					return str;
 
