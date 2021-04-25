@@ -301,9 +301,16 @@ namespace BNA
 								throw new CompiletimeException( "String must be separated by whitespace" );
 							}
 
+							candidate += line[i];
+							i += 1;
+
 							while ( i < line.Length ) {
 								candidate += line[i];
 								i += 1;
+
+								if ( line[i - 1] == (char)Symbol.STRING_MARKER ) {
+									break;
+								}
 							}
 
 							tokens.Add( new Token( candidate , TokenType.STRING ) );

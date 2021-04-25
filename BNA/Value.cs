@@ -243,7 +243,15 @@ namespace BNA
 					string str = "" + (char)Symbol.LIST_START + " ";
 					int i = 0;
 					while ( i < list.Count ) {
-						str += list[i].ToString( );
+
+						if ( list[i].Type == ValueType.STRING ) {
+							str += '"' + list[i].ToString( ) + '"';
+						}
+						else {
+							str += list[i].ToString( );
+						}
+						
+
 						if ( i < list.Count - 1 ) {
 							str += " " + (char)Symbol.LIST_SEPERATOR + " ";
 						}

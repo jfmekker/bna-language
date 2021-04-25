@@ -39,11 +39,11 @@ PRINT l
 # Set list
 PRINT ""
 PRINT "Lists:"
-#SET m TO ( 1 , 2 , 3 )
-#SET n TO ( 1 , 2.0 , "three" )
-#SET o TO ( a , d , i , m )
-#SET p TO ( m , ( 4 , 5 , 6 ) )
-#SET q TO ( )
+SET m TO ( 1 , 2 , 3 )
+SET n TO ( 1 , 2.0 , "three" )
+SET o TO ( a , d , i , m )
+SET p TO ( m , ( 4 , 5 , 6 ) )
+SET q TO ( )
 PRINT m
 PRINT n
 PRINT o

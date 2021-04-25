@@ -156,11 +156,11 @@ namespace BNA
 			var start = (Keyword)Enum.Parse( typeof( Keyword ) , startToken.Value , true );
 			switch ( start ) {
 
-				// SET var TO var|lit|string
+				// SET var TO var|lit|string|list
 				case Keyword.SET: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
-					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
 					candidate.Type = StatementType.OP_SET;
 					break;
 				}
