@@ -195,6 +195,19 @@ namespace BNA
 						break;
 					}
 
+					case StatementType.OP_SIZE: {
+						if ( op2.Type == ValueType.LIST ) {
+							SetValue( curr.Operand1 , new Value( ValueType.INTEGER , (long)( (List<Value>)op2.Val ).Count ) , true );
+						}
+						else if ( op2.Type == ValueType.STRING ) {
+							SetValue( curr.Operand1 , new Value( ValueType.INTEGER , (long)( (string)op2.Val ).Length ) , true );
+						}
+						else {
+							throw new RuntimeException( IP , curr , "Can not size a non-list-like value: '" + op2.ToString( ) + "'" );
+						}
+						break;
+					}
+
 
 					// I/O operations
 					case StatementType.OP_PRINT: {

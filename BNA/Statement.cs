@@ -34,6 +34,7 @@ namespace BNA
 		// list operations
 		OP_LIST,
 		OP_APPEND,
+		OP_SIZE,
 
 		// io operations
 		OP_OPEN_R,
@@ -306,6 +307,15 @@ namespace BNA
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_APPEND;
+					break;
+				}
+
+				// SIZE var OF var|string|list
+				case Keyword.SIZE: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OF } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING , TokenType.LIST } , operand: 2 );
+					candidate.Type = StatementType.OP_SIZE;
 					break;
 				}
 
