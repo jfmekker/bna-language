@@ -6,7 +6,7 @@ namespace UnitTestProject
 	[TestClass]
 	public class StatementTests
 	{
-		private void RunStatementTest( string statement )
+		private void RunStatementTest( string statement , bool fails = false )
 		{
 			BNA.ReturnCode r = BNA.ReturnCode.UNEXPECTED_ERROR;
 
@@ -21,145 +21,157 @@ namespace UnitTestProject
 				Assert.Inconclusive( );
 			}
 
-			Assert.AreEqual( BNA.ReturnCode.SUCCESS , r );
+			Assert.AreEqual( !fails ? BNA.ReturnCode.SUCCESS : BNA.ReturnCode.BNA_ERROR , r );
 		}
 
 		[TestMethod]
 		public void SetTest( )
 		{
-			RunStatementTest( "set" );
+			this.RunStatementTest( "set" );
 		}
 
 		[TestMethod]
 		public void AddTest( )
 		{
-			RunStatementTest( "add" );
+			this.RunStatementTest( "add" );
 		}
 
 		[TestMethod]
 		public void SubtractTest( )
 		{
-			RunStatementTest( "subtract" );
+			this.RunStatementTest( "subtract" );
 		}
 
 		[TestMethod]
 		public void MultiplyTest( )
 		{
-			RunStatementTest( "multiply" );
+			this.RunStatementTest( "multiply" );
 		}
 
 		[TestMethod]
 		public void DivideTest( )
 		{
-			RunStatementTest( "divide" );
+			this.RunStatementTest( "divide" );
 		}
 
 		[TestMethod]
 		public void AndTest( )
 		{
-			RunStatementTest( "and" );
+			this.RunStatementTest( "and" );
 		}
 
 		[TestMethod]
 		public void OrTest( )
 		{
-			RunStatementTest( "or" );
+			this.RunStatementTest( "or" );
 		}
 
 		[TestMethod]
 		public void XorTest( )
 		{
-			RunStatementTest( "xor" );
+			this.RunStatementTest( "xor" );
 		}
 
 		[TestMethod]
 		public void ModTest( )
 		{
-			RunStatementTest( "mod" );
+			this.RunStatementTest( "mod" );
 		}
 
 		[TestMethod]
 		public void LogTest( )
 		{
-			RunStatementTest( "log" );
+			this.RunStatementTest( "log" );
 		}
 
 		[TestMethod]
 		public void RaiseTest( )
 		{
-			RunStatementTest( "raise" );
+			this.RunStatementTest( "raise" );
 		}
 
 		[TestMethod]
 		public void NegateTest( )
 		{
-			RunStatementTest( "negate" );
+			this.RunStatementTest( "negate" );
 		}
 
 		[TestMethod]
 		public void RoundTest( )
 		{
-			RunStatementTest( "round" );
+			this.RunStatementTest( "round" );
 		}
 
 		[TestMethod]
 		public void RandomTest( )
 		{
-			RunStatementTest( "random" );
+			this.RunStatementTest( "random" );
 		}
 
 		[TestMethod]
 		public void WaitTest( )
 		{
-			RunStatementTest( "wait" );
+			this.RunStatementTest( "wait" );
 		}
 
 		[TestMethod]
 		public void TestTest( )
 		{
-			RunStatementTest( "test" );
+			this.RunStatementTest( "test" );
 		}
 
 		[TestMethod]
 		public void GotoTest( )
 		{
-			RunStatementTest( "goto" );
+			this.RunStatementTest( "goto" );
 		}
 
 		[TestMethod]
 		public void ListTest( )
 		{
-			RunStatementTest( "list" );
+			this.RunStatementTest( "list" );
 		}
 
 		[TestMethod]
 		public void AppendTest( )
 		{
-			RunStatementTest( "append" );
+			this.RunStatementTest( "append" );
 		}
 
 		[TestMethod]
 		public void SizeTest( )
 		{
-			RunStatementTest( "size" );
+			this.RunStatementTest( "size" );
 		}
 
 		[TestMethod]
 		public void InputTest( )
 		{
-			RunStatementTest( "input" );
+			this.RunStatementTest( "input" );
 		}
 
 		[TestMethod]
 		public void PrintTest( )
 		{
-			RunStatementTest( "print" );
+			this.RunStatementTest( "print" );
 		}
 
 		[TestMethod]
 		public void TypeTest( )
 		{
-			RunStatementTest( "type" );
+			this.RunStatementTest( "type" );
+		}
+
+		[TestMethod]
+		public void ExitTest( )
+		{
+			this.RunStatementTest( "exit" );
+		}
+
+		[TestMethod]
+		public void ErrorTest( )
+		{
+			this.RunStatementTest( "error" , true );
 		}
 	}
 }

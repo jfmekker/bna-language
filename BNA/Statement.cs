@@ -54,6 +54,8 @@ namespace BNA
 		OP_WAIT,
 		OP_GOTO,
 		OP_TYPE,
+		OP_EXIT,
+		OP_ERROR,
 	}
 
 	/// <summary>
@@ -115,7 +117,7 @@ namespace BNA
 				try {
 					return ParseKeywordStatement( tokenList );
 				}
-				catch (InvalidOperationException e) {
+				catch ( InvalidOperationException e ) {
 					throw new CompiletimeException( "Statement ended too early" );
 				}
 			}
@@ -381,11 +383,25 @@ namespace BNA
 					break;
 				}
 
+				// EXIT
+				case Keyword.EXIT: {
+					candidate.Type = StatementType.OP_EXIT;
+					break;
+				}
+
+				// ERROR var|string
+				case Keyword.ERROR: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
+					candidate.Type = StatementType.OP_ERROR;
+					break;
+				}
+
 				default:
 					throw new CompiletimeException( "Invalid start of statement: " + startToken.ToString( ) );
 
 			}
 
+			// TODO check that queue is empty and not a comment?
 			return candidate;
 		}
 

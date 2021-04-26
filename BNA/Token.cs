@@ -39,6 +39,8 @@ namespace BNA
 		INPUT,
 		PRINT,
 		TYPE,
+		EXIT,
+		ERROR,
 
 		// Operation mid keywords
 		TO,

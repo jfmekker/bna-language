@@ -322,6 +322,14 @@ namespace BNA
 						break;
 					}
 
+					case StatementType.OP_EXIT: {
+						running = false;
+						break;
+					}
+
+					case StatementType.OP_ERROR: {
+						throw new RuntimeException( op2.ToString( ) );
+					}
 
 					// Non-operations
 					case StatementType.NULL:
@@ -337,7 +345,7 @@ namespace BNA
 				}
 
 				// Next statement or end
-				if ( ++this.IP == this.Statements.Length ) {
+				if ( running && ++this.IP == this.Statements.Length ) {
 					running = false;
 				}
 			}

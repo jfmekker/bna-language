@@ -7,10 +7,10 @@ namespace BNA
 	public enum ReturnCode : byte
 	{
 		SUCCESS = 0,
-		COMPILE_ERROR = 1 << 0,
-		RUNTIME_ERROR = 1 << 1,
-		NOT_IMPLEMENTED_ERROR = 1 << 2,
-		// UNUSED = 1 << 3,
+		BNA_ERROR = 1 << 0,
+		COMPILE_ERROR = 1 << 1,
+		RUNTIME_ERROR = 1 << 2,
+		NOT_IMPLEMENTED_ERROR = 1 << 3,
 		// UNUSED = 1 << 4,
 		// UNUSED = 1 << 5,
 		FILE_ERROR = 1 << 6,
@@ -19,7 +19,9 @@ namespace BNA
 
 	public class BNA
 	{
-		// Static random number generator
+		/// <summary>
+		/// Static random number generator.
+		/// </summary>
 		public static readonly Random RNG = new Random( DateTime.Now.Millisecond );
 
 		/// <summary>
@@ -166,7 +168,7 @@ namespace BNA
 			catch ( RuntimeException e ) {
 				ConsolePrintError( "Runtime Exception caught:" );
 				ConsolePrintError( e.Message );
-				return ReturnCode.RUNTIME_ERROR;
+				return e.LineNumber == -1 ? ReturnCode.BNA_ERROR : ReturnCode.RUNTIME_ERROR;
 			}
 			catch ( NotImplementedException e ) {
 				ConsolePrintError( "Not Implemented Exception caught:" );
