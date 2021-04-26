@@ -31,12 +31,14 @@ namespace BNA
 		ROUND,
 		LIST,
 		APPEND,
+		SIZE,
 		OPEN,
 		CLOSE,
-		READ,   // TODO change keywords for IO operations
-		WRITE,  //
-		INPUT,  //
-		PRINT,  //
+		READ,
+		WRITE,
+		INPUT,
+		PRINT,
+		TYPE,
 
 		// Operation mid keywords
 		TO,
@@ -46,7 +48,6 @@ namespace BNA
 		IF,
 		WITH,
 		OF,
-		SIZE,
 		AS,
 	}
 

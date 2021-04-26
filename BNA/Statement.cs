@@ -34,6 +34,7 @@ namespace BNA
 		// list operations
 		OP_LIST,
 		OP_APPEND,
+		OP_SIZE,
 
 		// io operations
 		OP_OPEN_R,
@@ -52,6 +53,7 @@ namespace BNA
 		// misc operations
 		OP_WAIT,
 		OP_GOTO,
+		OP_TYPE,
 	}
 
 	/// <summary>
@@ -309,6 +311,15 @@ namespace BNA
 					break;
 				}
 
+				// SIZE var OF var|string|list
+				case Keyword.SIZE: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OF } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING , TokenType.LIST } , operand: 2 );
+					candidate.Type = StatementType.OP_SIZE;
+					break;
+				}
+
 				// OPEN var|string AS READ|WRITE var
 				case Keyword.OPEN: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
@@ -358,6 +369,15 @@ namespace BNA
 				case Keyword.PRINT: {
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
 					candidate.Type = StatementType.OP_PRINT;
+					break;
+				}
+
+				// TYPE var OF var|list|string|list
+				case Keyword.TYPE: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OF } );
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
+					candidate.Type = StatementType.OP_TYPE;
 					break;
 				}
 

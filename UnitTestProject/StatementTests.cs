@@ -139,19 +139,27 @@ namespace UnitTestProject
 		}
 
 		[TestMethod]
+		public void SizeTest( )
+		{
+			RunStatementTest( "size" );
+		}
+
+		[TestMethod]
 		public void InputTest( )
 		{
-			// Inconclusive instead of fail until we figure out
-			//  how to mock user input in an automated test
-			Assert.Inconclusive( );
-
-			//RunStatementTest( "input" );
+			RunStatementTest( "input" );
 		}
 
 		[TestMethod]
 		public void PrintTest( )
 		{
 			RunStatementTest( "print" );
+		}
+
+		[TestMethod]
+		public void TypeTest( )
+		{
+			RunStatementTest( "type" );
 		}
 	}
 }

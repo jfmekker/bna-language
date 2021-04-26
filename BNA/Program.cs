@@ -195,6 +195,19 @@ namespace BNA
 						break;
 					}
 
+					case StatementType.OP_SIZE: {
+						if ( op2.Type == ValueType.LIST ) {
+							this.SetValue( curr.Operand1 , new Value( ValueType.INTEGER , (long)( (List<Value>)op2.Val ).Count ) , true );
+						}
+						else if ( op2.Type == ValueType.STRING ) {
+							this.SetValue( curr.Operand1 , new Value( ValueType.INTEGER , (long)( (string)op2.Val ).Length ) , true );
+						}
+						else {
+							throw new RuntimeException( this.IP , curr , "Can not size a non-list-like value: '" + op2.ToString( ) + "'" );
+						}
+						break;
+					}
+
 
 					// I/O operations
 					case StatementType.OP_PRINT: {
@@ -301,6 +314,11 @@ namespace BNA
 							this.IP = line;
 						}
 
+						break;
+					}
+
+					case StatementType.OP_TYPE: {
+						this.SetValue( curr.Operand1 , new Value( ValueType.STRING , op2.Type.ToString( ) ) , true );
 						break;
 					}
 
@@ -427,7 +445,7 @@ namespace BNA
 				// Invalid token
 				case TokenType.INVALID:
 				case TokenType.UNKNOWN: {
-					throw new RuntimeException( IP , Statements[IP] , "Can not get value from invalid or unknown token: " + token.ToString( ) );
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Can not get value from invalid or unknown token: " + token.ToString( ) );
 				}
 
 				default:

@@ -1,0 +1,19 @@
+PRINT "Statement Test: SIZE"
+
+SIZE s OF "Hello, World!"
+PRINT s
+SIZE s OF ""
+PRINT s
+SET v TO "jwkdawdjnaw"
+SIZE s OF v
+PRINT s
+
+SIZE s OF ( 1 , 2 , "three" , ( 4 , 5 ) )
+PRINT s
+SIZE s OF ( )
+PRINT s
+LIST v SIZE 15
+SIZE s OF v
+PRINT s
+
+# Done

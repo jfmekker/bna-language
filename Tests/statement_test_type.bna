@@ -1,0 +1,39 @@
+PRINT "Statement Test: TYPE"
+
+TYPE t OF 12345
+PRINT t
+TYPE t OF 0
+PRINT t
+TYPE t OF -567
+PRINT t
+SET v TO -98721935
+TYPE t OF v
+PRINT t
+
+TYPE t OF 12.345
+PRINT t
+TYPE t OF 0.0
+PRINT t
+TYPE t OF -0.567
+PRINT t
+SET v TO 0.55555545
+TYPE t OF v
+PRINT t
+
+TYPE t OF "string!"
+PRINT t
+TYPE t OF ""
+PRINT t
+SET v TO "Hello, World!"
+TYPE t OF v
+PRINT t
+
+TYPE t OF ( 1 , 2 , "three" , ( 4 , 5 ) )
+PRINT t
+TYPE t OF ( )
+PRINT t
+LIST v SIZE 15
+TYPE t OF v
+PRINT t
+
+# Done
