@@ -1,0 +1,49 @@
+PRINT "Statement Test: ADD"
+SET errors TO 0
+
+# Set integers
+SET i1 TO 12345
+SET i2 TO 0
+SET i3 TO -12345
+
+# Set floats
+SET f1 TO 12345.6789
+SET f2 TO 0.10101
+SET f3 TO 0.0
+SET f4 TO -0.10101
+SET f5 TO -12345.6789
+
+# Integer addition
+SET x TO 0
+ADD i1 TO x
+ADD i2 TO x
+ADD i3 TO x
+ADD 12345 TO x
+ADD 0 TO x
+ADD -0 TO x
+ADD -12345 TO x
+TEST x > 0
+ADD _test TO errors
+TEST x < 0
+ADD _test TO errors
+
+# Float addition
+SET y TO 0
+ADD f1 TO y
+ADD f2 TO y
+ADD f3 TO y
+ADD f4 TO y
+ADD f5 TO y
+ADD 12345.6789 TO y
+ADD 0.10101 TO y
+ADD 0.0 TO y
+ADD -0.0 TO y
+ADD -0.10101 TO y
+ADD -12345.6789 TO y
+TEST y > 0
+ADD _test TO errors
+TEST y < 0
+ADD _test TO errors
+
+
+# TODO exit and return errors

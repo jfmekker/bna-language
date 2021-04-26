@@ -131,8 +131,8 @@ namespace BNA
 		/// <returns>Result of the operation, or a null value if the types are incompatiible</returns>
 		public static Value DoComparisonOperation( Value op1 , Value op2 , StatementType operation )
 		{
-			var true_value = new Value( ValueType.INTEGER , 1 );
-			var false_value = new Value( ValueType.INTEGER , 0 );
+			var true_value = new Value( ValueType.INTEGER , 1L );
+			var false_value = new Value( ValueType.INTEGER , 0L );
 
 			switch ( op1.Type ) {
 
@@ -240,16 +240,24 @@ namespace BNA
 				case ValueType.LIST:
 					var list = (List<Value>)this.Val;
 
-					string str = "{ ";
+					string str = "" + (char)Symbol.LIST_START + " ";
 					int i = 0;
 					while ( i < list.Count ) {
-						str += list[i].ToString( );
+
+						if ( list[i].Type == ValueType.STRING ) {
+							str += '"' + list[i].ToString( ) + '"';
+						}
+						else {
+							str += list[i].ToString( );
+						}
+						
+
 						if ( i < list.Count - 1 ) {
-							str += " , ";
+							str += " " + (char)Symbol.LIST_SEPERATOR + " ";
 						}
 						i += 1;
 					}
-					str += " }";
+					str += " " + (char)Symbol.LIST_END;
 
 					return str;
 
@@ -315,6 +323,14 @@ namespace BNA
 			}
 
 			return new Value( ValueType.LIST , newList );
+		}
+
+		public override int GetHashCode( )
+		{
+			var hashCode = 1893053585;
+			hashCode = hashCode * -1521134295 + this.Type.GetHashCode( );
+			hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode( this.Val );
+			return hashCode;
 		}
 	}
 }

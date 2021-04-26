@@ -1,0 +1,33 @@
+PRINT "Simple list test"
+
+# Create new list
+LIST testList SIZE 0
+
+# Append literal numbers
+APPEND 67 TO testList
+APPEND 56.99999 TO testList
+
+# Append variable
+SET var TO -8
+APPEND var TO testList
+
+# Append string
+APPEND "yo, sup?" TO testList
+
+# Append (variable) list
+LIST otherList SIZE 0
+APPEND 7 TO otherList
+APPEND 6 TO otherList
+APPEND otherList TO testList
+
+# Do math on elements
+APPEND testList@0 TO testList
+MULTIPLY testList@5 BY testList@2
+
+# Print all
+PRINT testList@0 # 67
+PRINT testList@1 # 56.99999
+PRINT testList@2 # -8
+PRINT testList@3 # "yo, sup?"
+PRINT testList@4 # { 7 , 6 }
+PRINT testList@5 # 67 x -8 = -536

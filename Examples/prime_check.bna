@@ -1,0 +1,34 @@
+PRINT "Prime checker"
+INPUT num WITH "Number to check: "
+
+SET i TO 1
+
+# Loop
+^start:
+
+# Check i != num
+ADD 1 TO i
+TEST i = num
+GOTO prime IF _test
+
+# Get remainder of ( num / i )
+SET remainder TO num
+MOD i OF remainder
+
+# If remainder != 0, then i is not a factor
+GOTO start IF remainder
+# Else num is not prime
+GOTO not_prime IF 1
+
+
+^not_prime:
+PRINT "Not prime, lowest factor:"
+PRINT i
+GOTO end IF 1
+
+^prime:
+PRINT "Prime"
+
+
+^end:
+#Done

@@ -4,44 +4,66 @@ using System.IO;
 
 namespace BNA
 {
+	public enum ReturnCode : byte
+	{
+		SUCCESS = 0,
+		COMPILE_ERROR = 1 << 0,
+		RUNTIME_ERROR = 1 << 1,
+		NOT_IMPLEMENTED_ERROR = 1 << 2,
+		// UNUSED = 1 << 3,
+		// UNUSED = 1 << 4,
+		// UNUSED = 1 << 5,
+		FILE_ERROR = 1 << 6,
+		UNEXPECTED_ERROR = 1 << 7
+	}
+
 	public class BNA
 	{
-		public static Random RNG;
+		// Static random number generator
+		public static readonly Random RNG = new Random( DateTime.Now.Millisecond );
 
 		/// <summary>
 		/// Compile a function to Python, or take input from the terminal
 		/// </summary>
 		/// <param name="args">Names of files to compile to Python, can be none.</param>
-		public static void Main( string[] args )
+		public static int Main( string[] args )
 		{
 			Console.WriteLine( "================================================================================" );
 			Console.WriteLine( "Welcome to the BNA's Not Assembly Interpreter!" );
 			Console.WriteLine( "================================================================================" );
 
-			RNG = new Random( DateTime.Now.Millisecond );
-
 			// If no arguments, take input from command line
 			if ( args.Length == 0 ) {
-				RunFromInput( );
+				ReturnCode r = RunFromInput( );
+				return (int)r;
 			}
 			// else, take in files
 			else {
-				RunFromFiles( args );
+				ReturnCode r = RunFromFiles( args );
+#if DEBUG
+				// Wait to close so user can read output
+				Console.WriteLine( "Finished, press enter to exit..." );
+				Console.ReadLine( );
+#endif
+				return (int)r;
 			}
 		}
 
-		public static void RunFromFiles( string[] files )
+		public static ReturnCode RunFromFiles( string[] files )
 		{
+			ReturnCode return_val = 0;
 			foreach ( string file in files ) {
 				// Output the BNA filename
 				Console.WriteLine( file + ":" );
 
 				// Check the file extension
-				string[] split_filename = file.Split( new char[] { '.' } );
+				int lastDirIndex = file.LastIndexOfAny( new char[] { '/' , '\\' } );
+				string[] split_filename = file.Substring( lastDirIndex + 1 ).Split( new char[] { '.' } );
 				string filename = split_filename[0];
 				string extension = split_filename[1];
 				if ( !extension.Equals( "bna" ) ) {
-					throw new Exception( "Wrong file type: " + file );
+					ConsolePrintError( "Wrong extension, expected '.bna' file: " + file );
+					return ReturnCode.FILE_ERROR;
 				}
 
 				// Output file contents
@@ -56,28 +78,26 @@ namespace BNA
 						}
 					}
 				}
-				catch(FileNotFoundException e) {
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine( "Failed to find file: " + file );
-					Console.WriteLine( e.Message );
-					Console.ResetColor( );
+				catch ( FileNotFoundException e ) {
+					ConsolePrintError( "Failed to find file: " + file );
+					ConsolePrintError( e.Message );
+					return ReturnCode.FILE_ERROR;
 				}
 
 				// Compile to program and run
 				if ( lines.Count > 0 ) {
-					CompileAndRun( lines );
+					return_val |= CompileAndRun( lines );
 				}
 
 				Console.WriteLine( "Done with file.\n" );
 			}
-
-			// Wait to close so user can read output
-			Console.WriteLine( "Finished, press enter to exit..." );
-			Console.ReadLine( );
+			return return_val;
 		}
 
-		public static void RunFromInput( )
+		public static ReturnCode RunFromInput( )
 		{
+			ReturnCode return_val = ReturnCode.SUCCESS;
+
 			while ( true ) {
 				// Usage
 				Console.WriteLine( "\nInsert BNA code to do stuff or type '$filename.bna' to run a file (use '~' to end):" );
@@ -112,9 +132,9 @@ namespace BNA
 
 				// Check if we run the user input
 				if ( run ) {
-					CompileAndRun( lines );
+					return_val = CompileAndRun( lines );
 				}
-				
+
 				Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 
 				// Wait to continue, check for exit
@@ -122,9 +142,11 @@ namespace BNA
 					break;
 				}
 			}
+
+			return return_val;
 		}
 
-		public static void CompileAndRun( List<string> lines )
+		public static ReturnCode CompileAndRun( List<string> lines )
 		{
 			// Compile to program and run
 			try {
@@ -134,37 +156,39 @@ namespace BNA
 				Console.WriteLine( "\nRunning Program...\n" );
 				prog.Run( );
 				Console.WriteLine( );
+				return ReturnCode.SUCCESS;
 			}
 			catch ( CompiletimeException e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine( "Compiletime Exception caught:" );
-				Console.WriteLine( e.Message );
-				Console.ResetColor( );
+				ConsolePrintError( "Compiletime Exception caught:" );
+				ConsolePrintError( e.Message );
+				return ReturnCode.COMPILE_ERROR;
 			}
 			catch ( RuntimeException e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine( "Runtime Exception caught:" );
-				Console.WriteLine( e.Message );
-				Console.ResetColor( );
+				ConsolePrintError( "Runtime Exception caught:" );
+				ConsolePrintError( e.Message );
+				return ReturnCode.RUNTIME_ERROR;
 			}
 			catch ( NotImplementedException e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine( "Not Implemented Exception caught:" );
-				Console.WriteLine( e.Message );
-				Console.ResetColor( );
+				ConsolePrintError( "Not Implemented Exception caught:" );
+				ConsolePrintError( e.Message );
+				return ReturnCode.NOT_IMPLEMENTED_ERROR;
 			}
 #if DEBUG
 #else
 			catch ( Exception e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine( "Unexpected Exception caught:" );
-				Console.WriteLine( e.Message );
-				Console.WriteLine( "Please report this issue on github (https://github.com/jfmekker/bna-language/issues)!" );
-				Console.ResetColor( );
-				Console.ReadLine( );
-				return;
+				ConsolePrintError( "Unexpected Exception caught:" );
+				ConsolePrintError( e.Message );
+				ConsolePrintError( "Please report this issue on github (https://github.com/jfmekker/bna-language/issues)!" );
+				return ReturnCode.UNEXPECTED_ERROR;
 			}
 #endif
+		}
+
+		private static void ConsolePrintError( string message )
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine( message );
+			Console.ResetColor( );
 		}
 	}
 }

@@ -1,0 +1,35 @@
+PRINT "Fibonacci sequence"
+INPUT max_n WITH "Number of numbers to generate: "
+SET n TO 1
+
+# First number
+TEST max_n < 1
+GOTO end IF _test
+SET x TO 0
+ADD 1 TO n
+PRINT x
+
+# Second number
+TEST max_n < 2
+GOTO end IF _test
+SET y TO 1
+ADD 1 TO n
+PRINT y
+
+# Third and beyond
+^start:
+SET z TO 0
+ADD x TO z
+ADD y TO z
+PRINT z
+
+# Stop or loop
+ADD 1 TO n
+TEST n = max_n
+GOTO end IF _test
+SET x TO y
+SET y TO z
+GOTO start IF 1
+
+^end:
+# Done

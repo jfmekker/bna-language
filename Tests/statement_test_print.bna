@@ -1,0 +1,52 @@
+PRINT "Statement Test: PRINT"
+
+# Print integers
+PRINT -1
+SET i TO -1
+PRINT i
+PRINT 0
+SET i TO 0
+PRINT i
+PRINT 17
+SET i TO 17
+PRINT i
+
+# Print floats
+PRINT 1.2345
+SET f TO 1.2345
+PRINT f
+PRINT 0.0
+SET f TO 0.0
+PRINT f
+PRINT -0.65
+SET f TO -0.65
+PRINT f
+
+# Print strings
+PRINT "short string"
+SET s TO "short string"
+PRINT s
+PRINT "looooooooooooooooooooooooooooooooooooooooong string"
+SET s TO "looooooooooooooooooooooooooooooooooooooooong string"
+PRINT s
+PRINT ""
+SET s TO ""
+PRINT s
+PRINT ".,/';][{}\|=+-_)(*&^%$#@!`~:<>?"
+SET s TO ".,/';][{}\|=+-_)(*&^%$#@!`~:<>?"
+PRINT s
+
+# Print lists
+PRINT ( 1 , 2 , 3 )
+SET l TO (1,2,3)
+PRINT l
+PRINT ( )
+SET l TO ()
+PRINT l
+LIST l SIZE 12
+PRINT l
+PRINT ( (1,2) , (3,4) , (5,(6)) )
+SET l TO ( (1 2) (3 4) (5 (6)) )
+PRINT l
+
+# Done
