@@ -9,12 +9,18 @@ namespace UnitTestProject
 		private void RunStatementTest( string statement )
 		{
 			BNA.ReturnCode r = BNA.ReturnCode.UNEXPECTED_ERROR;
+
 			try {
 				r = BNA.BNA.RunFromFiles( new string[] { "../../../../Tests/statement_test_" + statement + ".bna" } );
 			}
 			catch ( Exception e ) {
 				Assert.Inconclusive( );
 			}
+
+			if ( r == BNA.ReturnCode.FILE_ERROR ) {
+				Assert.Inconclusive( );
+			}
+
 			Assert.AreEqual( BNA.ReturnCode.SUCCESS , r );
 		}
 

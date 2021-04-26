@@ -13,7 +13,7 @@ namespace BNA
 		// UNUSED = 1 << 3,
 		// UNUSED = 1 << 4,
 		// UNUSED = 1 << 5,
-		// UNUSED = 1 << 6,
+		FILE_ERROR = 1 << 6,
 		UNEXPECTED_ERROR = 1 << 7
 	}
 
@@ -62,7 +62,8 @@ namespace BNA
 				string filename = split_filename[0];
 				string extension = split_filename[1];
 				if ( !extension.Equals( "bna" ) ) {
-					throw new Exception( "Wrong file type: " + file );
+					ConsolePrintError( "Wrong extension, expected '.bna' file: " + file );
+					return ReturnCode.FILE_ERROR;
 				}
 
 				// Output file contents
@@ -78,11 +79,9 @@ namespace BNA
 					}
 				}
 				catch ( FileNotFoundException e ) {
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine( "Failed to find file: " + file );
-					Console.WriteLine( e.Message );
-					Console.ResetColor( );
-					return ReturnCode.UNEXPECTED_ERROR;
+					ConsolePrintError( "Failed to find file: " + file );
+					ConsolePrintError( e.Message );
+					return ReturnCode.FILE_ERROR;
 				}
 
 				// Compile to program and run
@@ -160,38 +159,36 @@ namespace BNA
 				return ReturnCode.SUCCESS;
 			}
 			catch ( CompiletimeException e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine( "Compiletime Exception caught:" );
-				Console.WriteLine( e.Message );
-				Console.ResetColor( );
+				ConsolePrintError( "Compiletime Exception caught:" );
+				ConsolePrintError( e.Message );
 				return ReturnCode.COMPILE_ERROR;
 			}
 			catch ( RuntimeException e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine( "Runtime Exception caught:" );
-				Console.WriteLine( e.Message );
-				Console.ResetColor( );
+				ConsolePrintError( "Runtime Exception caught:" );
+				ConsolePrintError( e.Message );
 				return ReturnCode.RUNTIME_ERROR;
 			}
 			catch ( NotImplementedException e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine( "Not Implemented Exception caught:" );
-				Console.WriteLine( e.Message );
-				Console.ResetColor( );
+				ConsolePrintError( "Not Implemented Exception caught:" );
+				ConsolePrintError( e.Message );
 				return ReturnCode.NOT_IMPLEMENTED_ERROR;
 			}
 #if DEBUG
 #else
 			catch ( Exception e ) {
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine( "Unexpected Exception caught:" );
-				Console.WriteLine( e.Message );
-				Console.WriteLine( "Please report this issue on github (https://github.com/jfmekker/bna-language/issues)!" );
-				Console.ResetColor( );
-				Console.ReadLine( );
+				ConsolePrintError( "Unexpected Exception caught:" );
+				ConsolePrintError( e.Message );
+				ConsolePrintError( "Please report this issue on github (https://github.com/jfmekker/bna-language/issues)!" );
 				return ReturnCode.UNEXPECTED_ERROR;
 			}
 #endif
+		}
+
+		private static void ConsolePrintError( string message )
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine( message );
+			Console.ResetColor( );
 		}
 	}
 }
