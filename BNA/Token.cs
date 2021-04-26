@@ -38,6 +38,7 @@ namespace BNA
 		WRITE,
 		INPUT,
 		PRINT,
+		TYPE,
 
 		// Operation mid keywords
 		TO,

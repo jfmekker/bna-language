@@ -155,5 +155,11 @@ namespace UnitTestProject
 		{
 			RunStatementTest( "print" );
 		}
+
+		[TestMethod]
+		public void TypeTest( )
+		{
+			RunStatementTest( "type" );
+		}
 	}
 }
