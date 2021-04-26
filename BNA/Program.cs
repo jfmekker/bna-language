@@ -255,6 +255,7 @@ namespace BNA
 
 					// Test operations
 					case StatementType.OP_TEST_EQ:
+					case StatementType.OP_TEST_NE:
 					case StatementType.OP_TEST_GT:
 					case StatementType.OP_TEST_LT: {
 						if ( op1.Type == ValueType.INVALID || op1.Type == ValueType.NULL
@@ -307,10 +308,7 @@ namespace BNA
 						}
 
 						// Test condition
-						if ( op2.Type != ValueType.INTEGER ) {
-							throw new RuntimeException( this.IP , curr , "GOTO given incorrect conditional value type: " + op2.Type.ToString( ) );
-						}
-						else if ( (long)op2.Val != 0 ) {
+						if ( op2 != Value.FALSE ) {
 							this.IP = line;
 						}
 

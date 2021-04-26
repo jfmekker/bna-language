@@ -23,6 +23,8 @@ namespace BNA
 	{
 		public static readonly Value NULL = new Value( ValueType.NULL , 0 );
 		public static readonly Value NAN = new Value( ValueType.INVALID , 0 );
+		public static readonly Value TRUE = new Value( ValueType.INTEGER , 1L );
+		public static readonly Value FALSE = new Value( ValueType.INTEGER , 0L );
 
 		/// <summary>
 		/// Perform a numeric operation on two values.
@@ -131,9 +133,6 @@ namespace BNA
 		/// <returns>Result of the operation, or a null value if the types are incompatiible</returns>
 		public static Value DoComparisonOperation( Value op1 , Value op2 , StatementType operation )
 		{
-			var true_value = new Value( ValueType.INTEGER , 1L );
-			var false_value = new Value( ValueType.INTEGER , 0L );
-
 			switch ( op1.Type ) {
 
 				case ValueType.INTEGER:
@@ -147,11 +146,13 @@ namespace BNA
 
 					switch ( operation ) {
 						case StatementType.OP_TEST_EQ:
-							return ( v1 == v2 ) ? true_value : false_value;
+							return ( v1 == v2 ) ? TRUE : FALSE;
+						case StatementType.OP_TEST_NE:
+							return ( v1 != v2 ) ? TRUE : FALSE;
 						case StatementType.OP_TEST_GT:
-							return ( v1 > v2 ) ? true_value : false_value;
+							return ( v1 > v2 ) ? TRUE : FALSE;
 						case StatementType.OP_TEST_LT:
-							return ( v1 < v2 ) ? true_value : false_value;
+							return ( v1 < v2 ) ? TRUE : FALSE;
 						default:
 							throw new Exception( "Unexpected operation type for comparison operation (" + operation.ToString( ) + ")." );
 					}
@@ -159,18 +160,18 @@ namespace BNA
 
 				case ValueType.STRING: {
 					if ( op2.Type == ValueType.STRING ) {
-						return ( (string)op1.Val ).Equals( (string)op2.Val ) ? true_value : false_value;
+						return ( (string)op1.Val ).Equals( (string)op2.Val ) ? TRUE : FALSE;
 					}
 					else if ( op2.Type == ValueType.INTEGER ) {
 						string s = (string)op1.Val;
 						long i = (long)op2.Val;
 						switch ( operation ) {
 							case StatementType.OP_TEST_EQ:
-								return ( s.Length == i ) ? true_value : false_value;
+								return ( s.Length == i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_GT:
-								return ( s.Length > i ) ? true_value : false_value;
+								return ( s.Length > i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_LT:
-								return ( s.Length < i ) ? true_value : false_value;
+								return ( s.Length < i ) ? TRUE : FALSE;
 							default:
 								throw new Exception( "Unexpected operation type for comparison operation (" + operation.ToString( ) + ")." );
 						}
@@ -196,24 +197,24 @@ namespace BNA
 								break;
 							}
 							var elementTest = DoComparisonOperation( list1[i] , list2[i] , operation );
-							if ( elementTest == false_value ) {
+							if ( elementTest == FALSE ) {
 								test = false;
 								break;
 							}
 						}
 
-						return test ? true_value : false_value;
+						return test ? TRUE : FALSE;
 					}
 					else if ( op2.Type == ValueType.INTEGER ) {
 						var l = (List<Value>)op1.Val;
 						long i = (long)op2.Val;
 						switch ( operation ) {
 							case StatementType.OP_TEST_EQ:
-								return ( l.Count == i ) ? true_value : false_value;
+								return ( l.Count == i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_GT:
-								return ( l.Count > i ) ? true_value : false_value;
+								return ( l.Count > i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_LT:
-								return ( l.Count < i ) ? true_value : false_value;
+								return ( l.Count < i ) ? TRUE : FALSE;
 							default:
 								throw new Exception( "Unexpected operation type for comparison operation (" + operation.ToString( ) + ")." );
 						}
