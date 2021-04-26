@@ -110,10 +110,20 @@ namespace BNA
 				return s;
 			}
 			else if ( tokenList[0].Type == TokenType.KEYWORD ) {
-				return ParseKeywordStatement( tokenList );
+				try {
+					return ParseKeywordStatement( tokenList );
+				}
+				catch (InvalidOperationException e) {
+					throw new CompiletimeException( "Statement ended too early" );
+				}
 			}
 			else if ( tokenList[0].Type == TokenType.SYMBOL ) {
-				return ParseSymbolStatement( tokenList );
+				try {
+					return ParseSymbolStatement( tokenList );
+				}
+				catch ( InvalidOperationException e ) {
+					throw new CompiletimeException( "Statement ended too early" );
+				}
 			}
 			else {
 				throw new CompiletimeException( "Invalid start of statement: " + tokenList[0].ToString( ) );
