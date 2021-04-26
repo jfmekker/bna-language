@@ -162,7 +162,6 @@ namespace BNA
 						return ( (string)op1.Val ).Equals( (string)op2.Val ) ? true_value : false_value;
 					}
 					else if ( op2.Type == ValueType.INTEGER ) {
-						// TODO do we want this to be a valid comparison?
 						string s = (string)op1.Val;
 						long i = (long)op2.Val;
 						switch ( operation ) {
@@ -182,7 +181,46 @@ namespace BNA
 				}
 
 				case ValueType.LIST: {
-					throw new NotImplementedException( );
+					if ( op2.Type == ValueType.LIST ) {
+						bool test = true;
+						var list1 = (List<Value>)op1.Val;
+						var list2 = (List<Value>)op2.Val;
+
+						if ( operation != StatementType.OP_TEST_EQ ) {
+							return NAN;
+						}
+
+						for ( int i = 0 ; i < list1.Count ; i += 1 ) {
+							if ( i >= list2.Count ) {
+								test = false;
+								break;
+							}
+							var elementTest = DoComparisonOperation( list1[i] , list2[i] , operation );
+							if ( elementTest == false_value ) {
+								test = false;
+								break;
+							}
+						}
+
+						return test ? true_value : false_value;
+					}
+					else if ( op2.Type == ValueType.INTEGER ) {
+						var l = (List<Value>)op1.Val;
+						long i = (long)op2.Val;
+						switch ( operation ) {
+							case StatementType.OP_TEST_EQ:
+								return ( l.Count == i ) ? true_value : false_value;
+							case StatementType.OP_TEST_GT:
+								return ( l.Count > i ) ? true_value : false_value;
+							case StatementType.OP_TEST_LT:
+								return ( l.Count < i ) ? true_value : false_value;
+							default:
+								throw new Exception( "Unexpected operation type for comparison operation (" + operation.ToString( ) + ")." );
+						}
+					}
+					else {
+						return NAN;
+					}
 				}
 
 
