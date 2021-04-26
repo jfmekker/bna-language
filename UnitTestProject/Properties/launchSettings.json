@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "UnitTestProject": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\Jake Mekker\\Documents\\Side Projects\\BNA"
+    }
+  }
+}

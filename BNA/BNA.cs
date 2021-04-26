@@ -4,22 +4,23 @@ using System.IO;
 
 namespace BNA
 {
+	public enum ReturnCode : byte
+	{
+		SUCCESS = 0,
+		COMPILE_ERROR = 1 << 0,
+		RUNTIME_ERROR = 1 << 1,
+		NOT_IMPLEMENTED_ERROR = 1 << 2,
+		// UNUSED = 1 << 3,
+		// UNUSED = 1 << 4,
+		// UNUSED = 1 << 5,
+		// UNUSED = 1 << 6,
+		UNEXPECTED_ERROR = 1 << 7
+	}
+
 	public class BNA
 	{
-		public enum ReturnCode : byte
-		{
-			SUCCESS = 0,
-			COMPILE_ERROR = 1 << 0,
-			RUNTIME_ERROR = 1 << 1,
-			NOT_IMPLEMENTED_ERROR = 1 << 2,
-			// UNUSED = 1 << 3,
-			// UNUSED = 1 << 4,
-			// UNUSED = 1 << 5,
-			// UNUSED = 1 << 6,
-			UNEXPECTED_ERROR = 1 << 7
-		}
-
-		public static Random RNG;
+		// Static random number generator
+		public static readonly Random RNG = new Random( DateTime.Now.Millisecond );
 
 		/// <summary>
 		/// Compile a function to Python, or take input from the terminal
@@ -30,8 +31,6 @@ namespace BNA
 			Console.WriteLine( "================================================================================" );
 			Console.WriteLine( "Welcome to the BNA's Not Assembly Interpreter!" );
 			Console.WriteLine( "================================================================================" );
-
-			RNG = new Random( DateTime.Now.Millisecond );
 
 			// If no arguments, take input from command line
 			if ( args.Length == 0 ) {
@@ -58,7 +57,8 @@ namespace BNA
 				Console.WriteLine( file + ":" );
 
 				// Check the file extension
-				string[] split_filename = file.Split( new char[] { '.' } );
+				int lastDirIndex = file.LastIndexOfAny( new char[] { '/' , '\\' } );
+				string[] split_filename = file.Substring( lastDirIndex + 1 ).Split( new char[] { '.' } );
 				string filename = split_filename[0];
 				string extension = split_filename[1];
 				if ( !extension.Equals( "bna" ) ) {
@@ -82,6 +82,7 @@ namespace BNA
 					Console.WriteLine( "Failed to find file: " + file );
 					Console.WriteLine( e.Message );
 					Console.ResetColor( );
+					return ReturnCode.UNEXPECTED_ERROR;
 				}
 
 				// Compile to program and run
