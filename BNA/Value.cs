@@ -160,7 +160,15 @@ namespace BNA
 
 				case ValueType.STRING: {
 					if ( op2.Type == ValueType.STRING ) {
-						return ( (string)op1.Val ).Equals( (string)op2.Val ) ? TRUE : FALSE;
+						if ( operation == StatementType.OP_TEST_EQ ) {
+							return ( (string)op1.Val ).Equals( (string)op2.Val ) ? TRUE : FALSE;
+						}
+						else if ( operation == StatementType.OP_TEST_NE ) {
+							return ( (string)op1.Val ).Equals( (string)op2.Val ) ? FALSE : TRUE;
+						}
+						else {
+							throw new RuntimeException( "Can only test string equality or inequality" );
+						}
 					}
 					else if ( op2.Type == ValueType.INTEGER ) {
 						string s = (string)op1.Val;
@@ -168,6 +176,8 @@ namespace BNA
 						switch ( operation ) {
 							case StatementType.OP_TEST_EQ:
 								return ( s.Length == i ) ? TRUE : FALSE;
+							case StatementType.OP_TEST_NE:
+								return ( s.Length != i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_GT:
 								return ( s.Length > i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_LT:
@@ -211,6 +221,8 @@ namespace BNA
 						switch ( operation ) {
 							case StatementType.OP_TEST_EQ:
 								return ( l.Count == i ) ? TRUE : FALSE;
+							case StatementType.OP_TEST_NE:
+								return ( l.Count != i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_GT:
 								return ( l.Count > i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_LT:

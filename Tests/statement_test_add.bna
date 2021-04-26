@@ -47,4 +47,4 @@ GOTO bad IF _test
 EXIT
 
 ^bad:
-ERROR "One or more errors in addition." 
+ERROR "One or more errors in addition."
