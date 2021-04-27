@@ -1,0 +1,70 @@
+PRINT "Statement Test: MOD"
+SET errors TO 0
+
+SET x TO 12
+MOD 1 OF x
+TEST x ! 0
+ADD _test TO errors
+
+SET x TO 12
+MOD 2 OF x
+TEST x ! 0
+ADD _test TO errors
+
+SET x TO 12
+MOD 3 OF x
+TEST x ! 0
+ADD _test TO errors
+
+SET x TO 12
+MOD 4 OF x
+TEST x ! 0
+ADD _test TO errors
+
+SET x TO 12
+MOD 5 OF x
+TEST x ! 2
+ADD _test TO errors
+
+SET x TO 12
+MOD 6 OF x
+TEST x ! 0
+ADD _test TO errors
+
+SET x TO 12
+MOD 7 OF x
+TEST x ! 5
+ADD _test TO errors
+
+SET x TO 12
+MOD 8 OF x
+TEST x ! 4
+ADD _test TO errors
+
+SET x TO 12
+MOD 9 OF x
+TEST x ! 3
+ADD _test TO errors
+
+SET x TO 12
+MOD 10 OF x
+TEST x ! 2
+ADD _test TO errors
+
+SET x TO 12
+MOD 11 OF x
+TEST x ! 1
+ADD _test TO errors
+
+SET x TO 12
+MOD 12 OF x
+TEST x ! 0
+ADD _test TO errors
+
+
+TEST errors > 0
+GOTO bad IF _test
+EXIT
+
+^bad:
+ERROR "One or more errors in MOD test."

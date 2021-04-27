@@ -81,9 +81,14 @@ namespace BNA
 						: new Value( ValueType.FLOAT , Math.Pow( (double)op1.Val , (double)op2.Val ) );
 
 				case StatementType.OP_LOG:
-					return operationType == ValueType.INTEGER
-						? new Value( ValueType.INTEGER , Math.Log( (long)op1.Val , (long)op2.Val ) )
-						: new Value( ValueType.FLOAT , Math.Log( (double)op1.Val , (double)op2.Val ) );
+					// Only do logs with floats
+					if ( op1.Type == ValueType.INTEGER ) {
+						op1 = new Value( ValueType.FLOAT , (double)(long)op1.Val );
+					}
+					if ( op2.Type == ValueType.INTEGER ) {
+						op2 = new Value( ValueType.FLOAT , (double)(long)op2.Val );
+					}
+					return new Value( ValueType.FLOAT , Math.Log( (double)op1.Val , (double)op2.Val ) );
 
 				default:
 					throw new Exception( "Unexpected operation type for numeric operation (" + operation.ToString( ) + ")." );
