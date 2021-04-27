@@ -161,8 +161,8 @@ namespace BNA
 					// List operations
 					case StatementType.OP_LIST: {
 						// Check operands
-						if ( op2.Type != ValueType.INTEGER ) {
-							throw new RuntimeException( this.IP , curr , "List size must be integer" );
+						if ( op2.Type != ValueType.INTEGER || (long)op2.Val < 0 ) {
+							throw new RuntimeException( this.IP , curr , "List size must be positive or zero integer" );
 						}
 
 						// Fill list
