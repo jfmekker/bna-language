@@ -1,0 +1,30 @@
+PRINT "Statement Test: LIST"
+SET errors TO 0
+
+LIST x SIZE 0
+SIZE s OF x
+TEST s ! 0
+ADD _test TO errors
+
+LIST x SIZE 16
+SIZE s OF x
+TEST s ! 16
+ADD _test TO errors
+
+SET y TO 91
+LIST x SIZE y
+SIZE s OF x
+TEST s ! y
+ADD _test TO errors
+
+TYPE t OF x@0
+TEST t ! "NULL"
+ADD _test TO errors
+
+
+TEST errors > 0
+GOTO bad IF _test
+EXIT
+
+^bad:
+ERROR "One or more errors in LIST test."

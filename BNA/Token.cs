@@ -39,6 +39,8 @@ namespace BNA
 		INPUT,
 		PRINT,
 		TYPE,
+		EXIT,
+		ERROR,
 
 		// Operation mid keywords
 		TO,
@@ -62,6 +64,7 @@ namespace BNA
 		GREATER_THAN = '>',
 		LESS_THAN = '<',
 		EQUAL = '=',
+		NOT = '!',
 		LABEL_START = '^',
 		LABEL_END = ':',
 		LINE_END = '\n',
@@ -241,6 +244,7 @@ namespace BNA
 						case (char)Symbol.GREATER_THAN:
 						case (char)Symbol.LESS_THAN:
 						case (char)Symbol.EQUAL:
+						case (char)Symbol.NOT:
 						case (char)Symbol.LIST_SEPERATOR: {
 							if ( candidate.Length > 0 ) {
 								var t = new Token( candidate );

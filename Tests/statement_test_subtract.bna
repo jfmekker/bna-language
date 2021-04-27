@@ -22,9 +22,7 @@ SUBTRACT 12345 FROM x
 SUBTRACT 0 FROM x
 SUBTRACT -0 FROM x
 SUBTRACT -12345 FROM x
-TEST x > 0
-ADD _test TO errors
-TEST x < 0
+TEST x ! 0
 ADD _test TO errors
 
 # Float subtraction
@@ -40,10 +38,13 @@ SUBTRACT 0.0 FROM y
 SUBTRACT -0.0 FROM y
 SUBTRACT -0.10101 FROM y
 SUBTRACT -12345.6789 FROM y
-TEST y > 0
-ADD _test TO errors
-TEST y < 0
+TEST y ! 0
 ADD _test TO errors
 
 
-# TODO exit and return errors
+TEST errors > 0
+GOTO bad IF _test
+EXIT
+
+^bad:
+ERROR "One or more errors in subtraction."

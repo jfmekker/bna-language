@@ -49,11 +49,14 @@ namespace BNA
 		OP_TEST_GT,
 		OP_TEST_LT,
 		OP_TEST_EQ,
+		OP_TEST_NE,
 
 		// misc operations
 		OP_WAIT,
 		OP_GOTO,
 		OP_TYPE,
+		OP_EXIT,
+		OP_ERROR,
 	}
 
 	/// <summary>
@@ -115,7 +118,7 @@ namespace BNA
 				try {
 					return ParseKeywordStatement( tokenList );
 				}
-				catch (InvalidOperationException e) {
+				catch ( InvalidOperationException e ) {
 					throw new CompiletimeException( "Statement ended too early" );
 				}
 			}
@@ -266,16 +269,16 @@ namespace BNA
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					Token next = tokens.Dequeue( );
 
-					candidate.AddTokenOfSymbols( next , new List<Symbol> { Symbol.GREATER_THAN , Symbol.LESS_THAN , Symbol.EQUAL } );
+					candidate.AddTokenOfSymbols( next , new List<Symbol> { Symbol.GREATER_THAN , Symbol.LESS_THAN , Symbol.EQUAL , Symbol.NOT } );
 					var symbol = (Symbol)next.Value[0];
 
 					if ( symbol == Symbol.GREATER_THAN || symbol == Symbol.LESS_THAN ) {
 						candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 						candidate.Type = symbol == Symbol.GREATER_THAN ? StatementType.OP_TEST_GT : StatementType.OP_TEST_LT;
 					}
-					else if ( symbol == Symbol.EQUAL ) {
+					else if ( symbol == Symbol.EQUAL || symbol == Symbol.NOT ) {
 						candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
-						candidate.Type = StatementType.OP_TEST_EQ;
+						candidate.Type = symbol == Symbol.EQUAL ? StatementType.OP_TEST_EQ : StatementType.OP_TEST_NE;
 					}
 					else {
 						throw new CompiletimeException( "Unexpected symbol: " + next.ToString( ) );
@@ -381,11 +384,25 @@ namespace BNA
 					break;
 				}
 
+				// EXIT
+				case Keyword.EXIT: {
+					candidate.Type = StatementType.OP_EXIT;
+					break;
+				}
+
+				// ERROR var|string
+				case Keyword.ERROR: {
+					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
+					candidate.Type = StatementType.OP_ERROR;
+					break;
+				}
+
 				default:
 					throw new CompiletimeException( "Invalid start of statement: " + startToken.ToString( ) );
 
 			}
 
+			// TODO check that queue is empty and not a comment?
 			return candidate;
 		}
 

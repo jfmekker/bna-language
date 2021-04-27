@@ -161,8 +161,8 @@ namespace BNA
 					// List operations
 					case StatementType.OP_LIST: {
 						// Check operands
-						if ( op2.Type != ValueType.INTEGER ) {
-							throw new RuntimeException( this.IP , curr , "List size must be integer" );
+						if ( op2.Type != ValueType.INTEGER || (long)op2.Val < 0 ) {
+							throw new RuntimeException( this.IP , curr , "List size must be positive or zero integer" );
 						}
 
 						// Fill list
@@ -255,6 +255,7 @@ namespace BNA
 
 					// Test operations
 					case StatementType.OP_TEST_EQ:
+					case StatementType.OP_TEST_NE:
 					case StatementType.OP_TEST_GT:
 					case StatementType.OP_TEST_LT: {
 						if ( op1.Type == ValueType.INVALID || op1.Type == ValueType.NULL
@@ -307,10 +308,7 @@ namespace BNA
 						}
 
 						// Test condition
-						if ( op2.Type != ValueType.INTEGER ) {
-							throw new RuntimeException( this.IP , curr , "GOTO given incorrect conditional value type: " + op2.Type.ToString( ) );
-						}
-						else if ( (long)op2.Val != 0 ) {
+						if ( op2 != Value.FALSE ) {
 							this.IP = line;
 						}
 
@@ -322,6 +320,14 @@ namespace BNA
 						break;
 					}
 
+					case StatementType.OP_EXIT: {
+						running = false;
+						break;
+					}
+
+					case StatementType.OP_ERROR: {
+						throw new RuntimeException( op2.ToString( ) );
+					}
 
 					// Non-operations
 					case StatementType.NULL:
@@ -337,7 +343,7 @@ namespace BNA
 				}
 
 				// Next statement or end
-				if ( ++this.IP == this.Statements.Length ) {
+				if ( running && ++this.IP == this.Statements.Length ) {
 					running = false;
 				}
 			}

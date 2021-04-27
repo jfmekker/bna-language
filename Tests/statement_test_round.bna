@@ -1,0 +1,45 @@
+PRINT "Statement Test: ROUND"
+SET errors TO 0
+
+SET x TO 0.1
+ROUND x
+TEST x ! 0
+ADD _test TO errors
+
+SET x TO 0.9
+ROUND x
+TEST x ! 1
+ADD _test TO errors
+
+SET x TO -0.1
+ROUND x
+TEST x ! 0
+ADD _test TO errors
+
+SET x TO -0.9
+ROUND x
+TEST x ! -1
+ADD _test TO errors
+
+SET x TO 100
+ROUND x
+TEST x ! 100
+ADD _test TO errors
+
+SET x TO 10.0
+ROUND x
+TEST x ! 10
+ADD _test TO errors
+
+SET x TO 0.0
+ROUND x
+TEST x ! 0
+ADD _test TO errors
+
+
+TEST errors > 0
+GOTO bad IF _test
+EXIT
+
+^bad:
+ERROR "One or more errors in ROUND test."

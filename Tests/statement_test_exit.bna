@@ -1,0 +1,7 @@
+PRINT "Statement Test: EXIT"
+
+EXIT
+
+ERROR "Did not exit"
+
+# Done
