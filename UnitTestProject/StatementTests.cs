@@ -111,7 +111,15 @@ namespace UnitTestProject
 		[TestMethod]
 		public void WaitTest( )
 		{
+			var start = DateTime.Now;
 			this.RunStatementTest( "wait" );
+			var end = DateTime.Now;
+
+			// Check that elapsed time is greater than required but not more than 0.1s off
+			int expected_ms = 2320;
+			var elapsed = end.Subtract( start );
+			Assert.IsTrue( elapsed.TotalMilliseconds >= expected_ms );
+			Assert.IsTrue( elapsed.TotalMilliseconds < expected_ms + 100 );
 		}
 
 		[TestMethod]
