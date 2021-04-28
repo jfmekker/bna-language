@@ -599,7 +599,10 @@ namespace BNA
 			}
 		}
 
-
+		/// <summary>
+		/// Close all file-type values in a list
+		/// </summary>
+		/// <param name="values">Values to check and close</param>
 		private void CloseAllFiles( List<Value> values )
 		{
 			foreach ( Value v in values ) {
