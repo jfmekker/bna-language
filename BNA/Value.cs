@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace BNA
 {
@@ -13,7 +14,9 @@ namespace BNA
 		INTEGER = 1,
 		FLOAT,
 		STRING,
-		LIST
+		LIST,
+		READ_FILE,
+		WRITE_FILE,
 	}
 
 	/// <summary>
@@ -293,7 +296,7 @@ namespace BNA
 				case ValueType.STRING:
 					return this.Val.ToString( );
 
-				case ValueType.LIST:
+				case ValueType.LIST: {
 					var list = (List<Value>)this.Val;
 
 					string str = "" + (char)Symbol.LIST_START + " ";
@@ -306,7 +309,7 @@ namespace BNA
 						else {
 							str += list[i].ToString( );
 						}
-						
+
 
 						if ( i < list.Count - 1 ) {
 							str += " " + (char)Symbol.LIST_SEPERATOR + " ";
@@ -316,6 +319,16 @@ namespace BNA
 					str += " " + (char)Symbol.LIST_END;
 
 					return str;
+				}
+
+				case ValueType.READ_FILE: {
+					return "Read-file: '" + "'";
+				}
+
+				case ValueType.WRITE_FILE: {
+
+					return "Write-file: '" + "'";
+				}
 
 				default:
 					throw new Exception( "Unexpected value type in ToString: " + this.Type );

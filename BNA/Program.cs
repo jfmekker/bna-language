@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace BNA
 {
@@ -245,12 +246,83 @@ namespace BNA
 						break;
 					}
 
-					case StatementType.OP_OPEN_R:
-					case StatementType.OP_OPEN_W:
-					case StatementType.OP_WRITE:
-					case StatementType.OP_READ:
-					case StatementType.OP_CLOSE:
-						throw new NotImplementedException( );
+					case StatementType.OP_OPEN_R: {
+						if ( op2.Type != ValueType.STRING ) {
+							throw new RuntimeException( this.IP , curr , "Filename must be string '" + op2.ToString( ) + "'" );
+						}
+						string filename = (string)op2.Val;
+
+						var stream_r = new StreamReader( filename );
+
+						this.SetValue( curr.Operand1 , new Value( ValueType.READ_FILE , stream_r ) , true );
+						break;
+					}
+
+					case StatementType.OP_OPEN_W: {
+						if ( op2.Type != ValueType.STRING ) {
+							throw new RuntimeException( this.IP , curr , "Filename must be string '" + op2.ToString( ) + "'" );
+						}
+						string filename = (string)op2.Val;
+
+						var stream_w = new StreamWriter( filename , true );
+						stream_w.AutoFlush = true;
+
+						this.SetValue( curr.Operand1 , new Value( ValueType.WRITE_FILE , stream_w ) , true );
+						break;
+					}
+
+					case StatementType.OP_WRITE: {
+						if ( op1.Type != ValueType.WRITE_FILE ) {
+							throw new RuntimeException( this.IP , curr , "Operand to WRITE must be an opened write-file: '" + op1.ToString( ) + "'" );
+						}
+
+						( (StreamWriter)op1.Val ).WriteLine( op2.Val.ToString( ) );
+						( (StreamWriter)op1.Val ).Flush( );
+						break;
+					}
+
+					case StatementType.OP_READ: {
+						if ( op2.Type != ValueType.READ_FILE ) {
+							throw new RuntimeException( this.IP , curr , "Operand to READ must be an opened read-file: '" + op2.ToString( ) + "'" );
+						}
+
+						string str = ( (StreamReader)op2.Val ).ReadLine();
+
+						Value val = Value.NULL;
+						if ( long.TryParse( str , out long lval ) ) {
+							val = new Value( ValueType.INTEGER , lval );
+						}
+						else if ( double.TryParse( str , out double dval ) ) {
+							val = new Value( ValueType.FLOAT , dval );
+						}
+						else {
+							val = new Value( ValueType.STRING , str );
+						}
+
+						SetValue( curr.Operand1 , val , true );
+
+						// Close file if reached the end of stream
+						if ( ( (StreamReader)op2.Val ).EndOfStream ) {
+							( (StreamReader)op2.Val ).Close( );
+							SetValue( curr.Operand2 , Value.NULL );
+						}
+						break;
+					}
+
+					case StatementType.OP_CLOSE: {
+						if ( op1.Type == ValueType.READ_FILE ) {
+							( (StreamReader)op1.Val ).Close( );
+						}
+						else if ( op1.Type == ValueType.WRITE_FILE ) {
+							( (StreamWriter)op1.Val ).Close( );
+						}
+						else {
+							throw new RuntimeException( IP , curr , "Can not close non-file: '" + op1.ToString( ) + "'" );
+						}
+
+						SetValue( curr.Operand1 , Value.NULL );
+						break;
+					}
 
 
 					// Test operations
@@ -347,6 +419,10 @@ namespace BNA
 					running = false;
 				}
 			}
+
+			// Close any remaining file values
+			var values = new List<Value>( Variables.Values );
+			CloseAllFiles( values );
 		}
 
 		/// <summary>
@@ -520,6 +596,22 @@ namespace BNA
 			}
 			else {
 				throw new RuntimeException( this.IP , this.Statements[this.IP] , "Could not find variable to set." );
+			}
+		}
+
+
+		private void CloseAllFiles( List<Value> values )
+		{
+			foreach ( Value v in values ) {
+				if ( v.Type == ValueType.READ_FILE ) {
+					( (StreamReader)v.Val ).Close( );
+				}
+				else if ( v.Type == ValueType.WRITE_FILE ) {
+					( (StreamWriter)v.Val ).Close( );
+				}
+				else if ( v.Type == ValueType.LIST ) {
+					CloseAllFiles( (List<Value>)v.Val );
+				}
 			}
 		}
 	}
