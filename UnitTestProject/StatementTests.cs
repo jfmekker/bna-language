@@ -181,5 +181,29 @@ namespace UnitTestProject
 		{
 			this.RunStatementTest( "error" , true );
 		}
+
+		[TestMethod]
+		public void ReadTest( )
+		{
+			this.RunStatementTest( "read" );
+		}
+
+		[TestMethod]
+		public void WriteTest( )
+		{
+			this.RunStatementTest( "write" );
+		}
+
+		[TestMethod]
+		public void OpenReadTest( )
+		{
+			this.RunStatementTest( "open_read" );
+		}
+
+		[TestMethod]
+		public void OpenWriteTest( )
+		{
+			this.RunStatementTest( "open_write" );
+		}
 	}
 }
