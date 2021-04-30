@@ -168,7 +168,7 @@ namespace BNA
 			catch ( RuntimeException e ) {
 				ConsolePrintError( "Runtime Exception caught:" );
 				ConsolePrintError( e.Message );
-				return e.LineNumber == -1 ? ReturnCode.BNA_ERROR : ReturnCode.RUNTIME_ERROR;
+				return e.BNAError ? ReturnCode.BNA_ERROR : ReturnCode.RUNTIME_ERROR;
 			}
 			catch ( NotImplementedException e ) {
 				ConsolePrintError( "Not Implemented Exception caught:" );

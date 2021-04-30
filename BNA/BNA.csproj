@@ -53,6 +53,7 @@
     <Compile Include="CompiletimeException.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ProgramStatements.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeException.cs" />
     <Compile Include="SpecialVariables.cs" />

@@ -2,12 +2,24 @@
 
 namespace BNA
 {
+	/// <summary>
+	/// A BNA exception encountered at compile time.
+	/// </summary>
 	public class CompiletimeException : Exception
 	{
+		/// <summary>
+		/// The line that threw the error.
+		/// </summary>
 		public readonly string Line;
 
+		/// <summary>
+		/// The line number of the bad line.
+		/// </summary>
 		public readonly int LineNumber;
 
+		/// <summary>
+		/// Specific BNA info message.
+		/// </summary>
 		public readonly string BNAMessage;
 
 		public CompiletimeException( int line_number , string line , string message )

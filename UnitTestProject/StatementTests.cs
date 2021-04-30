@@ -6,118 +6,100 @@ namespace UnitTestProject
 	[TestClass]
 	public class StatementTests
 	{
-		private void RunStatementTest( string statement , bool fails = false )
-		{
-			BNA.ReturnCode r = BNA.ReturnCode.UNEXPECTED_ERROR;
-
-			try {
-				r = BNA.BNA.RunFromFiles( new string[] { "../../../../Tests/statement_test_" + statement + ".bna" } );
-			}
-			catch ( Exception e ) {
-				Assert.Inconclusive( );
-			}
-
-			if ( r == BNA.ReturnCode.FILE_ERROR ) {
-				Assert.Inconclusive( );
-			}
-
-			Assert.AreEqual( !fails ? BNA.ReturnCode.SUCCESS : BNA.ReturnCode.BNA_ERROR , r );
-		}
-
 		[TestMethod]
 		public void SetTest( )
 		{
-			this.RunStatementTest( "set" );
+			TestRunner.RunTestFile( "statement_test_set" );
 		}
 
 		[TestMethod]
 		public void AddTest( )
 		{
-			this.RunStatementTest( "add" );
+			TestRunner.RunTestFile( "statement_test_add" );
 		}
 
 		[TestMethod]
 		public void SubtractTest( )
 		{
-			this.RunStatementTest( "subtract" );
+			TestRunner.RunTestFile( "statement_test_subtract" );
 		}
 
 		[TestMethod]
 		public void MultiplyTest( )
 		{
-			this.RunStatementTest( "multiply" );
+			TestRunner.RunTestFile( "statement_test_multiply" );
 		}
 
 		[TestMethod]
 		public void DivideTest( )
 		{
-			this.RunStatementTest( "divide" );
+			TestRunner.RunTestFile( "statement_test_divide" );
 		}
 
 		[TestMethod]
 		public void AndTest( )
 		{
-			this.RunStatementTest( "and" );
+			TestRunner.RunTestFile( "statement_test_and" );
 		}
 
 		[TestMethod]
 		public void OrTest( )
 		{
-			this.RunStatementTest( "or" );
+			TestRunner.RunTestFile( "statement_test_or" );
 		}
 
 		[TestMethod]
 		public void XorTest( )
 		{
-			this.RunStatementTest( "xor" );
+			TestRunner.RunTestFile( "statement_test_xor" );
 		}
 
 		[TestMethod]
 		public void ModTest( )
 		{
-			this.RunStatementTest( "mod" );
+			TestRunner.RunTestFile( "statement_test_mod" );
 		}
 
 		[TestMethod]
 		public void LogTest( )
 		{
-			this.RunStatementTest( "log" );
+			TestRunner.RunTestFile( "statement_test_log" );
 		}
 
 		[TestMethod]
 		public void RaiseTest( )
 		{
-			this.RunStatementTest( "raise" );
+			TestRunner.RunTestFile( "statement_test_raise" );
 		}
 
 		[TestMethod]
 		public void NegateTest( )
 		{
-			this.RunStatementTest( "negate" );
+			TestRunner.RunTestFile( "statement_test_negate" );
 		}
 
 		[TestMethod]
 		public void RoundTest( )
 		{
-			this.RunStatementTest( "round" );
+			TestRunner.RunTestFile( "statement_test_round" );
 		}
 
 		[TestMethod]
 		public void RandomTest( )
 		{
-			this.RunStatementTest( "random" );
+			TestRunner.RunTestFile( "statement_test_random" );
 		}
 
 		[TestMethod]
 		public void WaitTest( )
 		{
-			var start = DateTime.Now;
-			this.RunStatementTest( "wait" );
-			var end = DateTime.Now;
+			DateTime start = DateTime.Now;
+			TestRunner.RunTestFile( "statement_test_wait" );
+			DateTime end = DateTime.Now;
 
 			// Check that elapsed time is greater than required but not more than 0.1s off
 			int expected_ms = 2320;
-			var elapsed = end.Subtract( start );
+			TimeSpan elapsed = end.Subtract( start );
 			Assert.IsTrue( elapsed.TotalMilliseconds >= expected_ms );
 			Assert.IsTrue( elapsed.TotalMilliseconds < expected_ms + 100 );
 		}
@@ -125,61 +107,85 @@ namespace UnitTestProject
 		[TestMethod]
 		public void TestTest( )
 		{
-			this.RunStatementTest( "test" );
+			TestRunner.RunTestFile( "statement_test_test" );
 		}
 
 		[TestMethod]
 		public void GotoTest( )
 		{
-			this.RunStatementTest( "goto" );
+			TestRunner.RunTestFile( "statement_test_goto" );
 		}
 
 		[TestMethod]
 		public void ListTest( )
 		{
-			this.RunStatementTest( "list" );
+			TestRunner.RunTestFile( "statement_test_list" );
 		}
 
 		[TestMethod]
 		public void AppendTest( )
 		{
-			this.RunStatementTest( "append" );
+			TestRunner.RunTestFile( "statement_test_append" );
 		}
 
 		[TestMethod]
 		public void SizeTest( )
 		{
-			this.RunStatementTest( "size" );
+			TestRunner.RunTestFile( "statement_test_size" );
 		}
 
 		[TestMethod]
 		public void InputTest( )
 		{
-			this.RunStatementTest( "input" );
+			TestRunner.RunTestFile( "statement_test_input" );
 		}
 
 		[TestMethod]
 		public void PrintTest( )
 		{
-			this.RunStatementTest( "print" );
+			TestRunner.RunTestFile( "statement_test_print" );
 		}
 
 		[TestMethod]
 		public void TypeTest( )
 		{
-			this.RunStatementTest( "type" );
+			TestRunner.RunTestFile( "statement_test_type" );
 		}
 
 		[TestMethod]
 		public void ExitTest( )
 		{
-			this.RunStatementTest( "exit" );
+			TestRunner.RunTestFile( "statement_test_exit" );
 		}
 
 		[TestMethod]
 		public void ErrorTest( )
 		{
-			this.RunStatementTest( "error" , true );
+			TestRunner.RunTestFile( "statement_test_error" , true );
+		}
+
+		[TestMethod]
+		public void ReadTest( )
+		{
+			TestRunner.RunTestFile( "statement_test_read" );
+		}
+
+		[TestMethod]
+		public void WriteTest( )
+		{
+			TestRunner.RunTestFile( "statement_test_write" );
+		}
+
+		[TestMethod]
+		public void OpenReadTest( )
+		{
+			TestRunner.RunTestFile( "statement_test_open_read" );
+		}
+
+		[TestMethod]
+		public void OpenWriteTest( )
+		{
+			TestRunner.RunTestFile( "statement_test_open_write" );
 		}
 	}
 }
