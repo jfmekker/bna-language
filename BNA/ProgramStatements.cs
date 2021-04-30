@@ -444,23 +444,15 @@ namespace BNA
 		private void ExecuteGotoStatement( )
 		{
 			// Find line
-			Token label = this.Current.Operand1;
-			int line = -1;
-			for ( int i = 0 ; i < this.Statements.Length ; i += 1 ) {
-				if ( this.Statements[i].Type == StatementType.LABEL ) {
-					if ( this.Current.Operand1.Equals( label ) ) {
-						line = i;
-						break;
-					}
-				}
-			}
-			if ( line < 0 ) {
-				throw new RuntimeException( "Found no label with token " + label.ToString( ) );
+			Value line = this.GetValue( this.Current.Operand1 );
+			if ( line == Value.NULL || line.Type != ValueType.INTEGER ) {
+				throw new RuntimeException( "Found no valid line value '" + this.Current.Operand1.ToString( ) + "'" );
 			}
 
 			// Test condition
 			if ( this.GetValue( this.Current.Operand2 ) != Value.FALSE ) {
-				this.IP = line;
+				// Go to line before label (because IP will be incremented)
+				this.IP = (int)(long)line.Val - 1;
 			}
 		}
 	}

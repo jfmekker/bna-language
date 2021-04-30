@@ -58,6 +58,8 @@ namespace BNA
 			this.Statements = statements;
 			this.IP = 0;
 			this.Variables = new Dictionary<Token , Value>( );
+
+			this.CompileLabels( );
 		}
 
 		/// <summary>
@@ -276,6 +278,18 @@ namespace BNA
 				}
 				else if ( v.Type == ValueType.LIST ) {
 					this.CloseAllFiles( (List<Value>)v.Val );
+				}
+			}
+		}
+
+		/// <summary>
+		/// Read through all statements and set labels equal to their line number.
+		/// </summary>
+		private void CompileLabels( )
+		{
+			for ( int i = 0 ; i < this.Statements.Length ; i += 1 ) {
+				if ( this.Statements[i].Type == StatementType.LABEL ) {
+					this.SetValue( this.Statements[i].Operand1 , new Value( ValueType.INTEGER , (long)i ) , true );
 				}
 			}
 		}
