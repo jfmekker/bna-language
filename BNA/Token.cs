@@ -41,6 +41,7 @@ namespace BNA
 		TYPE,
 		EXIT,
 		ERROR,
+		SCOPE,
 
 		// Operation mid keywords
 		TO,

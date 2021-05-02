@@ -72,6 +72,11 @@ namespace BNA
 					this.ExecuteTestStatement( );
 					break;
 
+				case StatementType.OP_SCOPE_OPEN:
+				case StatementType.OP_SCOPE_CLOSE:
+					this.ExecuteScopeStatement( );
+					break;
+
 				case StatementType.OP_WAIT:
 					this.ExecuteWaitStatement( );
 					break;
@@ -397,7 +402,7 @@ namespace BNA
 		}
 
 		/// <summary>
-		/// Execute the current statement as test operation statement.
+		/// Execute the current statement as a test operation statement.
 		/// </summary>
 		private void ExecuteTestStatement( )
 		{
@@ -415,7 +420,30 @@ namespace BNA
 					+ "op1=" + this.Current.Operand1.ToString( ) + " op2=" + this.Current.Operand2.ToString( ) );
 			}
 
-			this.SetValue( SpecialVariables.TEST_RESULT , result , true );
+			this.SetValue( SpecialVariables.TEST_RESULT , result );
+		}
+
+		/// <summary>
+		/// Execute the current statement as a scope operation statement.
+		/// </summary>
+		private void ExecuteScopeStatement( )
+		{
+			if ( this.Current.Type == StatementType.OP_SCOPE_OPEN ) {
+				Value argument_val = this.GetValue( SpecialVariables.ARGUMENT );
+				this.Variables = new Dictionary<Token , Value>( );
+				this.SetValue( SpecialVariables.ARGUMENT , argument_val );
+			}
+			else if ( this.Current.Type == StatementType.OP_SCOPE_CLOSE ) {
+				Value return_val = this.GetValue( SpecialVariables.RETURN );
+				if ( this.Scopes.Count < 2 ) {
+					throw new RuntimeException( "Cannot close final scope." );
+				}
+				this.Scopes.Pop( );
+				this.SetValue( SpecialVariables.RETURN , return_val );
+			}
+			else {
+				throw new Exception( "Program called wrong execute fuction." );
+			}
 		}
 
 		/// <summary>

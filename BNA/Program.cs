@@ -20,9 +20,33 @@ namespace BNA
 		private int IP;
 
 		/// <summary>
-		/// Running list of variables held by the program while running, starts empty.
+		/// Running list of variables held by the program while running.
+		/// Starts with label values and special variable default values.
 		/// </summary>
-		private Dictionary<Token , Value> Variables;
+		private Dictionary<Token , Value> Variables
+		{
+			get
+			{
+				if ( this.Scopes == null || this.Scopes.Count <= 0 ) {
+					throw new Exception( "No scopes found." );
+				}
+				return this.Scopes.Peek( );
+			}
+
+			set
+			{
+				this.Scopes.Push( value );
+				this.CompileLabels( );
+				this.SetValue( SpecialVariables.TEST_RESULT , SpecialVariables.TEST_RESULT_DEFAULT , true );
+				this.SetValue( SpecialVariables.ARGUMENT , SpecialVariables.ARGUMENT_DEFAULT , true );
+				this.SetValue( SpecialVariables.RETURN , SpecialVariables.RETURN_DEFAULT , true );
+			}
+		}
+
+		/// <summary>
+		/// Stack of scopes, collections of variables.
+		/// </summary>
+		private Stack<Dictionary<Token , Value>> Scopes;
 
 		/// <summary>
 		/// Shortcut to the statement pointed to by <see cref="IP"/>.
@@ -57,9 +81,9 @@ namespace BNA
 		{
 			this.Statements = statements;
 			this.IP = 0;
-			this.Variables = new Dictionary<Token , Value>( );
 
-			this.CompileLabels( );
+			this.Scopes = new Stack<Dictionary<Token , Value>>( );
+			this.Variables = new Dictionary<Token , Value>( );
 		}
 
 		/// <summary>
