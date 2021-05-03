@@ -165,7 +165,9 @@ namespace BNA
 				// List
 				if ( this.Value[0] == (char)Symbol.LIST_START ) {
 					if ( this.Value.Length >= 2 && this.Value[this.Value.Length - 1] == (char)Symbol.LIST_END ) {
-						// TODO parse list
+						// Tokenize contents to catch other compile errors
+						TokenizeLine( Value.Substring( 1 , Value.Length - 2 ) );
+
 						return TokenType.LIST;
 					}
 					else {
@@ -366,13 +368,6 @@ namespace BNA
 					throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
 				}
 				tokens.Add( t );
-			}
-
-			// If any list tokens, try tokenizing the contents to catch compile errors here
-			foreach ( Token t in tokens ) {
-				if ( t.Type == TokenType.LIST ) {
-					TokenizeLine( t.Value.Substring( 1 , t.Value.Length - 2 ) );
-				}
 			}
 
 			return tokens;

@@ -250,8 +250,8 @@ namespace BNA
 					}
 				}
 				else if ( op1.Type == ValueType.STRING ) {
-					// TODO ?
-					( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , op2.Val.ToString( ) );
+					string new_str = ( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , op2.Val.ToString( ) );
+					this.SetValue( this.Current.Operand1 , new Value( ValueType.STRING , new_str ) );
 				}
 				else {
 					throw new RuntimeException( "Can not append to non-list-like type: " + op1.Type );

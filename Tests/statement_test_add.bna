@@ -23,7 +23,7 @@ ADD 0 TO x
 ADD -0 TO x
 ADD -12345 TO x
 TEST x ! 0
-ADD _test TO errors
+ADD result TO errors
 
 # Float addition
 SET y TO 0
@@ -39,11 +39,11 @@ ADD -0.0 TO y
 ADD -0.10101 TO y
 ADD -12345.6789 TO y
 TEST y ! 0
-ADD _test TO errors
+ADD result TO errors
 
 
 TEST errors > 0
-GOTO bad IF _test
+GOTO bad IF result
 EXIT
 
 ^bad:
