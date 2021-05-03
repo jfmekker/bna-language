@@ -1,0 +1,45 @@
+PRINT "Prime checker"
+
+^main_loop:
+	INPUT num WITH "Number to check: "
+	TYPE t OF num
+	TEST t = "INTEGER"
+	SET argument TO num
+	SET caller TO main_loop
+	GOTO prime_check_func IF result
+	EXIT
+
+
+^prime_check_func:
+	SCOPE OPEN
+	SET i TO 1
+	SET num TO argument
+
+	# Loop
+	^start_func_loop:
+
+	# Check i != num
+	ADD 1 TO i
+	TEST i = num
+	GOTO prime IF result
+
+	# Get remainder of ( num / i )
+	SET remainder TO num
+	MOD i OF remainder
+
+	# If remainder != 0, then i is not a factor
+	GOTO start_func_loop IF remainder
+	# Else num is not prime
+	GOTO not_prime IF 1
+
+	^not_prime:
+	PRINT "Not prime, lowest factor:"
+	PRINT i
+	GOTO prime_check_func_end IF 1
+
+	^prime:
+	PRINT "Prime"
+
+	^prime_check_func_end:
+	SCOPE CLOSE
+	GOTO caller IF 1

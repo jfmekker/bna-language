@@ -1,0 +1,40 @@
+PRINT "Vector magnitude calculator"
+
+^main_loop:
+	INPUT vector WITH "Vector: "
+	TYPE t OF vector
+	TEST t = "LIST"
+	SET argument TO vector
+	SET caller TO print_return
+	GOTO vector_magnitude IF result
+	EXIT
+	
+	^print_return:
+	PRINT return
+	GOTO main_loop IF 1
+
+
+^vector_magnitude:
+	SCOPE OPEN
+	PRINT argument
+	SET vector TO argument
+	SIZE length OF vector
+	SET i TO 0
+	SET magnitude TO 0
+
+	^start_func_loop:
+	TEST i = length
+	GOTO vector_magnitude_end IF result
+
+	SET num TO vector@i
+	RAISE num TO 2
+	ADD num TO magnitude
+
+	ADD 1 TO i
+	GOTO start_func_loop IF 1
+
+	^vector_magnitude_end:
+	RAISE magnitude TO 0.5
+	SET return TO magnitude
+	SCOPE CLOSE
+	GOTO caller IF 1

@@ -215,11 +215,11 @@ namespace BNA
 				// Invalid token
 				case TokenType.INVALID:
 				case TokenType.UNKNOWN: {
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Can not get value from invalid or unknown token: " + token.ToString( ) );
+					throw new RuntimeException( "Can not get value from invalid or unknown token: " + token.ToString( ) );
 				}
 
 				default:
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Unexpected token type for operand: " + token.ToString( ) );
+					throw new RuntimeException( "Unexpected token type for operand: " + token.ToString( ) );
 			}
 		}
 

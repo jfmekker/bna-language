@@ -80,7 +80,7 @@ namespace BNA
 
 				case StatementType.OP_POW:
 					return operationType == ValueType.INTEGER
-						? new Value( ValueType.INTEGER , Math.Pow( (long)op1.Val , (long)op2.Val ) )
+						? new Value( ValueType.INTEGER , (long)Math.Pow( (long)op1.Val , (long)op2.Val ) )
 						: new Value( ValueType.FLOAT , Math.Pow( (double)op1.Val , (double)op2.Val ) );
 
 				case StatementType.OP_LOG:

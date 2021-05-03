@@ -14,9 +14,6 @@ namespace BNA
 		/// </summary>
 		private void ExecuteCurrentStatement( )
 		{
-			Value op1 = this.GetValue( this.Current.Operand1 );
-			Value op2 = this.GetValue( this.Current.Operand2 );
-
 			switch ( this.Current.Type ) {
 				case StatementType.OP_SET:
 					this.ExecuteSetStatement( );
@@ -51,7 +48,7 @@ namespace BNA
 					break;
 
 				case StatementType.OP_PRINT:
-					Console.WriteLine( op2.ToString( ) );
+					Console.WriteLine( this.GetValue( this.Current.Operand2 ).ToString( ) );
 					break;
 
 				case StatementType.OP_INPUT:
@@ -86,7 +83,7 @@ namespace BNA
 					break;
 
 				case StatementType.OP_TYPE:
-					this.SetValue( this.Current.Operand1 , new Value( ValueType.STRING , op2.Type.ToString( ) ) , true );
+					this.SetValue( this.Current.Operand1 , new Value( ValueType.STRING , this.GetValue( this.Current.Operand2 ).Type.ToString( ) ) , true );
 					break;
 
 				case StatementType.OP_EXIT:
@@ -94,7 +91,7 @@ namespace BNA
 					break;
 
 				case StatementType.OP_ERROR:
-					throw new RuntimeException( op2.ToString( ) , true );
+					throw new RuntimeException( this.GetValue( this.Current.Operand2 ).ToString( ) , true );
 
 				case StatementType.NULL:
 				case StatementType.COMMENT:
@@ -281,31 +278,20 @@ namespace BNA
 		private void ExecuteInputStatement( )
 		{
 			Console.Write( this.GetValue( this.Current.Operand2 ).ToString( ) );
+			Value input_value = Value.NULL;
 			var token = new Token( Console.ReadLine( ) );
 			switch ( token.Type ) {
 				case TokenType.LITERAL:
-					if ( long.TryParse( token.Value , out long lval ) ) {
-						this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , lval ) , true );
-					}
-					else if ( double.TryParse( token.Value , out double dval ) ) {
-						this.SetValue( this.Current.Operand1 , new Value( ValueType.FLOAT , dval ) , true );
-					}
-					else {
-						throw new Exception( "Tokenizer identified literal that could not be parsed: " + token.ToString( ) );
-					}
-					break;
-
 				case TokenType.STRING:
-					if ( token.Value.Length < 2 ) {
-						throw new Exception( "Tokenizer identified string that is too short: " + token.ToString( ) );
-					}
-
-					this.SetValue( this.Current.Operand1 , new Value( ValueType.STRING , token.Value.Substring( 1 , token.Value.Length - 2 ) ) , true );
+				case TokenType.LIST:
+				case TokenType.NULL:
+					input_value = this.GetValue( token );
 					break;
 
 				default:
 					throw new RuntimeException( "Invalid input: " + token.ToString( ) );
 			}
+			this.SetValue( this.Current.Operand1 , input_value , true );
 		}
 
 		/// <summary>

@@ -24,7 +24,7 @@
             <Keywords name="Folders in comment, open"></Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
-            <Keywords name="Keywords1">add subtract multiply divide set&#x000D;&#x000A;goto wait random&#x000D;&#x000A;test and or xor negate&#x000D;&#x000A;raise mod log round&#x000D;&#x000A;list append&#x000D;&#x000A;open close read write input print&#x000D;&#x000A;to by from max if with of size as&#x000D;&#x000A;type exit error</Keywords>
+            <Keywords name="Keywords1">add subtract multiply divide set&#x000D;&#x000A;goto wait random&#x000D;&#x000A;test and or xor negate&#x000D;&#x000A;raise mod log round&#x000D;&#x000A;list append&#x000D;&#x000A;open close read write input print&#x000D;&#x000A;to by from max if with of size as&#x000D;&#x000A;type exit error scope</Keywords>
             <Keywords name="Keywords2">result return argument&#x000D;&#x000A;&gt;&#x000D;&#x000A;&lt;&#x000D;&#x000A;=&#x000D;&#x000A;!</Keywords>
             <Keywords name="Keywords3"></Keywords>
             <Keywords name="Keywords4"></Keywords>
