@@ -24,8 +24,9 @@ Contributions to BNA are very welcome. Check the issues list for work to pickup,
  - `v0.6-beta`  Command line and file input/output.
  - `v0.7`       Full BNA interpreter, removed Python translation.
  - `v0.8`       Re-enabled file input/output.
+ - `v0.9`       Dynamic jumps and scopes.
 
 ### Tentaive future versioning:
-
-  - `v0.9`      Dynamic jumps and scopes.
-  - `v1.0`      Improved language specification.
+ 
+ - `v1.0`       Improved language specification.
+ - `v1.0`       Optional statement parts.
