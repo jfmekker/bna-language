@@ -4,34 +4,34 @@ SET errors TO 0
 SIZE s OF "Hello, World!"
 PRINT s
 TEST s ! 13
-ADD _test TO errors
+ADD result TO errors
 SIZE s OF ""
 PRINT s
 TEST s ! 0
-ADD _test TO errors
+ADD result TO errors
 SET v TO "jwkdawdjnaw"
 SIZE s OF v
 PRINT s
 TEST s ! 11
-ADD _test TO errors
+ADD result TO errors
 
 SIZE s OF ( 1 , 2 , "three" , ( 4 , 5 ) )
 PRINT s
 TEST s ! 4
-ADD _test TO errors
+ADD result TO errors
 SIZE s OF ( )
 PRINT s
 TEST s ! 0
-ADD _test TO errors
+ADD result TO errors
 LIST v SIZE 15
 SIZE s OF v
 PRINT s
 TEST s ! 15
-ADD _test TO errors
+ADD result TO errors
 
 
 TEST errors > 0
-GOTO bad IF _test
+GOTO bad IF result
 EXIT
 
 ^bad:

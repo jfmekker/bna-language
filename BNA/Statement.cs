@@ -51,6 +51,10 @@ namespace BNA
 		OP_TEST_EQ,
 		OP_TEST_NE,
 
+		// scope operations
+		OP_SCOPE_OPEN,
+		OP_SCOPE_CLOSE,
+
 		// misc operations
 		OP_WAIT,
 		OP_GOTO,
@@ -328,8 +332,8 @@ namespace BNA
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.AS } );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.READ , Keyword.WRITE } );
-					candidate.Type = candidate._tokens[candidate._tokens.Count - 1].Value.Equals( Keyword.READ.ToString( ) , StringComparison.CurrentCultureIgnoreCase ) ?
-						StatementType.OP_OPEN_R : StatementType.OP_OPEN_W;
+					candidate.Type = (Keyword)Enum.Parse( typeof( Keyword ) , candidate._tokens[3].Value ) == Keyword.READ
+						? StatementType.OP_READ : StatementType.OP_WRITE;
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					break;
 				}
@@ -384,6 +388,14 @@ namespace BNA
 					break;
 				}
 
+				// SCOPE OPEN|CLOSE
+				case Keyword.SCOPE: {
+					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OPEN , Keyword.CLOSE } );
+					candidate.Type = (Keyword)Enum.Parse( typeof( Keyword ) , candidate._tokens[1].Value ) == Keyword.OPEN
+						? StatementType.OP_SCOPE_OPEN : StatementType.OP_SCOPE_CLOSE;
+					break;
+				}
+
 				// EXIT
 				case Keyword.EXIT: {
 					candidate.Type = StatementType.OP_EXIT;
@@ -402,7 +414,10 @@ namespace BNA
 
 			}
 
-			// TODO check that queue is empty and not a comment?
+			if ( tokens.Count > 0 && tokens.Peek( ).IdentifyType( ) != TokenType.COMMENT ) {
+				throw new CompiletimeException( "Line did not end with statement" );
+			}
+
 			return candidate;
 		}
 

@@ -72,6 +72,11 @@ namespace BNA
 					this.ExecuteTestStatement( );
 					break;
 
+				case StatementType.OP_SCOPE_OPEN:
+				case StatementType.OP_SCOPE_CLOSE:
+					this.ExecuteScopeStatement( );
+					break;
+
 				case StatementType.OP_WAIT:
 					this.ExecuteWaitStatement( );
 					break;
@@ -245,8 +250,8 @@ namespace BNA
 					}
 				}
 				else if ( op1.Type == ValueType.STRING ) {
-					// TODO ?
-					( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , op2.Val.ToString( ) );
+					string new_str = ( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , op2.Val.ToString( ) );
+					this.SetValue( this.Current.Operand1 , new Value( ValueType.STRING , new_str ) );
 				}
 				else {
 					throw new RuntimeException( "Can not append to non-list-like type: " + op1.Type );
@@ -397,7 +402,7 @@ namespace BNA
 		}
 
 		/// <summary>
-		/// Execute the current statement as test operation statement.
+		/// Execute the current statement as a test operation statement.
 		/// </summary>
 		private void ExecuteTestStatement( )
 		{
@@ -415,7 +420,30 @@ namespace BNA
 					+ "op1=" + this.Current.Operand1.ToString( ) + " op2=" + this.Current.Operand2.ToString( ) );
 			}
 
-			this.SetValue( SpecialVariables.TEST_RESULT , result , true );
+			this.SetValue( SpecialVariables.TEST_RESULT , result );
+		}
+
+		/// <summary>
+		/// Execute the current statement as a scope operation statement.
+		/// </summary>
+		private void ExecuteScopeStatement( )
+		{
+			if ( this.Current.Type == StatementType.OP_SCOPE_OPEN ) {
+				Value argument_val = this.GetValue( SpecialVariables.ARGUMENT );
+				this.Variables = new Dictionary<Token , Value>( );
+				this.SetValue( SpecialVariables.ARGUMENT , argument_val );
+			}
+			else if ( this.Current.Type == StatementType.OP_SCOPE_CLOSE ) {
+				Value return_val = this.GetValue( SpecialVariables.RETURN );
+				if ( this.Scopes.Count < 2 ) {
+					throw new RuntimeException( "Cannot close final scope." );
+				}
+				this.Scopes.Pop( );
+				this.SetValue( SpecialVariables.RETURN , return_val );
+			}
+			else {
+				throw new Exception( "Program called wrong execute fuction." );
+			}
 		}
 
 		/// <summary>
@@ -444,23 +472,15 @@ namespace BNA
 		private void ExecuteGotoStatement( )
 		{
 			// Find line
-			Token label = this.Current.Operand1;
-			int line = -1;
-			for ( int i = 0 ; i < this.Statements.Length ; i += 1 ) {
-				if ( this.Statements[i].Type == StatementType.LABEL ) {
-					if ( this.Current.Operand1.Equals( label ) ) {
-						line = i;
-						break;
-					}
-				}
-			}
-			if ( line < 0 ) {
-				throw new RuntimeException( "Found no label with token " + label.ToString( ) );
+			Value line = this.GetValue( this.Current.Operand1 );
+			if ( line == Value.NULL || line.Type != ValueType.INTEGER ) {
+				throw new RuntimeException( "Found no valid line value '" + this.Current.Operand1.ToString( ) + "'" );
 			}
 
 			// Test condition
 			if ( this.GetValue( this.Current.Operand2 ) != Value.FALSE ) {
-				this.IP = line;
+				// Go to line before label (because IP will be incremented)
+				this.IP = (int)(long)line.Val - 1;
 			}
 		}
 	}

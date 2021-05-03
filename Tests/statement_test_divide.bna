@@ -5,37 +5,37 @@ SET errors TO 0
 SET a TO 5
 DIVIDE a BY 2
 TEST a ! 2
-ADD _test TO errors
+ADD result TO errors
 
 SET a TO 50
 DIVIDE a BY -10
 TEST a ! -5
-ADD _test TO errors
+ADD result TO errors
 
 SET a TO -144
 DIVIDE a BY -12
 TEST a ! 12
-ADD _test TO errors
+ADD result TO errors
 
 # Float division
 SET a TO 5.0
 DIVIDE a BY 2
 TEST a ! 2.5
-ADD _test TO errors
+ADD result TO errors
 
 SET a TO 5
 DIVIDE a BY -2.0
 TEST a ! -2.5
-ADD _test TO errors
+ADD result TO errors
 
 SET a TO 5.23514569
 DIVIDE a BY 5.23514569
 TEST a ! 1
-ADD _test TO errors
+ADD result TO errors
 
 
 TEST errors > 0
-GOTO bad IF _test
+GOTO bad IF result
 EXIT
 
 ^bad:
