@@ -41,7 +41,7 @@ namespace BNA
 		public CompiletimeException( string message )
 			: base( message + "\nCompile error" )
 		{
-			this.Line = null;
+			this.Line = string.Empty;
 			this.LineNumber = -1;
 			this.BNAMessage = message;
 		}

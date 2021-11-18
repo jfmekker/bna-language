@@ -80,7 +80,7 @@ namespace BNA
 		/// <summary>
 		/// All Tokens that make up this Statement
 		/// </summary>
-		private List<Token> _tokens = new List<Token>( );
+		private readonly List<Token> tokens = new( );
 
 		/// <summary>
 		/// First operand of this Statement, the storage variable for operations that store a value
@@ -106,35 +106,44 @@ namespace BNA
 		/// <exception cref="CompiletimeException">Excepts for invalid statements</exception>
 		public static Statement ParseStatement( List<Token> tokenList )
 		{
-			if ( tokenList.Count == 0 ) {
+			if ( tokenList.Count == 0 )
+			{
 				var s = new Statement( );
-				s._tokens.Add( new Token( "" ) );
+				s.tokens.Add( new Token( "" ) );
 				s.Type = StatementType.NULL;
 				return s;
 			}
-			else if ( tokenList[0].Type == TokenType.COMMENT ) {
+			else if ( tokenList[0].Type == TokenType.COMMENT )
+			{
 				var s = new Statement( );
-				s._tokens.Add( tokenList[0] );
+				s.tokens.Add( tokenList[0] );
 				s.Type = StatementType.COMMENT;
 				return s;
 			}
-			else if ( tokenList[0].Type == TokenType.KEYWORD ) {
-				try {
+			else if ( tokenList[0].Type == TokenType.KEYWORD )
+			{
+				try
+				{
 					return ParseKeywordStatement( tokenList );
 				}
-				catch ( InvalidOperationException e ) {
+				catch ( InvalidOperationException )
+				{
 					throw new CompiletimeException( "Statement ended too early" );
 				}
 			}
-			else if ( tokenList[0].Type == TokenType.SYMBOL ) {
-				try {
+			else if ( tokenList[0].Type == TokenType.SYMBOL )
+			{
+				try
+				{
 					return ParseSymbolStatement( tokenList );
 				}
-				catch ( InvalidOperationException e ) {
+				catch ( InvalidOperationException )
+				{
 					throw new CompiletimeException( "Statement ended too early" );
 				}
 			}
-			else {
+			else
+			{
 				throw new CompiletimeException( "Invalid start of statement: " + tokenList[0].ToString( ) );
 			}
 		}
@@ -169,14 +178,16 @@ namespace BNA
 			var tokens = new Queue<Token>( tokenList );
 			Token startToken = tokens.Dequeue( );
 			var candidate = new Statement( );
-			candidate._tokens.Add( startToken );
+			candidate.tokens.Add( startToken );
 
 			// Based on starting token, try to parse the appropriate statement
 			var start = (Keyword)Enum.Parse( typeof( Keyword ) , startToken.Value , true );
-			switch ( start ) {
+			switch ( start )
+			{
 
 				// SET var TO var|lit|string|list
-				case Keyword.SET: {
+				case Keyword.SET:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
@@ -185,7 +196,8 @@ namespace BNA
 				}
 
 				// ADD var|lit TO var
-				case Keyword.ADD: {
+				case Keyword.ADD:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
@@ -194,7 +206,8 @@ namespace BNA
 				}
 
 				// SUBTRACT var|lit FROM var
-				case Keyword.SUBTRACT: {
+				case Keyword.SUBTRACT:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.FROM } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
@@ -204,7 +217,8 @@ namespace BNA
 
 				// MULTIPLY|DIVIDE var BY var|lit
 				case Keyword.MULTIPLY:
-				case Keyword.DIVIDE: {
+				case Keyword.DIVIDE:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.BY } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
@@ -215,7 +229,8 @@ namespace BNA
 				// AND|OR|XOR var WITH var|lit
 				case Keyword.AND:
 				case Keyword.OR:
-				case Keyword.XOR: {
+				case Keyword.XOR:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.WITH } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
@@ -225,7 +240,8 @@ namespace BNA
 
 				// MOD|LOG var|lit OF var
 				case Keyword.MOD:
-				case Keyword.LOG: {
+				case Keyword.LOG:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OF } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
@@ -234,7 +250,8 @@ namespace BNA
 				}
 
 				// RAISE var TO var|lit
-				case Keyword.RAISE: {
+				case Keyword.RAISE:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
@@ -244,14 +261,16 @@ namespace BNA
 
 				// NEGATE|ROUND var
 				case Keyword.NEGATE:
-				case Keyword.ROUND: {
+				case Keyword.ROUND:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = ( start == Keyword.NEGATE ) ? StatementType.OP_NEG : StatementType.OP_ROUND;
 					break;
 				}
 
 				// RANDOM var MAX var|lit
-				case Keyword.RANDOM: {
+				case Keyword.RANDOM:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.MAX } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
@@ -260,7 +279,8 @@ namespace BNA
 				}
 
 				// WAIT var|lit
-				case Keyword.WAIT: {
+				case Keyword.WAIT:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 					candidate.Type = StatementType.OP_WAIT;
 					break;
@@ -268,7 +288,8 @@ namespace BNA
 
 				// TEST var GT|LT var|lit
 				// TEST var EQ var|lit|string
-				case Keyword.TEST: {
+				case Keyword.TEST:
+				{
 					// Have to do TEST a little manually because I don't want to allow string value comparison (only equals)
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					Token next = tokens.Dequeue( );
@@ -276,15 +297,18 @@ namespace BNA
 					candidate.AddTokenOfSymbols( next , new List<Symbol> { Symbol.GREATER_THAN , Symbol.LESS_THAN , Symbol.EQUAL , Symbol.NOT } );
 					var symbol = (Symbol)next.Value[0];
 
-					if ( symbol == Symbol.GREATER_THAN || symbol == Symbol.LESS_THAN ) {
+					if ( symbol is Symbol.GREATER_THAN or Symbol.LESS_THAN )
+					{
 						candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
 						candidate.Type = symbol == Symbol.GREATER_THAN ? StatementType.OP_TEST_GT : StatementType.OP_TEST_LT;
 					}
-					else if ( symbol == Symbol.EQUAL || symbol == Symbol.NOT ) {
+					else if ( symbol is Symbol.EQUAL or Symbol.NOT )
+					{
 						candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING } , operand: 2 );
 						candidate.Type = symbol == Symbol.EQUAL ? StatementType.OP_TEST_EQ : StatementType.OP_TEST_NE;
 					}
-					else {
+					else
+					{
 						throw new CompiletimeException( "Unexpected symbol: " + next.ToString( ) );
 					}
 
@@ -292,7 +316,8 @@ namespace BNA
 				}
 
 				// GOTO var IF var|lit
-				case Keyword.GOTO: {
+				case Keyword.GOTO:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.IF } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
@@ -301,7 +326,8 @@ namespace BNA
 				}
 
 				// LIST var SIZE var|lit
-				case Keyword.LIST: {
+				case Keyword.LIST:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.SIZE } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL } , operand: 2 );
@@ -310,7 +336,8 @@ namespace BNA
 				}
 
 				// APPEND var|lit|string|list TO var
-				case Keyword.APPEND: {
+				case Keyword.APPEND:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
@@ -319,7 +346,8 @@ namespace BNA
 				}
 
 				// SIZE var OF var|string|list
-				case Keyword.SIZE: {
+				case Keyword.SIZE:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OF } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING , TokenType.LIST } , operand: 2 );
@@ -328,25 +356,28 @@ namespace BNA
 				}
 
 				// OPEN var|string AS READ|WRITE var
-				case Keyword.OPEN: {
+				case Keyword.OPEN:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.AS } );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.READ , Keyword.WRITE } );
-					candidate.Type = (Keyword)Enum.Parse( typeof( Keyword ) , candidate._tokens[3].Value ) == Keyword.READ
+					candidate.Type = (Keyword)Enum.Parse( typeof( Keyword ) , candidate.tokens[3].Value ) == Keyword.READ
 						? StatementType.OP_READ : StatementType.OP_WRITE;
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					break;
 				}
 
 				// CLOSE var
-				case Keyword.CLOSE: {
+				case Keyword.CLOSE:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.Type = StatementType.OP_CLOSE;
 					break;
 				}
 
 				// WRITE var|lit|string|list TO var
-				case Keyword.WRITE: {
+				case Keyword.WRITE:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.TO } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
@@ -355,7 +386,8 @@ namespace BNA
 				}
 
 				// READ var FROM var
-				case Keyword.READ: {
+				case Keyword.READ:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.FROM } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 2 );
@@ -364,7 +396,8 @@ namespace BNA
 				}
 
 				// INPUT var WITH var|string
-				case Keyword.INPUT: {
+				case Keyword.INPUT:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.WITH } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
@@ -373,14 +406,16 @@ namespace BNA
 				}
 
 				// PRINT var|lit|string|list
-				case Keyword.PRINT: {
+				case Keyword.PRINT:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
 					candidate.Type = StatementType.OP_PRINT;
 					break;
 				}
 
 				// TYPE var OF var|lit|string|list
-				case Keyword.TYPE: {
+				case Keyword.TYPE:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE } , operand: 1 );
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OF } );
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST } , operand: 2 );
@@ -389,21 +424,24 @@ namespace BNA
 				}
 
 				// SCOPE OPEN|CLOSE
-				case Keyword.SCOPE: {
+				case Keyword.SCOPE:
+				{
 					candidate.AddTokenOfKeywords( tokens.Dequeue( ) , new List<Keyword> { Keyword.OPEN , Keyword.CLOSE } );
-					candidate.Type = (Keyword)Enum.Parse( typeof( Keyword ) , candidate._tokens[1].Value ) == Keyword.OPEN
+					candidate.Type = (Keyword)Enum.Parse( typeof( Keyword ) , candidate.tokens[1].Value ) == Keyword.OPEN
 						? StatementType.OP_SCOPE_OPEN : StatementType.OP_SCOPE_CLOSE;
 					break;
 				}
 
 				// EXIT
-				case Keyword.EXIT: {
+				case Keyword.EXIT:
+				{
 					candidate.Type = StatementType.OP_EXIT;
 					break;
 				}
 
 				// ERROR var|string
-				case Keyword.ERROR: {
+				case Keyword.ERROR:
+				{
 					candidate.AddTokenOfTypes( tokens.Dequeue( ) , new List<TokenType> { TokenType.VARIABLE , TokenType.STRING } , operand: 2 );
 					candidate.Type = StatementType.OP_ERROR;
 					break;
@@ -414,11 +452,7 @@ namespace BNA
 
 			}
 
-			if ( tokens.Count > 0 && tokens.Peek( ).IdentifyType( ) != TokenType.COMMENT ) {
-				throw new CompiletimeException( "Line did not end with statement" );
-			}
-
-			return candidate;
+			return tokens.Count <= 0 || tokens.Peek( ).IdentifyType( ) is TokenType.COMMENT ? candidate : throw new CompiletimeException( "Line did not end with statement" );
 		}
 
 		/// <summary>
@@ -430,11 +464,13 @@ namespace BNA
 		public void AddTokenOfTypes( Token token , List<TokenType> tokenTypes , int operand = 0 )
 		{
 			Token.ThrowIfNotTypes( token , tokenTypes );
-			this._tokens.Add( token );
-			if ( operand == 1 ) {
+			this.tokens.Add( token );
+			if ( operand == 1 )
+			{
 				this.Operand1 = token;
 			}
-			else if ( operand == 2 ) {
+			else if ( operand == 2 )
+			{
 				this.Operand2 = token;
 			}
 		}
@@ -447,7 +483,7 @@ namespace BNA
 		public void AddTokenOfKeywords( Token token , List<Keyword> keywords )
 		{
 			token.ThrowIfNotKeywords( keywords );
-			this._tokens.Add( token );
+			this.tokens.Add( token );
 		}
 
 		/// <summary>
@@ -458,7 +494,7 @@ namespace BNA
 		public void AddTokenOfSymbols( Token token , List<Symbol> symbols )
 		{
 			token.ThrowIfNotSymbols( symbols );
-			this._tokens.Add( token );
+			this.tokens.Add( token );
 		}
 
 		/// <summary>
@@ -469,7 +505,7 @@ namespace BNA
 		{
 			string str = "[" + this.Type + "] \t";
 
-			str += $"op1={this.Operand1.ToString( ),-24} op2={this.Operand2.ToString( ),-24}";
+			str += $"op1={this.Operand1,-24} op2={this.Operand2,-24}";
 
 			return str;
 		}
@@ -481,8 +517,9 @@ namespace BNA
 		public string RawString( )
 		{
 			string str = "";
-			for ( int i = 0 ; i < this._tokens.Count ; i += 1 ) {
-				str += this._tokens[i].Value + " ";
+			for ( int i = 0 ; i < this.tokens.Count ; i += 1 )
+			{
+				str += this.tokens[i].Value + " ";
 			}
 			return str;
 		}

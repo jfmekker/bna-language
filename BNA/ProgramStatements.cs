@@ -14,7 +14,8 @@ namespace BNA
 		/// </summary>
 		private void ExecuteCurrentStatement( )
 		{
-			switch ( this.Current.Type ) {
+			switch ( this.Current.Type )
+			{
 				case StatementType.OP_SET:
 					this.ExecuteSetStatement( );
 					break;
@@ -111,11 +112,13 @@ namespace BNA
 		{
 			Value op2 = this.GetValue( this.Current.Operand2 );
 
-			if ( op2.Type == ValueType.LIST ) {
+			if ( op2.Type == ValueType.LIST )
+			{
 				var l = Value.DeepCopy( op2 );
 				this.SetValue( this.Current.Operand1 , l , true );
 			}
-			else {
+			else
+			{
 				this.SetValue( this.Current.Operand1 , op2 , true );
 			}
 		}
@@ -128,15 +131,18 @@ namespace BNA
 			Value op1 = this.GetValue( this.Current.Operand1 );
 			Value op2 = this.GetValue( this.Current.Operand2 );
 
-			if ( op1 == Value.NULL ) {
+			if ( op1 == Value.NULL )
+			{
 				throw new RuntimeException( "Cannot use variable that has not been set: " + this.Current.Operand1.ToString( ) );
 			}
 
-			if ( op1.Type != ValueType.INTEGER && op1.Type != ValueType.FLOAT ) {
+			if ( op1.Type is not ValueType.INTEGER and not ValueType.FLOAT )
+			{
 				throw new RuntimeException( "Operand 1 of incorrect type (" + op1.Type.ToString( ) + ") for numeric operation" );
 			}
 
-			if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT ) {
+			if ( op2.Type is not ValueType.INTEGER and not ValueType.FLOAT )
+			{
 				throw new RuntimeException( "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
 			}
 
@@ -152,11 +158,13 @@ namespace BNA
 			Value op1 = this.GetValue( this.Current.Operand1 );
 			Value op2 = this.GetValue( this.Current.Operand2 );
 
-			if ( op1.Type != ValueType.INTEGER ) {
+			if ( op1.Type != ValueType.INTEGER )
+			{
 				throw new RuntimeException( "Operand 1 of incorrect type (" + op1.Type.ToString( ) + ") for bitwise operation" );
 			}
 
-			if ( op2.Type != ValueType.INTEGER ) {
+			if ( op2.Type != ValueType.INTEGER )
+			{
 				throw new RuntimeException( "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for bitwise operation" );
 			}
 
@@ -173,41 +181,52 @@ namespace BNA
 			Value op2 = this.GetValue( this.Current.Operand2 );
 
 			// RANDOM
-			if ( this.Current.Type == StatementType.OP_RAND ) {
-				if ( op2.Type == ValueType.INTEGER ) {
+			if ( this.Current.Type == StatementType.OP_RAND )
+			{
+				if ( op2.Type == ValueType.INTEGER )
+				{
 					var newValue = new Value( ValueType.INTEGER , BNA.RNG.Next( (int)(long)op2.Val ) );
 					this.SetValue( this.Current.Operand1 , newValue , true );
 				}
-				else if ( op2.Type == ValueType.FLOAT ) {
+				else if ( op2.Type == ValueType.FLOAT )
+				{
 					var newValue = new Value( ValueType.INTEGER , BNA.RNG.NextDouble( ) * (double)op2.Val );
 					this.SetValue( this.Current.Operand1 , newValue , true );
 				}
-				else {
+				else
+				{
 					throw new RuntimeException( "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
 				}
 			}
 			// NEGATE
-			else if ( this.Current.Type == StatementType.OP_NEG ) {
-				if ( op1.Type == ValueType.INTEGER ) {
+			else if ( this.Current.Type == StatementType.OP_NEG )
+			{
+				if ( op1.Type == ValueType.INTEGER )
+				{
 					var newValue = new Value( ValueType.INTEGER , ( (ulong)(long)op1.Val ) ^ ulong.MaxValue );
 					this.SetValue( this.Current.Operand1 , newValue );
 				}
-				else {
+				else
+				{
 					throw new RuntimeException( "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
 				}
 			}
 			// ROUND
-			else if ( this.Current.Type == StatementType.OP_ROUND ) {
-				if ( op1.Type == ValueType.FLOAT ) {
+			else if ( this.Current.Type == StatementType.OP_ROUND )
+			{
+				if ( op1.Type == ValueType.FLOAT )
+				{
 					var newValue = new Value( ValueType.INTEGER , (long)Math.Round( (double)op1.Val ) );
 					this.SetValue( this.Current.Operand1 , newValue );
 				}
-				else if ( op1.Type != ValueType.INTEGER ) {
+				else if ( op1.Type != ValueType.INTEGER )
+				{
 					throw new RuntimeException( "Operand 2 of incorrect type (" + op2.Type.ToString( ) + ") for numeric operation" );
 				}
 			}
 			// error
-			else {
+			else
+			{
 				throw new Exception( "Program called wrong execute function." );
 			}
 		}
@@ -221,54 +240,70 @@ namespace BNA
 			Value op2 = this.GetValue( this.Current.Operand2 );
 
 			// LIST
-			if ( this.Current.Type == StatementType.OP_LIST ) {
-				// Check operands
-				if ( op2.Type != ValueType.INTEGER || (long)op2.Val < 0 ) {
-					throw new RuntimeException( "List size must be positive or zero integer" );
+			switch ( this.Current.Type )
+			{
+				case StatementType.OP_LIST:
+				{
+					// Check operands
+					if ( op2.Type != ValueType.INTEGER || (long)op2.Val < 0 )
+						throw new RuntimeException( "List size must be positive or zero integer" );
+
+					// Fill list
+					var list = new List<Value>( );
+					for ( int i = 0 ; i < (long)op2.Val ; i += 1 )
+					{
+						list.Add( new Value( ) );
+					}
+
+					this.SetValue( this.Current.Operand1 , new Value( ValueType.LIST , list ) , true );
+					break;
 				}
 
-				// Fill list
-				var list = new List<Value>( );
-				for ( int i = 0 ; i < (long)op2.Val ; i += 1 ) {
-					list.Add( new Value( ) );
+				case StatementType.OP_APPEND:
+				{
+					if ( op1.Type == ValueType.LIST )
+					{
+						if ( op2.Type == ValueType.LIST )
+						{
+							var l = Value.DeepCopy( op2 );
+							( (List<Value>)op1.Val ).Add( l );
+						}
+						else
+						{
+							( (List<Value>)op1.Val ).Add( op2 );
+						}
+					}
+					else if ( op1.Type == ValueType.STRING )
+					{
+						string new_str = ( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , op2.Val.ToString( ) ?? string.Empty );
+						this.SetValue( this.Current.Operand1 , new Value( ValueType.STRING , new_str ) );
+					}
+					else
+					{
+						throw new RuntimeException( "Can not append to non-list-like type: " + op1.Type );
+					}
+
+					break;
 				}
 
-				this.SetValue( this.Current.Operand1 , new Value( ValueType.LIST , list ) , true );
-			}
-			// APPEND
-			else if ( this.Current.Type == StatementType.OP_APPEND ) {
-				if ( op1.Type == ValueType.LIST ) {
-					if ( op2.Type == ValueType.LIST ) {
-						var l = Value.DeepCopy( op2 );
-						( (List<Value>)op1.Val ).Add( l );
+				case StatementType.OP_SIZE:
+				{
+					switch ( op2.Type )
+					{
+						case ValueType.LIST:
+							this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , (long)( (List<Value>)op2.Val ).Count ) , true );
+							break;
+						case ValueType.STRING:
+							this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , (long)( (string)op2.Val ).Length ) , true );
+							break;
+						default:
+							throw new RuntimeException( "Can not size a non-list-like value: '" + op2.ToString( ) + "'" );
 					}
-					else {
-						( (List<Value>)op1.Val ).Add( op2 );
-					}
+					break;
 				}
-				else if ( op1.Type == ValueType.STRING ) {
-					string new_str = ( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , op2.Val.ToString( ) );
-					this.SetValue( this.Current.Operand1 , new Value( ValueType.STRING , new_str ) );
-				}
-				else {
-					throw new RuntimeException( "Can not append to non-list-like type: " + op1.Type );
-				}
-			}
-			// SIZE
-			else if ( this.Current.Type == StatementType.OP_SIZE ) {
-				if ( op2.Type == ValueType.LIST ) {
-					this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , (long)( (List<Value>)op2.Val ).Count ) , true );
-				}
-				else if ( op2.Type == ValueType.STRING ) {
-					this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , (long)( (string)op2.Val ).Length ) , true );
-				}
-				else {
-					throw new RuntimeException( "Can not size a non-list-like value: '" + op2.ToString( ) + "'" );
-				}
-			}
-			// error
-			else {
-				throw new Exception( "Program called wrong execute function." );
+
+				default:
+					throw new Exception( "Program called wrong execute function." );
 			}
 		}
 
@@ -278,20 +313,19 @@ namespace BNA
 		private void ExecuteInputStatement( )
 		{
 			Console.Write( this.GetValue( this.Current.Operand2 ).ToString( ) );
-			Value input_value = Value.NULL;
-			var token = new Token( Console.ReadLine( ) );
-			switch ( token.Type ) {
+			var token = new Token( Console.ReadLine( ) ?? string.Empty );
+			switch ( token.Type )
+			{
 				case TokenType.LITERAL:
 				case TokenType.STRING:
 				case TokenType.LIST:
 				case TokenType.NULL:
-					input_value = this.GetValue( token );
+					this.SetValue( this.Current.Operand1 , this.GetValue( token ) , true );
 					break;
 
 				default:
 					throw new RuntimeException( "Invalid input: " + token.ToString( ) );
 			}
-			this.SetValue( this.Current.Operand1 , input_value , true );
 		}
 
 		/// <summary>
@@ -302,9 +336,12 @@ namespace BNA
 			Value op1 = this.GetValue( this.Current.Operand1 );
 			Value op2 = this.GetValue( this.Current.Operand2 );
 
-			switch ( this.Current.Type ) {
-				case StatementType.OP_OPEN_R: {
-					if ( op2.Type != ValueType.STRING ) {
+			switch ( this.Current.Type )
+			{
+				case StatementType.OP_OPEN_R:
+				{
+					if ( op2.Type != ValueType.STRING )
+					{
 						throw new RuntimeException( "Filename must be string '" + op2.ToString( ) + "'" );
 					}
 					string filename = (string)op2.Val;
@@ -315,13 +352,16 @@ namespace BNA
 					break;
 				}
 
-				case StatementType.OP_OPEN_W: {
-					if ( op2.Type != ValueType.STRING ) {
+				case StatementType.OP_OPEN_W:
+				{
+					if ( op2.Type != ValueType.STRING )
+					{
 						throw new RuntimeException( "Filename must be string '" + op2.ToString( ) + "'" );
 					}
 					string filename = (string)op2.Val;
 
-					var stream_w = new StreamWriter( filename , true ) {
+					var stream_w = new StreamWriter( filename , true )
+					{
 						AutoFlush = true
 					};
 
@@ -329,8 +369,10 @@ namespace BNA
 					break;
 				}
 
-				case StatementType.OP_WRITE: {
-					if ( op1.Type != ValueType.WRITE_FILE ) {
+				case StatementType.OP_WRITE:
+				{
+					if ( op1.Type != ValueType.WRITE_FILE )
+					{
 						throw new RuntimeException( "Operand to WRITE must be an opened write-file: '" + op1.ToString( ) + "'" );
 					}
 
@@ -339,42 +381,52 @@ namespace BNA
 					break;
 				}
 
-				case StatementType.OP_READ: {
-					if ( op2.Type != ValueType.READ_FILE ) {
+				case StatementType.OP_READ:
+				{
+					if ( op2.Type != ValueType.READ_FILE )
+					{
 						throw new RuntimeException( "Operand to READ must be an opened read-file: '" + op2.ToString( ) + "'" );
 					}
 
-					string str = ( (StreamReader)op2.Val ).ReadLine( );
+					string? str = ( (StreamReader)op2.Val ).ReadLine( );
 
-					Value val = Value.NULL;
-					if ( long.TryParse( str , out long lval ) ) {
+					Value val;
+					if ( str is null )
+					{
+						( (StreamReader)op2.Val ).Close( );
+						this.SetValue( this.Current.Operand2 , Value.NULL );
+						val = new Value( ValueType.STRING , string.Empty );
+					}
+					else if ( long.TryParse( str , out long lval ) )
+					{
 						val = new Value( ValueType.INTEGER , lval );
 					}
-					else if ( double.TryParse( str , out double dval ) ) {
+					else if ( double.TryParse( str , out double dval ) )
+					{
 						val = new Value( ValueType.FLOAT , dval );
 					}
-					else {
+					else
+					{
 						val = new Value( ValueType.STRING , str );
 					}
 
 					this.SetValue( this.Current.Operand1 , val , true );
 
-					// Close file if reached the end of stream
-					if ( ( (StreamReader)op2.Val ).EndOfStream ) {
-						( (StreamReader)op2.Val ).Close( );
-						this.SetValue( this.Current.Operand2 , Value.NULL );
-					}
 					break;
 				}
 
-				case StatementType.OP_CLOSE: {
-					if ( op1.Type == ValueType.READ_FILE ) {
+				case StatementType.OP_CLOSE:
+				{
+					if ( op1.Type == ValueType.READ_FILE )
+					{
 						( (StreamReader)op1.Val ).Close( );
 					}
-					else if ( op1.Type == ValueType.WRITE_FILE ) {
+					else if ( op1.Type == ValueType.WRITE_FILE )
+					{
 						( (StreamWriter)op1.Val ).Close( );
 					}
-					else {
+					else
+					{
 						throw new RuntimeException( "Can not close non-file: '" + op1.ToString( ) + "'" );
 					}
 
@@ -396,12 +448,14 @@ namespace BNA
 			Value op2 = this.GetValue( this.Current.Operand2 );
 
 			if ( op1.Type == ValueType.INVALID || op1.Type == ValueType.NULL
-						|| op2.Type == ValueType.INVALID || op2.Type == ValueType.NULL ) {
+						|| op2.Type == ValueType.INVALID || op2.Type == ValueType.NULL )
+			{
 				throw new RuntimeException( "Both operands must have valid values to compare" );
 			}
 
 			var result = Value.DoComparisonOperation( op1 , op2 , this.Current.Type );
-			if ( result.Equals( Value.NAN ) ) {
+			if ( result.Equals( Value.NAN ) )
+			{
 				throw new RuntimeException( "Could not compare operands: "
 					+ "op1=" + this.Current.Operand1.ToString( ) + " op2=" + this.Current.Operand2.ToString( ) );
 			}
@@ -414,20 +468,24 @@ namespace BNA
 		/// </summary>
 		private void ExecuteScopeStatement( )
 		{
-			if ( this.Current.Type == StatementType.OP_SCOPE_OPEN ) {
+			if ( this.Current.Type == StatementType.OP_SCOPE_OPEN )
+			{
 				Value argument_val = this.GetValue( SpecialVariables.ARGUMENT );
 				this.Variables = new Dictionary<Token , Value>( );
 				this.SetValue( SpecialVariables.ARGUMENT , argument_val );
 			}
-			else if ( this.Current.Type == StatementType.OP_SCOPE_CLOSE ) {
+			else if ( this.Current.Type == StatementType.OP_SCOPE_CLOSE )
+			{
 				Value return_val = this.GetValue( SpecialVariables.RETURN );
-				if ( this.Scopes.Count < 2 ) {
+				if ( this.Scopes.Count < 2 )
+				{
 					throw new RuntimeException( "Cannot close final scope." );
 				}
-				this.Scopes.Pop( );
+				_ = this.Scopes.Pop( );
 				this.SetValue( SpecialVariables.RETURN , return_val );
 			}
-			else {
+			else
+			{
 				throw new Exception( "Program called wrong execute fuction." );
 			}
 		}
@@ -439,15 +497,18 @@ namespace BNA
 		{
 			Value op2 = this.GetValue( this.Current.Operand2 );
 
-			if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT ) {
+			if ( op2.Type is not ValueType.INTEGER and not ValueType.FLOAT )
+			{
 				throw new RuntimeException( "Argument to WAIT must be numeric: " + op2.ToString( ) );
 			}
 
-			int ms = (int)( 1000 * ( op2.Type == ValueType.INTEGER ? (long)op2.Val : (double)op2.Val ) );
-			try {
+			int ms = (int)( 1000 * ( op2.Type is ValueType.INTEGER ? (long)op2.Val : (double)op2.Val ) );
+			try
+			{
 				System.Threading.Thread.Sleep( ms );
 			}
-			catch ( Exception e ) {
+			catch ( Exception e )
+			{
 				throw new RuntimeException( "Exception caught while waiting:\n" + e.Message );
 			}
 		}
@@ -459,12 +520,14 @@ namespace BNA
 		{
 			// Find line
 			Value line = this.GetValue( this.Current.Operand1 );
-			if ( line == Value.NULL || line.Type != ValueType.INTEGER ) {
+			if ( line == Value.NULL || line.Type != ValueType.INTEGER )
+			{
 				throw new RuntimeException( "Found no valid line value '" + this.Current.Operand1.ToString( ) + "'" );
 			}
 
 			// Test condition
-			if ( this.GetValue( this.Current.Operand2 ) != Value.FALSE ) {
+			if ( this.GetValue( this.Current.Operand2 ) != Value.FALSE )
+			{
 				// Go to line before label (because IP will be incremented)
 				this.IP = (int)(long)line.Val - 1;
 			}

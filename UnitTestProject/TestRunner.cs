@@ -24,7 +24,8 @@ namespace UnitTestProject
 				Assert.Inconclusive( );
 			}
 
-			if ( r == ReturnCode.FILE_ERROR ) {
+			if ( r == ReturnCode.FILE_ERROR )
+			{
 				Assert.Inconclusive( );
 			}
 

@@ -22,7 +22,7 @@ namespace BNA
 		/// <summary>
 		/// Static random number generator.
 		/// </summary>
-		public static readonly Random RNG = new Random( DateTime.Now.Millisecond );
+		public static readonly Random RNG = new( DateTime.Now.Millisecond );
 
 		/// <summary>
 		/// Compile a function to Python, or take input from the terminal
@@ -35,12 +35,14 @@ namespace BNA
 			Console.WriteLine( "================================================================================" );
 
 			// If no arguments, take input from command line
-			if ( args.Length == 0 ) {
+			if ( args.Length == 0 )
+			{
 				ReturnCode r = RunFromInput( );
 				return (int)r;
 			}
 			// else, take in files
-			else {
+			else
+			{
 				ReturnCode r = RunFromFiles( args );
 #if DEBUG
 				// Wait to close so user can read output
@@ -54,16 +56,18 @@ namespace BNA
 		public static ReturnCode RunFromFiles( string[] files )
 		{
 			ReturnCode return_val = 0;
-			foreach ( string file in files ) {
+			foreach ( string file in files )
+			{
 				// Output the BNA filename
 				Console.WriteLine( file + ":" );
 
 				// Check the file extension
 				int lastDirIndex = file.LastIndexOfAny( new char[] { '/' , '\\' } );
-				string[] split_filename = file.Substring( lastDirIndex + 1 ).Split( new char[] { '.' } );
+				string[] split_filename = file[( lastDirIndex + 1 )..].Split( new char[] { '.' } );
 				string filename = split_filename[0];
 				string extension = split_filename[1];
-				if ( !extension.Equals( "bna" ) ) {
+				if ( !extension.Equals( "bna" ) )
+				{
 					ConsolePrintError( "Wrong extension, expected '.bna' file: " + file );
 					return ReturnCode.FILE_ERROR;
 				}
@@ -71,23 +75,25 @@ namespace BNA
 				// Output file contents
 				Console.WriteLine( "Reading file..." );
 				var lines = new List<string>( );
-				try {
-					using ( StreamReader sr = File.OpenText( ".\\" + file ) ) {
-						string line;
-						while ( ( line = sr.ReadLine( ) ) != null ) {
-							Console.WriteLine( line );
-							lines.Add( line );
-						}
+				try
+				{
+					using StreamReader sr = File.OpenText( ".\\" + file );
+					while ( sr.ReadLine( ) is string line )
+					{
+						Console.WriteLine( line );
+						lines.Add( line );
 					}
 				}
-				catch ( FileNotFoundException e ) {
+				catch ( FileNotFoundException e )
+				{
 					ConsolePrintError( "Failed to find file: " + file );
 					ConsolePrintError( e.Message );
 					return ReturnCode.FILE_ERROR;
 				}
 
 				// Compile to program and run
-				if ( lines.Count > 0 ) {
+				if ( lines.Count > 0 )
+				{
 					return_val |= CompileAndRun( lines );
 				}
 
@@ -100,30 +106,36 @@ namespace BNA
 		{
 			ReturnCode return_val = ReturnCode.SUCCESS;
 
-			while ( true ) {
+			while ( true )
+			{
 				// Usage
 				Console.WriteLine( "\nInsert BNA code to do stuff or type '$filename.bna' to run a file (use '~' to end):" );
 
 				// Read and queue lines
 				var lines = new List<string>( );
 				bool run = true;
-				while ( true ) {
+				while ( true )
+				{
 					// get a line
-					string input = Console.ReadLine( );
+					string input = Console.ReadLine( ) ?? string.Empty;
 
 					// end on tilda '~'
-					if ( input.Equals( "~" ) ) {
+					if ( input is "~" )
+					{
 						break;
 					}
 
 					// filename
-					if ( input.Length > 0 && input[0] == '$' ) {
-						if ( lines.Count > 0 ) {
+					if ( input.Length > 0 && input[0] == '$' )
+					{
+						if ( lines.Count > 0 )
+						{
 							Console.WriteLine( "Input only BNA code or only a filename." );
 						}
-						else {
-							string filename = input.Substring( 1 );
-							RunFromFiles( new string[] { filename } );
+						else
+						{
+							string filename = input[1..];
+							_ = RunFromFiles( new string[] { filename } );
 						}
 						run = false;
 						break;
@@ -133,14 +145,16 @@ namespace BNA
 				}
 
 				// Check if we run the user input
-				if ( run ) {
+				if ( run )
+				{
 					return_val = CompileAndRun( lines );
 				}
 
 				Console.WriteLine( "Press enter to continue (use '~' to exit)." );
 
 				// Wait to continue, check for exit
-				if ( Console.ReadLine( ).Equals( "~" ) ) {
+				if ( Console.ReadLine( ) is "~" )
+				{
 					break;
 				}
 			}
@@ -151,7 +165,8 @@ namespace BNA
 		public static ReturnCode CompileAndRun( List<string> lines )
 		{
 			// Compile to program and run
-			try {
+			try
+			{
 				Console.WriteLine( "Compiling Program..." );
 				var comp = new Compiler( lines );
 				Program prog = comp.Compile( );
@@ -160,17 +175,20 @@ namespace BNA
 				Console.WriteLine( );
 				return ReturnCode.SUCCESS;
 			}
-			catch ( CompiletimeException e ) {
+			catch ( CompiletimeException e )
+			{
 				ConsolePrintError( "Compiletime Exception caught:" );
 				ConsolePrintError( e.Message );
 				return ReturnCode.COMPILE_ERROR;
 			}
-			catch ( RuntimeException e ) {
+			catch ( RuntimeException e )
+			{
 				ConsolePrintError( "Runtime Exception caught:" );
 				ConsolePrintError( e.Message );
 				return e.BNAError ? ReturnCode.BNA_ERROR : ReturnCode.RUNTIME_ERROR;
 			}
-			catch ( NotImplementedException e ) {
+			catch ( NotImplementedException e )
+			{
 				ConsolePrintError( "Not Implemented Exception caught:" );
 				ConsolePrintError( e.Message );
 				return ReturnCode.NOT_IMPLEMENTED_ERROR;

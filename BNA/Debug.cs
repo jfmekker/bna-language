@@ -10,7 +10,7 @@ namespace BNA
 		/// <summary>
 		/// Color used by debug prints to visually distinguish them.
 		/// </summary>
-		public static ConsoleColor DEBUG_CONSOLE_COLOR = ConsoleColor.DarkGray;
+		public const ConsoleColor DEBUG_CONSOLE_COLOR = ConsoleColor.DarkGray;
 
 		/// <summary>
 		/// Add a string to the debug output.

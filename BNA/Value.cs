@@ -24,10 +24,10 @@ namespace BNA
 	/// </summary>
 	public struct Value
 	{
-		public static readonly Value NULL = new Value( ValueType.NULL , 0 );
-		public static readonly Value NAN = new Value( ValueType.INVALID , 0 );
-		public static readonly Value TRUE = new Value( ValueType.INTEGER , 1L );
-		public static readonly Value FALSE = new Value( ValueType.INTEGER , 0L );
+		public static readonly Value NULL = new( ValueType.NULL , 0 );
+		public static readonly Value NAN = new( ValueType.INVALID , 0 );
+		public static readonly Value TRUE = new( ValueType.INTEGER , 1L );
+		public static readonly Value FALSE = new( ValueType.INTEGER , 0L );
 
 		/// <summary>
 		/// Perform a numeric operation on two values.
@@ -40,24 +40,30 @@ namespace BNA
 		{
 			// Check types
 			ValueType operationType = ValueType.INTEGER;
-			if ( op1.Type == ValueType.FLOAT || op2.Type == ValueType.FLOAT ) {
+			if ( op1.Type == ValueType.FLOAT || op2.Type == ValueType.FLOAT )
+			{
 				operationType = ValueType.FLOAT;
-				if ( op1.Type == ValueType.INTEGER ) {
+				if ( op1.Type == ValueType.INTEGER )
+				{
 					op1 = new Value( ValueType.FLOAT , (double)(long)op1.Val );
 				}
-				else if ( op1.Type != ValueType.FLOAT ) {
+				else if ( op1.Type != ValueType.FLOAT )
+				{
 					throw new Exception( "Value told to do numeric operation on non-numeric value: (" + op1.Type.ToString( ) + ") " + op1.ToString( ) );
 				}
-				if ( op2.Type == ValueType.INTEGER ) {
+				if ( op2.Type == ValueType.INTEGER )
+				{
 					op2 = new Value( ValueType.FLOAT , (double)(long)op2.Val );
 				}
-				else if ( op2.Type != ValueType.FLOAT ) {
+				else if ( op2.Type != ValueType.FLOAT )
+				{
 					throw new Exception( "Value told to do numeric operation on non-numeric value: (" + op2.Type.ToString( ) + ") " + op2.ToString( ) );
 				}
 			}
 
 			// Complete operation
-			switch ( operation ) {
+			switch ( operation )
+			{
 				case StatementType.OP_ADD:
 					return operationType == ValueType.INTEGER
 						? new Value( ValueType.INTEGER , (long)op1.Val + (long)op2.Val )
@@ -85,10 +91,12 @@ namespace BNA
 
 				case StatementType.OP_LOG:
 					// Only do logs with floats
-					if ( op1.Type == ValueType.INTEGER ) {
+					if ( op1.Type == ValueType.INTEGER )
+					{
 						op1 = new Value( ValueType.FLOAT , (double)(long)op1.Val );
 					}
-					if ( op2.Type == ValueType.INTEGER ) {
+					if ( op2.Type == ValueType.INTEGER )
+					{
 						op2 = new Value( ValueType.FLOAT , (double)(long)op2.Val );
 					}
 					return new Value( ValueType.FLOAT , Math.Log( (double)op1.Val , (double)op2.Val ) );
@@ -108,13 +116,15 @@ namespace BNA
 		public static Value DoBitwiseOperation( Value op1 , Value op2 , StatementType operation )
 		{
 			// Check type
-			if ( op1.Type != ValueType.INTEGER || op2.Type != ValueType.INTEGER ) {
+			if ( op1.Type != ValueType.INTEGER || op2.Type != ValueType.INTEGER )
+			{
 				throw new Exception( "Value told to do bitwise operation on non-integer type(s): "
 					+ "op1:(" + op1.Type.ToString( ) + ") op2:(" + op2.Type.ToString( ) + ")" );
 			}
 
 			// Complete operation
-			switch ( operation ) {
+			switch ( operation )
+			{
 				case StatementType.OP_MOD:
 					return new Value( ValueType.INTEGER , (long)op1.Val % (long)op2.Val );
 
@@ -141,18 +151,21 @@ namespace BNA
 		/// <returns>Result of the operation, or a null value if the types are incompatiible</returns>
 		public static Value DoComparisonOperation( Value op1 , Value op2 , StatementType operation )
 		{
-			switch ( op1.Type ) {
-
+			switch ( op1.Type )
+			{
 				case ValueType.INTEGER:
-				case ValueType.FLOAT: {
-					if ( op2.Type != ValueType.INTEGER && op2.Type != ValueType.FLOAT ) {
+				case ValueType.FLOAT:
+				{
+					if ( op2.Type is not ValueType.INTEGER and not ValueType.FLOAT )
+					{
 						return NAN;
 					}
 
 					double v1 = ( op1.Type == ValueType.INTEGER ) ? (long)op1.Val : (double)op1.Val;
 					double v2 = ( op2.Type == ValueType.INTEGER ) ? (long)op2.Val : (double)op2.Val;
 
-					switch ( operation ) {
+					switch ( operation )
+					{
 						case StatementType.OP_TEST_EQ:
 							return ( v1 == v2 ) ? TRUE : FALSE;
 						case StatementType.OP_TEST_NE:
@@ -166,22 +179,29 @@ namespace BNA
 					}
 				}
 
-				case ValueType.STRING: {
-					if ( op2.Type == ValueType.STRING ) {
-						if ( operation == StatementType.OP_TEST_EQ ) {
+				case ValueType.STRING:
+				{
+					if ( op2.Type == ValueType.STRING )
+					{
+						if ( operation == StatementType.OP_TEST_EQ )
+						{
 							return ( (string)op1.Val ).Equals( (string)op2.Val ) ? TRUE : FALSE;
 						}
-						else if ( operation == StatementType.OP_TEST_NE ) {
+						else if ( operation == StatementType.OP_TEST_NE )
+						{
 							return ( (string)op1.Val ).Equals( (string)op2.Val ) ? FALSE : TRUE;
 						}
-						else {
+						else
+						{
 							throw new RuntimeException( "Can only test string equality or inequality" );
 						}
 					}
-					else if ( op2.Type == ValueType.INTEGER ) {
+					else if ( op2.Type == ValueType.INTEGER )
+					{
 						string s = (string)op1.Val;
 						long i = (long)op2.Val;
-						switch ( operation ) {
+						switch ( operation )
+						{
 							case StatementType.OP_TEST_EQ:
 								return ( s.Length == i ) ? TRUE : FALSE;
 							case StatementType.OP_TEST_NE:
@@ -194,28 +214,36 @@ namespace BNA
 								throw new Exception( "Unexpected operation type for comparison operation (" + operation.ToString( ) + ")." );
 						}
 					}
-					else {
+					else
+					{
 						return NAN;
 					}
 				}
 
-				case ValueType.LIST: {
-					if ( op2.Type == ValueType.LIST ) {
+				case ValueType.LIST:
+				{
+					if ( op2.Type == ValueType.LIST )
+					{
 						bool test = true;
 						var list1 = (List<Value>)op1.Val;
 						var list2 = (List<Value>)op2.Val;
 
-						if ( operation != StatementType.OP_TEST_EQ ) {
+						if ( operation != StatementType.OP_TEST_EQ )
+						{
 							return NAN;
 						}
 
-						for ( int i = 0 ; i < list1.Count ; i += 1 ) {
-							if ( i >= list2.Count ) {
+						for ( int i = 0 ; i < list1.Count ; i += 1 )
+						{
+							if ( i >= list2.Count )
+							{
 								test = false;
 								break;
 							}
-							var elementTest = DoComparisonOperation( list1[i] , list2[i] , operation );
-							if ( elementTest == FALSE ) {
+
+							Value elementTest = DoComparisonOperation( list1[i] , list2[i] , operation );
+							if ( elementTest == FALSE )
+							{
 								test = false;
 								break;
 							}
@@ -223,11 +251,11 @@ namespace BNA
 
 						return test ? TRUE : FALSE;
 					}
-					else {
+					else
+					{
 						return NAN;
 					}
 				}
-
 
 				default:
 					throw new Exception( "Invalid token type for comparison operation: "
@@ -268,7 +296,8 @@ namespace BNA
 		/// <returns></returns>
 		public override string ToString( )
 		{
-			switch ( this.Type ) {
+			switch ( this.Type )
+			{
 				case ValueType.INVALID:
 					return "NaN";
 
@@ -278,24 +307,28 @@ namespace BNA
 				case ValueType.INTEGER:
 				case ValueType.FLOAT:
 				case ValueType.STRING:
-					return this.Val.ToString( );
+					return this.Val.ToString( ) ?? throw new InvalidOperationException( "Value object has no value but is not NULL." );
 
-				case ValueType.LIST: {
+				case ValueType.LIST:
+				{
 					var list = (List<Value>)this.Val;
 
 					string str = "" + (char)Symbol.LIST_START + " ";
 					int i = 0;
-					while ( i < list.Count ) {
+					while ( i < list.Count )
+					{
 
-						if ( list[i].Type == ValueType.STRING ) {
+						if ( list[i].Type == ValueType.STRING )
+						{
 							str += '"' + list[i].ToString( ) + '"';
 						}
-						else {
+						else
+						{
 							str += list[i].ToString( );
 						}
 
-
-						if ( i < list.Count - 1 ) {
+						if ( i < list.Count - 1 )
+						{
 							str += " " + (char)Symbol.LIST_SEPERATOR + " ";
 						}
 						i += 1;
@@ -305,11 +338,13 @@ namespace BNA
 					return str;
 				}
 
-				case ValueType.READ_FILE: {
+				case ValueType.READ_FILE:
+				{
 					return "Read-file: '" + "'";
 				}
 
-				case ValueType.WRITE_FILE: {
+				case ValueType.WRITE_FILE:
+				{
 
 					return "Write-file: '" + "'";
 				}
@@ -324,15 +359,11 @@ namespace BNA
 		/// </summary>
 		/// <param name="obj">Value to compare against</param>
 		/// <returns>True if the two values are equal</returns>
-		public override bool Equals( object obj )
+		public override bool Equals( object? obj )
 		{
-			if ( !( obj is Value ) ) {
-				return false;
-			}
-
-			var value = (Value)obj;
-			return this.Type == value.Type &&
-					EqualityComparer<object>.Default.Equals( this.Val , value.Val );
+			return obj is Value value
+				&& this.Type == value.Type
+				&& EqualityComparer<object>.Default.Equals( this.Val , value.Val );
 		}
 
 		/// <summary>
@@ -341,10 +372,7 @@ namespace BNA
 		/// <param name="first">First value to compare</param>
 		/// <param name="second">Second value to compare</param>
 		/// <returns>True if the two values are equal</returns>
-		public static bool operator ==( Value first, Value second )
-		{
-			return first.Equals( second );
-		}
+		public static bool operator ==( Value first , Value second ) => first.Equals( second );
 
 		/// <summary>
 		/// Defined '!=' operator for Value.
@@ -352,25 +380,31 @@ namespace BNA
 		/// <param name="first">First value to compare</param>
 		/// <param name="second">Second value to compare</param>
 		/// <returns>True if the two values are not equal</returns>
-		public static bool operator !=( Value first , Value second )
-		{
-			return !first.Equals( second );
-		}
+		public static bool operator !=( Value first , Value second ) => !first.Equals( second );
 
+		/// <summary>
+		/// Do a recursive deep copy of a list type Value.
+		/// </summary>
+		/// <param name="listValue">Value to copy.</param>
+		/// <returns>A deep copy of the list.</returns>
 		public static Value DeepCopy( Value listValue )
 		{
-			if ( listValue.Type != ValueType.LIST ) {
+			if ( listValue.Type != ValueType.LIST )
+			{
 				throw new Exception( "Can not deep copy a non-list value." );
 			}
 
 			var list = (List<Value>)listValue.Val;
 			var newList = new List<Value>( );
 
-			foreach ( Value v in list ) {
-				if ( v.Type == ValueType.LIST ) {
+			foreach ( Value v in list )
+			{
+				if ( v.Type == ValueType.LIST )
+				{
 					newList.Add( DeepCopy( v ) );
 				}
-				else {
+				else
+				{
 					newList.Add( v );
 				}
 			}
@@ -378,12 +412,13 @@ namespace BNA
 			return new Value( ValueType.LIST , newList );
 		}
 
+		/// <summary>
+		/// Get a hash code for the Value object.
+		/// </summary>
+		/// <returns>Hash code.</returns>
 		public override int GetHashCode( )
 		{
-			var hashCode = 1893053585;
-			hashCode = hashCode * -1521134295 + this.Type.GetHashCode( );
-			hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode( this.Val );
-			return hashCode;
+			return HashCode.Combine( this.Type , this.Val );
 		}
 	}
 }
