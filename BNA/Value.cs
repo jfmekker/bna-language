@@ -223,22 +223,6 @@ namespace BNA
 
 						return test ? TRUE : FALSE;
 					}
-					else if ( op2.Type == ValueType.INTEGER ) {
-						var l = (List<Value>)op1.Val;
-						long i = (long)op2.Val;
-						switch ( operation ) {
-							case StatementType.OP_TEST_EQ:
-								return ( l.Count == i ) ? TRUE : FALSE;
-							case StatementType.OP_TEST_NE:
-								return ( l.Count != i ) ? TRUE : FALSE;
-							case StatementType.OP_TEST_GT:
-								return ( l.Count > i ) ? TRUE : FALSE;
-							case StatementType.OP_TEST_LT:
-								return ( l.Count < i ) ? TRUE : FALSE;
-							default:
-								throw new Exception( "Unexpected operation type for comparison operation (" + operation.ToString( ) + ")." );
-						}
-					}
 					else {
 						return NAN;
 					}
