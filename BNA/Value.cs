@@ -183,18 +183,10 @@ namespace BNA
 				{
 					if ( op2.Type == ValueType.STRING )
 					{
-						if ( operation == StatementType.OP_TEST_EQ )
-						{
-							return ( (string)op1.Val ).Equals( (string)op2.Val ) ? TRUE : FALSE;
-						}
-						else if ( operation == StatementType.OP_TEST_NE )
-						{
-							return ( (string)op1.Val ).Equals( (string)op2.Val ) ? FALSE : TRUE;
-						}
-						else
-						{
-							throw new RuntimeException( "Can only test string equality or inequality" );
-						}
+						bool equal = ((string)op1.Val ).Equals( (string)op2.Val);
+						return operation == StatementType.OP_TEST_EQ ? (equal ? TRUE : FALSE)
+							 : operation == StatementType.OP_TEST_NE ? ( !equal ? TRUE : FALSE )
+							 : throw new RuntimeException( "Can only test string equality or inequality" );
 					}
 					else if ( op2.Type == ValueType.INTEGER )
 					{

@@ -144,18 +144,8 @@ namespace BNA
 				// Literal
 				if ( char.IsDigit( this.Value[0] ) || this.Value[0] == '-' || this.Value[0] == '.' )
 				{
-					if ( int.TryParse( this.Value , out _ ) )
-					{
-						return TokenType.LITERAL;
-					}
-					else if ( double.TryParse( this.Value , out _ ) )
-					{
-						return TokenType.LITERAL;
-					}
-					else
-					{
-						return TokenType.INVALID;
-					}
+					return int.TryParse( this.Value , out _ ) || double.TryParse( this.Value , out _ )
+						? TokenType.LITERAL : TokenType.INVALID;
 				}
 
 				// String

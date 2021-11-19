@@ -390,25 +390,16 @@ namespace BNA
 
 					string? str = ( (StreamReader)op2.Val ).ReadLine( );
 
-					Value val;
 					if ( str is null )
 					{
 						( (StreamReader)op2.Val ).Close( );
 						this.SetValue( this.Current.Operand2 , Value.NULL );
-						val = new Value( ValueType.STRING , string.Empty );
 					}
-					else if ( long.TryParse( str , out long lval ) )
-					{
-						val = new Value( ValueType.INTEGER , lval );
-					}
-					else if ( double.TryParse( str , out double dval ) )
-					{
-						val = new Value( ValueType.FLOAT , dval );
-					}
-					else
-					{
-						val = new Value( ValueType.STRING , str );
-					}
+
+					Value val = str is null ? new Value( ValueType.STRING , string.Empty )
+							  : long.TryParse( str , out long lval ) ? new Value( ValueType.INTEGER , lval )
+							  : double.TryParse( str , out double dval ) ? new Value( ValueType.FLOAT , dval )
+							  : new Value( ValueType.STRING , str );
 
 					this.SetValue( this.Current.Operand1 , val , true );
 
