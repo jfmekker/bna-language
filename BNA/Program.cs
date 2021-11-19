@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using BNA.Values;
+using ValueType = BNA.Values.ValueType;
 
 namespace BNA
 {

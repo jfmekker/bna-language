@@ -1,4 +1,6 @@
-﻿namespace BNA
+﻿using BNA.Values;
+
+namespace BNA
 {
 	/// <summary>
 	/// The coupling of a <see cref="Value"/> and an identifying <see cref="Token"/>.

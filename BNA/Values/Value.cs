@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace BNA
+namespace BNA.Values
 {
 	/// <summary>
 	/// The data type of a value.

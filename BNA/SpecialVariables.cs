@@ -1,4 +1,6 @@
-﻿namespace BNA
+﻿using BNA.Values;
+
+namespace BNA
 {
 	public class SpecialVariables
 	{
