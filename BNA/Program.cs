@@ -175,17 +175,17 @@ namespace BNA
 						{
 							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Index is not an integer: " + token );
 						}
-						int i = (int)(long)index.Val;
+						int i = (int)(long)index.Get;
 
 						// Get the value
 						if ( list.Type == ValueType.LIST )
 						{
-							var l = (List<Value>)list.Val;
+							var l = (List<Value>)list.Get;
 							return i >= 0 && i < l.Count ? l[i] : throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index (" + i + ") for list of size " + l.Count );
 						}
 						else
 						{
-							string s = (string)list.Val;
+							string s = (string)list.Get;
 							return new Value( ValueType.STRING , "" + s[i] );
 						}
 					}
@@ -274,12 +274,12 @@ namespace BNA
 				{
 					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Index is not an integer: " + token );
 				}
-				int i = (int)(long)index.Val;
+				int i = (int)(long)index.Get;
 
 				// Set the value
 				if ( list.Type == ValueType.LIST )
 				{
-					var l = (List<Value>)list.Val;
+					var l = (List<Value>)list.Get;
 
 					if ( i < 0 || i >= l.Count )
 					{
@@ -320,15 +320,15 @@ namespace BNA
 			{
 				if ( v.Type == ValueType.READ_FILE )
 				{
-					( (StreamReader)v.Val ).Close( );
+					( (StreamReader)v.Get ).Close( );
 				}
 				else if ( v.Type == ValueType.WRITE_FILE )
 				{
-					( (StreamWriter)v.Val ).Close( );
+					( (StreamWriter)v.Get ).Close( );
 				}
 				else if ( v.Type == ValueType.LIST )
 				{
-					this.CloseAllFiles( (List<Value>)v.Val );
+					this.CloseAllFiles( (List<Value>)v.Get );
 				}
 			}
 		}

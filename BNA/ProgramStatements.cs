@@ -188,12 +188,12 @@ namespace BNA
 			{
 				if ( op2.Type == ValueType.INTEGER )
 				{
-					var newValue = new Value( ValueType.INTEGER , BNA.RNG.Next( (int)(long)op2.Val ) );
+					var newValue = new Value( ValueType.INTEGER , BNA.RNG.Next( (int)(long)op2.Get ) );
 					this.SetValue( this.Current.Operand1 , newValue , true );
 				}
 				else if ( op2.Type == ValueType.FLOAT )
 				{
-					var newValue = new Value( ValueType.INTEGER , BNA.RNG.NextDouble( ) * (double)op2.Val );
+					var newValue = new Value( ValueType.INTEGER , BNA.RNG.NextDouble( ) * (double)op2.Get );
 					this.SetValue( this.Current.Operand1 , newValue , true );
 				}
 				else
@@ -206,7 +206,7 @@ namespace BNA
 			{
 				if ( op1.Type == ValueType.INTEGER )
 				{
-					var newValue = new Value( ValueType.INTEGER , ( (ulong)(long)op1.Val ) ^ ulong.MaxValue );
+					var newValue = new Value( ValueType.INTEGER , ( (ulong)(long)op1.Get ) ^ ulong.MaxValue );
 					this.SetValue( this.Current.Operand1 , newValue );
 				}
 				else
@@ -219,7 +219,7 @@ namespace BNA
 			{
 				if ( op1.Type == ValueType.FLOAT )
 				{
-					var newValue = new Value( ValueType.INTEGER , (long)Math.Round( (double)op1.Val ) );
+					var newValue = new Value( ValueType.INTEGER , (long)Math.Round( (double)op1.Get ) );
 					this.SetValue( this.Current.Operand1 , newValue );
 				}
 				else if ( op1.Type != ValueType.INTEGER )
@@ -248,12 +248,12 @@ namespace BNA
 				case StatementType.OP_LIST:
 				{
 					// Check operands
-					if ( op2.Type != ValueType.INTEGER || (long)op2.Val < 0 )
+					if ( op2.Type != ValueType.INTEGER || (long)op2.Get < 0 )
 						throw new RuntimeException( "List size must be positive or zero integer" );
 
 					// Fill list
 					var list = new List<Value>( );
-					for ( int i = 0 ; i < (long)op2.Val ; i += 1 )
+					for ( int i = 0 ; i < (long)op2.Get ; i += 1 )
 					{
 						list.Add( Value.NULL );
 					}
@@ -269,16 +269,16 @@ namespace BNA
 						if ( op2.Type == ValueType.LIST )
 						{
 							var l = Value.DeepCopy( op2 );
-							( (List<Value>)op1.Val ).Add( l );
+							( (List<Value>)op1.Get ).Add( l );
 						}
 						else
 						{
-							( (List<Value>)op1.Val ).Add( op2 );
+							( (List<Value>)op1.Get ).Add( op2 );
 						}
 					}
 					else if ( op1.Type == ValueType.STRING )
 					{
-						string new_str = ( (string)op1.Val ).Insert( ( (string)op1.Val ).Length , op2.Val.ToString( ) ?? string.Empty );
+						string new_str = ( (string)op1.Get ).Insert( ( (string)op1.Get ).Length , op2.Get.ToString( ) ?? string.Empty );
 						this.SetValue( this.Current.Operand1 , new Value( ValueType.STRING , new_str ) );
 					}
 					else
@@ -294,10 +294,10 @@ namespace BNA
 					switch ( op2.Type )
 					{
 						case ValueType.LIST:
-							this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , (long)( (List<Value>)op2.Val ).Count ) , true );
+							this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , (long)( (List<Value>)op2.Get ).Count ) , true );
 							break;
 						case ValueType.STRING:
-							this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , (long)( (string)op2.Val ).Length ) , true );
+							this.SetValue( this.Current.Operand1 , new Value( ValueType.INTEGER , (long)( (string)op2.Get ).Length ) , true );
 							break;
 						default:
 							throw new RuntimeException( "Can not size a non-list-like value: '" + op2.ToString( ) + "'" );
@@ -347,7 +347,7 @@ namespace BNA
 					{
 						throw new RuntimeException( "Filename must be string '" + op2.ToString( ) + "'" );
 					}
-					string filename = (string)op2.Val;
+					string filename = (string)op2.Get;
 
 					var stream_r = new StreamReader( filename );
 
@@ -361,7 +361,7 @@ namespace BNA
 					{
 						throw new RuntimeException( "Filename must be string '" + op2.ToString( ) + "'" );
 					}
-					string filename = (string)op2.Val;
+					string filename = (string)op2.Get;
 
 					var stream_w = new StreamWriter( filename , true )
 					{
@@ -379,8 +379,8 @@ namespace BNA
 						throw new RuntimeException( "Operand to WRITE must be an opened write-file: '" + op1.ToString( ) + "'" );
 					}
 
-					( (StreamWriter)op1.Val ).WriteLine( op2.Val.ToString( ) );
-					( (StreamWriter)op1.Val ).Flush( );
+					( (StreamWriter)op1.Get ).WriteLine( op2.Get.ToString( ) );
+					( (StreamWriter)op1.Get ).Flush( );
 					break;
 				}
 
@@ -391,11 +391,11 @@ namespace BNA
 						throw new RuntimeException( "Operand to READ must be an opened read-file: '" + op2.ToString( ) + "'" );
 					}
 
-					string? str = ( (StreamReader)op2.Val ).ReadLine( );
+					string? str = ( (StreamReader)op2.Get ).ReadLine( );
 
 					if ( str is null )
 					{
-						( (StreamReader)op2.Val ).Close( );
+						( (StreamReader)op2.Get ).Close( );
 						this.SetValue( this.Current.Operand2 , Value.NULL );
 					}
 
@@ -413,11 +413,11 @@ namespace BNA
 				{
 					if ( op1.Type == ValueType.READ_FILE )
 					{
-						( (StreamReader)op1.Val ).Close( );
+						( (StreamReader)op1.Get ).Close( );
 					}
 					else if ( op1.Type == ValueType.WRITE_FILE )
 					{
-						( (StreamWriter)op1.Val ).Close( );
+						( (StreamWriter)op1.Get ).Close( );
 					}
 					else
 					{
@@ -496,7 +496,7 @@ namespace BNA
 				throw new RuntimeException( "Argument to WAIT must be numeric: " + op2.ToString( ) );
 			}
 
-			int ms = (int)( 1000 * ( op2.Type is ValueType.INTEGER ? (long)op2.Val : (double)op2.Val ) );
+			int ms = (int)( 1000 * ( op2.Type is ValueType.INTEGER ? (long)op2.Get : (double)op2.Get ) );
 			try
 			{
 				System.Threading.Thread.Sleep( ms );
@@ -523,7 +523,7 @@ namespace BNA
 			if ( this.GetValue( this.Current.Operand2 ) != Value.FALSE )
 			{
 				// Go to line before label (because IP will be incremented)
-				this.IP = (int)(long)line.Val - 1;
+				this.IP = (int)(long)line.Get - 1;
 			}
 		}
 	}

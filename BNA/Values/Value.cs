@@ -23,7 +23,7 @@ namespace BNA.Values
 	/// <summary>
 	/// A struct holding an abstact value of varying type.
 	/// </summary>
-	public class Value
+	public abstract class Value
 	{
 		public static readonly Value NULL = new NullValue( );
 		public static readonly Value NAN = new NaNValue( );
@@ -46,7 +46,7 @@ namespace BNA.Values
 				operationType = ValueType.FLOAT;
 				if ( op1.Type == ValueType.INTEGER )
 				{
-					op1 = new Value( ValueType.FLOAT , (double)(long)op1.Val );
+					op1 = new Value( ValueType.FLOAT , (double)(long)op1.Get );
 				}
 				else if ( op1.Type != ValueType.FLOAT )
 				{
@@ -54,7 +54,7 @@ namespace BNA.Values
 				}
 				if ( op2.Type == ValueType.INTEGER )
 				{
-					op2 = new Value( ValueType.FLOAT , (double)(long)op2.Val );
+					op2 = new Value( ValueType.FLOAT , (double)(long)op2.Get );
 				}
 				else if ( op2.Type != ValueType.FLOAT )
 				{
@@ -67,40 +67,40 @@ namespace BNA.Values
 			{
 				case StatementType.OP_ADD:
 					return operationType == ValueType.INTEGER
-						? new Value( ValueType.INTEGER , (long)op1.Val + (long)op2.Val )
-						: new Value( ValueType.FLOAT , (double)op1.Val + (double)op2.Val );
+						? new Value( ValueType.INTEGER , (long)op1.Get + (long)op2.Get )
+						: new Value( ValueType.FLOAT , (double)op1.Get + (double)op2.Get );
 
 				case StatementType.OP_SUB:
 					return operationType == ValueType.INTEGER
-						? new Value( ValueType.INTEGER , (long)op1.Val - (long)op2.Val )
-						: new Value( ValueType.FLOAT , (double)op1.Val - (double)op2.Val );
+						? new Value( ValueType.INTEGER , (long)op1.Get - (long)op2.Get )
+						: new Value( ValueType.FLOAT , (double)op1.Get - (double)op2.Get );
 
 				case StatementType.OP_MUL:
 					return operationType == ValueType.INTEGER
-						? new Value( ValueType.INTEGER , (long)op1.Val * (long)op2.Val )
-						: new Value( ValueType.FLOAT , (double)op1.Val * (double)op2.Val );
+						? new Value( ValueType.INTEGER , (long)op1.Get * (long)op2.Get )
+						: new Value( ValueType.FLOAT , (double)op1.Get * (double)op2.Get );
 
 				case StatementType.OP_DIV:
 					return operationType == ValueType.INTEGER
-						? new Value( ValueType.INTEGER , (long)op1.Val / (long)op2.Val )
-						: new Value( ValueType.FLOAT , (double)op1.Val / (double)op2.Val );
+						? new Value( ValueType.INTEGER , (long)op1.Get / (long)op2.Get )
+						: new Value( ValueType.FLOAT , (double)op1.Get / (double)op2.Get );
 
 				case StatementType.OP_POW:
 					return operationType == ValueType.INTEGER
-						? new Value( ValueType.INTEGER , (long)Math.Pow( (long)op1.Val , (long)op2.Val ) )
-						: new Value( ValueType.FLOAT , Math.Pow( (double)op1.Val , (double)op2.Val ) );
+						? new Value( ValueType.INTEGER , (long)Math.Pow( (long)op1.Get , (long)op2.Get ) )
+						: new Value( ValueType.FLOAT , Math.Pow( (double)op1.Get , (double)op2.Get ) );
 
 				case StatementType.OP_LOG:
 					// Only do logs with floats
 					if ( op1.Type == ValueType.INTEGER )
 					{
-						op1 = new Value( ValueType.FLOAT , (double)(long)op1.Val );
+						op1 = new Value( ValueType.FLOAT , (double)(long)op1.Get );
 					}
 					if ( op2.Type == ValueType.INTEGER )
 					{
-						op2 = new Value( ValueType.FLOAT , (double)(long)op2.Val );
+						op2 = new Value( ValueType.FLOAT , (double)(long)op2.Get );
 					}
-					return new Value( ValueType.FLOAT , Math.Log( (double)op1.Val , (double)op2.Val ) );
+					return new Value( ValueType.FLOAT , Math.Log( (double)op1.Get , (double)op2.Get ) );
 
 				default:
 					throw new Exception( "Unexpected operation type for numeric operation (" + operation.ToString( ) + ")." );
@@ -127,16 +127,16 @@ namespace BNA.Values
 			switch ( operation )
 			{
 				case StatementType.OP_MOD:
-					return new Value( ValueType.INTEGER , (long)op1.Val % (long)op2.Val );
+					return new Value( ValueType.INTEGER , (long)op1.Get % (long)op2.Get );
 
 				case StatementType.OP_AND:
-					return new Value( ValueType.INTEGER , (long)op1.Val & (long)op2.Val );
+					return new Value( ValueType.INTEGER , (long)op1.Get & (long)op2.Get );
 
 				case StatementType.OP_OR:
-					return new Value( ValueType.INTEGER , (long)op1.Val | (long)op2.Val );
+					return new Value( ValueType.INTEGER , (long)op1.Get | (long)op2.Get );
 
 				case StatementType.OP_XOR:
-					return new Value( ValueType.INTEGER , (long)op1.Val ^ (long)op2.Val );
+					return new Value( ValueType.INTEGER , (long)op1.Get ^ (long)op2.Get );
 
 				default:
 					throw new Exception( "Unexpected operation type for bitwise operation (" + operation.ToString( ) + ")." );
@@ -162,8 +162,8 @@ namespace BNA.Values
 						return NAN;
 					}
 
-					double v1 = ( op1.Type == ValueType.INTEGER ) ? (long)op1.Val : (double)op1.Val;
-					double v2 = ( op2.Type == ValueType.INTEGER ) ? (long)op2.Val : (double)op2.Val;
+					double v1 = ( op1.Type == ValueType.INTEGER ) ? (long)op1.Get : (double)op1.Get;
+					double v2 = ( op2.Type == ValueType.INTEGER ) ? (long)op2.Get : (double)op2.Get;
 
 					switch ( operation )
 					{
@@ -184,15 +184,15 @@ namespace BNA.Values
 				{
 					if ( op2.Type == ValueType.STRING )
 					{
-						bool equal = ( (string)op1.Val ).Equals( (string)op2.Val );
+						bool equal = ( (string)op1.Get ).Equals( (string)op2.Get );
 						return operation == StatementType.OP_TEST_EQ ? ( equal ? TRUE : FALSE )
 							 : operation == StatementType.OP_TEST_NE ? ( !equal ? TRUE : FALSE )
 							 : throw new RuntimeException( "Can only test string equality or inequality" );
 					}
 					else if ( op2.Type == ValueType.INTEGER )
 					{
-						string s = (string)op1.Val;
-						long i = (long)op2.Val;
+						string s = (string)op1.Get;
+						long i = (long)op2.Get;
 						switch ( operation )
 						{
 							case StatementType.OP_TEST_EQ:
@@ -218,8 +218,8 @@ namespace BNA.Values
 					if ( op2.Type == ValueType.LIST )
 					{
 						bool test = true;
-						var list1 = (List<Value>)op1.Val;
-						var list2 = (List<Value>)op2.Val;
+						var list1 = (List<Value>)op1.Get;
+						var list2 = (List<Value>)op2.Get;
 
 						if ( operation != StatementType.OP_TEST_EQ )
 						{
@@ -257,35 +257,11 @@ namespace BNA.Values
 		}
 
 		/// <summary>
-		/// Data type of the Value.
-		/// </summary>
-		public ValueType Type
-		{
-			get; set;
-		}
-
-		/// <summary>
 		/// Actual value stored, must be casted correctly to use.
 		/// </summary>
-		public virtual object Val
-		{
-			get; set;
-		}
+		public abstract object Get { get; }
 
-		protected Value( ) { this.Val = new( ); }
-
-		/// <summary>
-		/// Create a new <see cref="Value"/> instance of a given type and value.
-		/// </summary>
-		/// <param name="type"></param>
-		/// <param name="val"></param>
-		public Value( ValueType type , object val )
-		{
-			this.Type = type;
-			this.Val = val;
-		}
-
-		public virtual Value DoOperation( StatementType operation , Value? op2 ) { return NAN; }
+		public abstract Value DoOperation( StatementType operation , Value op2 );
 
 		/// <summary>
 		/// Give the value as a string.
@@ -304,11 +280,11 @@ namespace BNA.Values
 				case ValueType.INTEGER:
 				case ValueType.FLOAT:
 				case ValueType.STRING:
-					return this.Val.ToString( ) ?? throw new InvalidOperationException( "Value object has no value but is not NULL." );
+					return this.Get.ToString( ) ?? throw new InvalidOperationException( "Value object has no value but is not NULL." );
 
 				case ValueType.LIST:
 				{
-					var list = (List<Value>)this.Val;
+					var list = (List<Value>)this.Get;
 
 					string str = "" + (char)Symbol.LIST_START + " ";
 					int i = 0;
@@ -360,7 +336,7 @@ namespace BNA.Values
 		{
 			return obj is Value value
 				&& this.Type == value.Type
-				&& EqualityComparer<object>.Default.Equals( this.Val , value.Val );
+				&& EqualityComparer<object>.Default.Equals( this.Get , value.Get );
 		}
 
 		/// <summary>
@@ -391,7 +367,7 @@ namespace BNA.Values
 				throw new Exception( "Can not deep copy a non-list value." );
 			}
 
-			var list = (List<Value>)listValue.Val;
+			var list = (List<Value>)listValue.Get;
 			var newList = new List<Value>( );
 
 			foreach ( Value v in list )
@@ -413,9 +389,6 @@ namespace BNA.Values
 		/// Get a hash code for the Value object.
 		/// </summary>
 		/// <returns>Hash code.</returns>
-		public override int GetHashCode( )
-		{
-			return HashCode.Combine( this.Type , this.Val );
-		}
+		public override int GetHashCode( ) => HashCode.Combine( this.Get );
 	}
 }
