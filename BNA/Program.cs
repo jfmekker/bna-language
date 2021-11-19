@@ -191,7 +191,7 @@ namespace BNA
 					}
 
 					// Find variable
-					if ( this.Variables.TryGetValue( token , out Value v ) )
+					if ( this.Variables.TryGetValue( token , out Value? v ) )
 					{
 						return v;
 					}

@@ -255,7 +255,7 @@ namespace BNA
 					var list = new List<Value>( );
 					for ( int i = 0 ; i < (long)op2.Val ; i += 1 )
 					{
-						list.Add( new Value( ) );
+						list.Add( Value.NULL );
 					}
 
 					this.SetValue( this.Current.Operand1 , new Value( ValueType.LIST , list ) , true );

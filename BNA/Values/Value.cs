@@ -23,7 +23,7 @@ namespace BNA.Values
 	/// <summary>
 	/// A struct holding an abstact value of varying type.
 	/// </summary>
-	public struct Value
+	public class Value
 	{
 		public static readonly Value NULL = new( ValueType.NULL , 0 );
 		public static readonly Value NAN = new( ValueType.INVALID , 0 );
@@ -184,8 +184,8 @@ namespace BNA.Values
 				{
 					if ( op2.Type == ValueType.STRING )
 					{
-						bool equal = ((string)op1.Val ).Equals( (string)op2.Val);
-						return operation == StatementType.OP_TEST_EQ ? (equal ? TRUE : FALSE)
+						bool equal = ( (string)op1.Val ).Equals( (string)op2.Val );
+						return operation == StatementType.OP_TEST_EQ ? ( equal ? TRUE : FALSE )
 							 : operation == StatementType.OP_TEST_NE ? ( !equal ? TRUE : FALSE )
 							 : throw new RuntimeException( "Can only test string equality or inequality" );
 					}
@@ -267,7 +267,7 @@ namespace BNA.Values
 		/// <summary>
 		/// Actual value stored, must be casted correctly to use.
 		/// </summary>
-		public object Val
+		public virtual object Val
 		{
 			get; set;
 		}
@@ -277,11 +277,13 @@ namespace BNA.Values
 		/// </summary>
 		/// <param name="type"></param>
 		/// <param name="val"></param>
-		public Value( ValueType type , object val ) : this( )
+		public Value( ValueType type , object val )
 		{
 			this.Type = type;
 			this.Val = val;
 		}
+
+		public virtual Value DoOperation( StatementType operation , Value? op2 ) { return NAN; }
 
 		/// <summary>
 		/// Give the value as a string.
