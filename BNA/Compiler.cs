@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BNA.Exceptions;
+using System.Collections.Generic;
 
 namespace BNA
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BNA
+namespace BNA.Exceptions
 {
 	/// <summary>
 	/// A BNA exception encountered at compile time.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using BNA.Exceptions;
 using BNA.Values;
 using ValueType = BNA.Values.ValueType;
 
