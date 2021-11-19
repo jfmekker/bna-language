@@ -1,22 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BNA.Exceptions;
 
 namespace BNA.Values
 {
+	/// <summary>
+	/// String type value.
+	/// </summary>
 	public class StringValue : Value
 	{
+		/// <summary>
+		/// Create a new default <see cref="StringValue"/> instance.
+		/// </summary>
+		/// <param name="val">String value to assign.</param>
 		public StringValue( ) { this.Get = string.Empty; }
 
+		/// <summary>
+		/// Create a new <see cref="StringValue"/> instance.
+		/// </summary>
+		/// <param name="val">String value to assign.</param>
 		public StringValue( string str ) { this.Get = str; }
 
+		/// <summary>
+		/// Get the actual <see cref="string"/> value stored.
+		/// </summary>
 		public override string Get { get; }
+		
+		public override string TypeString( ) => "StringValue";
 
-		public override Value DoOperation( StatementType operation , Value op2 ) => throw new NotImplementedException( );
 		public override bool Equals( Value? other ) => other is StringValue strVal && strVal.Get == this.Get;
-		public override int GetHashCode( ) => HashCode.Combine( this.Get );
-		public override string ToString( ) => this.Get;
 	}
 }

@@ -8,7 +8,7 @@ namespace BNA
 	public enum ReturnCode : byte
 	{
 		SUCCESS = 0,
-		BNA_ERROR = 1 << 0,
+		BNA_ERROR = 1,
 		COMPILE_ERROR = 1 << 1,
 		RUNTIME_ERROR = 1 << 2,
 		NOT_IMPLEMENTED_ERROR = 1 << 3,

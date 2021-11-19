@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace BNA.Values
 {
-	public class FileValue : Value
+	public class ReadFileValue : Value
 	{
+		public ReadFileValue( string filename ) => throw new NotImplementedException( );
+
 		public override object Get => throw new NotImplementedException( );
 
-		public override Value DoOperation( StatementType operation , Value op2 ) => throw new NotImplementedException( );
 		public override bool Equals( Value? other ) => throw new NotImplementedException( );
-		public override int GetHashCode( ) => throw new NotImplementedException( );
-		public override string ToString( ) => throw new NotImplementedException( );
+
+		public char? Read( ) => throw new NotImplementedException( );
+
+		public string? ReadLine( ) => throw new NotImplementedException( );
 	}
 }

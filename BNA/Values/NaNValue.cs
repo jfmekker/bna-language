@@ -9,8 +9,8 @@ namespace BNA.Values
 		{
 			get => throw new RuntimeException( "Cannot get value of a NaNValue." );
 		}
-
-		public override Value DoOperation( StatementType operation , Value? op2 ) => NAN;
+		
+		public override string TypeString( ) => "NaNValue";
 
 		public override bool Equals( Value? other ) => false;
 

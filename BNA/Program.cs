@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using BNA.Exceptions;
 using BNA.Values;
-using ValueType = BNA.Values.ValueType;
 
 namespace BNA
 {
@@ -131,20 +130,22 @@ namespace BNA
 				{
 					if ( long.TryParse( token.Value , out long lval ) )
 					{
-						return new Value( ValueType.INTEGER , lval );
+						return new IntegerValue( lval );
 					}
 					else if ( double.TryParse( token.Value , out double dval ) )
 					{
-						return new Value( ValueType.FLOAT , dval );
+						return new FloatValue( dval );
 					}
 
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Could not parse value from literal: " + token );
+					// Should have caught this in compiler?
+					throw new Exception( $"Could not parse value from literal: {token}" );
+					// throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Could not parse value from literal: {token}" );
 				}
 
 				// Capture the string contents
 				case TokenType.STRING:
 				{
-					return token.Value.Length >= 2 ? new Value( ValueType.STRING , token.Value[1..^1] ) : throw new RuntimeException( this.IP , this.Statements[this.IP] , "String token too short to be valid: " + token );
+					return token.Value.Length >= 2 ? new StringValue( token.Value[1..^1] ) : throw new RuntimeException( this.IP , this.Statements[this.IP] , $"String token too short to be valid: {token}" );
 				}
 
 				// Get the Value of a variable
@@ -160,33 +161,30 @@ namespace BNA
 							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessor at start or end of token: " + token );
 						}
 
-						// Get value of list part
-						string listPart = token.Value.Substring( 0 , accessor );
-						Value list = this.GetValue( new Token( listPart ) );
-						if ( list.Type is not ValueType.LIST and not ValueType.STRING )
-						{
-							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
-						}
-
 						// Get value of index part
 						string indxPart = token.Value[( accessor + 1 )..];
-						Value index = this.GetValue( new Token( indxPart ) );
-						if ( index.Type != ValueType.INTEGER )
+						if ( this.GetValue( new Token( indxPart ) ) is not IntegerValue index )
 						{
 							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Index is not an integer: " + token );
 						}
-						int i = (int)(long)index.Get;
+						int i = index.Get;
 
 						// Get the value
-						if ( list.Type == ValueType.LIST )
+						string listPart = token.Value.Substring( 0 , accessor );
+						Value accessedVal = this.GetValue( new Token( listPart ) );
+						if ( accessedVal is ListValue listVal )
 						{
-							var l = (List<Value>)list.Get;
-							return i >= 0 && i < l.Count ? l[i] : throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index (" + i + ") for list of size " + l.Count );
+							List<Value> list = listVal.Get;
+							return i >= 0 && i < list.Count ? list[i]
+								: throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index (" + i + ") for list of size " + list.Count );
+						}
+						else if ( accessedVal is StringValue strVal )
+						{
+							return new StringValue( "" + strVal.Get[i] );
 						}
 						else
 						{
-							string s = (string)list.Get;
-							return new Value( ValueType.STRING , "" + s[i] );
+							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
 						}
 					}
 
@@ -204,7 +202,7 @@ namespace BNA
 				case TokenType.LIST:
 				{
 					List<Token> listTokens = Token.TokenizeLine( token.Value[1..^1] );
-					var listValues = new List<Value>( );
+					List<Value> listValues = new( );
 
 					foreach ( Token t in listTokens )
 					{
@@ -214,7 +212,7 @@ namespace BNA
 						}
 					}
 
-					return new Value( ValueType.LIST , listValues );
+					return new ListValue( listValues );
 				}
 
 				// Null operands for single operand statements
@@ -256,42 +254,38 @@ namespace BNA
 				int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
 				if ( accessor == 0 || accessor == token.Value.Length )
 				{
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessor at start or end of token: " + token );
-				}
-
-				// Get value of list part
-				string listPart = token.Value.Substring( 0 , accessor );
-				Value list = this.GetValue( new Token( listPart ) );
-				if ( list.Type is not ValueType.LIST and not ValueType.STRING )
-				{
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Accessor at start or end of token: {token}" );
 				}
 
 				// Get value of index part
 				string indxPart = token.Value[( accessor + 1 )..];
-				Value index = this.GetValue( new Token( indxPart ) );
-				if ( index.Type != ValueType.INTEGER )
+				if ( this.GetValue( new Token( indxPart ) ) is not IntegerValue index )
 				{
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Index is not an integer: " + token );
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Index is not an integer: {token}" );
 				}
-				int i = (int)(long)index.Get;
 
 				// Set the value
-				if ( list.Type == ValueType.LIST )
+				string listPart = token.Value.Substring( 0 , accessor );
+				Value accessedVal = this.GetValue( new Token( listPart ) );
+				if ( accessedVal is ListValue listVal )
 				{
-					var l = (List<Value>)list.Get;
+					List<Value> list = listVal.Get;
 
-					if ( i < 0 || i >= l.Count )
+					if ( index.Get < 0 || index.Get >= list.Count )
 					{
-						throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index for list: " + i );
+						throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Invalid index for list: {index}" );
 					}
 
-					l[i] = newValue;
+					list[index.Get] = newValue;
 					return;
+				}
+				else if ( accessedVal is StringValue )
+				{
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Can not set specific index of string." );
 				}
 				else
 				{
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Can not set specific index of string." );
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Accessed variable not a list or string: {token}" );
 				}
 			}
 
@@ -318,18 +312,19 @@ namespace BNA
 		{
 			foreach ( Value v in values )
 			{
-				if ( v.Type == ValueType.READ_FILE )
-				{
-					( (StreamReader)v.Get ).Close( );
-				}
-				else if ( v.Type == ValueType.WRITE_FILE )
-				{
-					( (StreamWriter)v.Get ).Close( );
-				}
-				else if ( v.Type == ValueType.LIST )
-				{
-					this.CloseAllFiles( (List<Value>)v.Get );
-				}
+				//if ( v.Type == ValueType.READ_FILE )
+				//{
+				//	( (StreamReader)v.Get ).Close( );
+				//}
+				//else if ( v.Type == ValueType.WRITE_FILE )
+				//{
+				//	( (StreamWriter)v.Get ).Close( );
+				//}
+				//else if ( v.Type == ValueType.LIST )
+				//{
+				//	this.CloseAllFiles( (List<Value>)v.Get );
+				//}
+				// TODO
 			}
 		}
 
@@ -342,7 +337,7 @@ namespace BNA
 			{
 				if ( this.Statements[i].Type == StatementType.LABEL )
 				{
-					this.SetValue( this.Statements[i].Operand1 , new Value( ValueType.INTEGER , (long)i ) , true );
+					this.SetValue( this.Statements[i].Operand1 , new IntegerValue( i ) , true );
 				}
 			}
 		}

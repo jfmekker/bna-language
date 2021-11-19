@@ -10,12 +10,12 @@ namespace BNA.Values
 			get => throw new RuntimeException( "Cannot get value of a NullValue." );
 		}
 
-		public override Value DoOperation( StatementType operation , Value? op2 ) => throw new NotImplementedException( );
+		public override string TypeString( ) => "NullValue";
 
 		public override bool Equals( Value? other ) => other is NullValue;
 
 		public override int GetHashCode( ) => 0;
 
-		public override string ToString( ) => "NULL";
+		public override string ToString( ) => "null";
 	}
 }
