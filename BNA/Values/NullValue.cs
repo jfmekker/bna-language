@@ -12,7 +12,7 @@ namespace BNA.Values
 
 		public override Value DoOperation( StatementType operation , Value? op2 ) => throw new NotImplementedException( );
 
-		public override bool Equals( object? obj ) => obj is NullValue;
+		public override bool Equals( Value? other ) => other is NullValue;
 
 		public override int GetHashCode( ) => 0;
 

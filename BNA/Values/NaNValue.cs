@@ -12,7 +12,7 @@ namespace BNA.Values
 
 		public override Value DoOperation( StatementType operation , Value? op2 ) => NAN;
 
-		public override bool Equals( object? obj ) => false;
+		public override bool Equals( Value? other ) => false;
 
 		public override int GetHashCode( ) => 0;
 

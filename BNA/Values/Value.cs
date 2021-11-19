@@ -6,29 +6,14 @@ using BNA.Exceptions;
 namespace BNA.Values
 {
 	/// <summary>
-	/// The data type of a value.
-	/// </summary>
-	public enum ValueType
-	{
-		INVALID = -1,
-		NULL = 0,
-		INTEGER = 1,
-		FLOAT,
-		STRING,
-		LIST,
-		READ_FILE,
-		WRITE_FILE,
-	}
-
-	/// <summary>
 	/// A struct holding an abstact value of varying type.
 	/// </summary>
-	public abstract class Value
+	public abstract class Value : IEquatable<Value>
 	{
 		public static readonly Value NULL = new NullValue( );
 		public static readonly Value NAN = new NaNValue( );
-		public static readonly Value TRUE = new( ValueType.INTEGER , 1L );
-		public static readonly Value FALSE = new( ValueType.INTEGER , 0L );
+		public static readonly Value TRUE = new IntegerValue( 1 );
+		public static readonly Value FALSE = new IntegerValue( 0 );
 
 		/// <summary>
 		/// Perform a numeric operation on two values.
@@ -263,81 +248,11 @@ namespace BNA.Values
 
 		public abstract Value DoOperation( StatementType operation , Value op2 );
 
-		/// <summary>
-		/// Give the value as a string.
-		/// </summary>
-		/// <returns></returns>
-		public override string ToString( )
-		{
-			switch ( this.Type )
-			{
-				case ValueType.INVALID:
-					return "NaN";
+		public override sealed bool Equals( object? obj ) => this.Equals( obj as Value );
 
-				case ValueType.NULL:
-					return "null";
+		public override int GetHashCode( ) => this.Get.GetHashCode( );
 
-				case ValueType.INTEGER:
-				case ValueType.FLOAT:
-				case ValueType.STRING:
-					return this.Get.ToString( ) ?? throw new InvalidOperationException( "Value object has no value but is not NULL." );
-
-				case ValueType.LIST:
-				{
-					var list = (List<Value>)this.Get;
-
-					string str = "" + (char)Symbol.LIST_START + " ";
-					int i = 0;
-					while ( i < list.Count )
-					{
-
-						if ( list[i].Type == ValueType.STRING )
-						{
-							str += '"' + list[i].ToString( ) + '"';
-						}
-						else
-						{
-							str += list[i].ToString( );
-						}
-
-						if ( i < list.Count - 1 )
-						{
-							str += " " + (char)Symbol.LIST_SEPERATOR + " ";
-						}
-						i += 1;
-					}
-					str += " " + (char)Symbol.LIST_END;
-
-					return str;
-				}
-
-				case ValueType.READ_FILE:
-				{
-					return "Read-file: '" + "'";
-				}
-
-				case ValueType.WRITE_FILE:
-				{
-
-					return "Write-file: '" + "'";
-				}
-
-				default:
-					throw new Exception( "Unexpected value type in ToString: " + this.Type );
-			}
-		}
-
-		/// <summary>
-		/// Compare equality of two Values.
-		/// </summary>
-		/// <param name="obj">Value to compare against</param>
-		/// <returns>True if the two values are equal</returns>
-		public override bool Equals( object? obj )
-		{
-			return obj is Value value
-				&& this.Type == value.Type
-				&& EqualityComparer<object>.Default.Equals( this.Get , value.Get );
-		}
+		public abstract bool Equals( Value? other );
 
 		/// <summary>
 		/// Defined '==' operator for Value.
@@ -354,41 +269,5 @@ namespace BNA.Values
 		/// <param name="second">Second value to compare</param>
 		/// <returns>True if the two values are not equal</returns>
 		public static bool operator !=( Value first , Value second ) => !first.Equals( second );
-
-		/// <summary>
-		/// Do a recursive deep copy of a list type Value.
-		/// </summary>
-		/// <param name="listValue">Value to copy.</param>
-		/// <returns>A deep copy of the list.</returns>
-		public static Value DeepCopy( Value listValue )
-		{
-			if ( listValue.Type != ValueType.LIST )
-			{
-				throw new Exception( "Can not deep copy a non-list value." );
-			}
-
-			var list = (List<Value>)listValue.Get;
-			var newList = new List<Value>( );
-
-			foreach ( Value v in list )
-			{
-				if ( v.Type == ValueType.LIST )
-				{
-					newList.Add( DeepCopy( v ) );
-				}
-				else
-				{
-					newList.Add( v );
-				}
-			}
-
-			return new Value( ValueType.LIST , newList );
-		}
-
-		/// <summary>
-		/// Get a hash code for the Value object.
-		/// </summary>
-		/// <returns>Hash code.</returns>
-		public override int GetHashCode( ) => HashCode.Combine( this.Get );
 	}
 }
