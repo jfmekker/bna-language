@@ -25,8 +25,8 @@ namespace BNA.Values
 	/// </summary>
 	public class Value
 	{
-		public static readonly Value NULL = new( ValueType.NULL , 0 );
-		public static readonly Value NAN = new( ValueType.INVALID , 0 );
+		public static readonly Value NULL = new NullValue( );
+		public static readonly Value NAN = new NaNValue( );
 		public static readonly Value TRUE = new( ValueType.INTEGER , 1L );
 		public static readonly Value FALSE = new( ValueType.INTEGER , 0L );
 
@@ -271,6 +271,8 @@ namespace BNA.Values
 		{
 			get; set;
 		}
+
+		protected Value( ) { this.Val = new( ); }
 
 		/// <summary>
 		/// Create a new <see cref="Value"/> instance of a given type and value.
