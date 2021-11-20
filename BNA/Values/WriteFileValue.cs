@@ -1,21 +1,80 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using BNA.Exceptions;
 
 namespace BNA.Values
 {
-	public class WriteFileValue : Value
+	/// <summary>
+	/// File writer type value.
+	/// </summary>
+	public class WriteFileValue : FileValue
 	{
-		public WriteFileValue( string filename ) => throw new NotImplementedException( );
+		/// <summary>
+		/// TextWriter stream object that does the writing.
+		/// </summary>
+		private TextWriter? writer;
 
-		public override object Get => throw new NotImplementedException( );
+		/// <summary>
+		/// Create a new <see cref="WriteFileValue"/> instance.
+		/// </summary>
+		/// <param name="filename">Name of the file.</param>
+		public WriteFileValue( string filename ) : base( filename ) => this.Open( );
 
-		public override bool Equals( Value? other ) => throw new NotImplementedException( );
+		/// <summary>
+		/// Write a string to the file.
+		/// </summary>
+		/// <param name="str">String to write.</param>
+		public void Write( string str )
+		{
+			if ( !this.Opened )
+				throw new RuntimeException( $"Cannot write to non-opened file: '{this.Filename}'" );
+			else if ( this.writer is null )
+				throw new Exception( $"Tried to write to null writer ({this.Filename})" );
 
-		public void Write(string str) => throw new NotImplementedException( );
+			this.writer.Write( str );
+		}
 
-		public void WriteLine( string str ) => throw new NotImplementedException( );
+		/// <summary>
+		/// Write a string to the file followed by a new line.
+		/// </summary>
+		/// <param name="str">String to write.</param>
+		public void WriteLine( string str )
+		{
+			if ( !this.Opened )
+				throw new RuntimeException( $"Cannot write to non-opened file: '{this.Filename}'" );
+			else if ( this.writer is null )
+				throw new Exception( $"Tried to write to null writer ({this.Filename})" );
+
+			this.writer.WriteLine( str );
+		}
+
+		public override void Open( )
+		{
+			try
+			{
+				this.writer = new StreamWriter( this.Filename , true );
+				this.Opened = true;
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException( $"Exception caught while opening file: {e.Message}" );
+			}
+		}
+
+		public override void Close( )
+		{
+			if ( !this.Opened )
+				return;
+			else if ( this.writer is null )
+				throw new Exception( $"Tried to close null writer ({this.Filename})" );
+			
+			this.writer.Close( );
+			this.writer = null;
+			this.Opened = false;
+		}
+
+		public override string TypeString( ) => "WriteFileValue";
+		
+		public override string ToString( ) => $"WRITE FILE ({(this.Opened ? "open" : "closed")}) '{this.Filename}'";
 	}
 }
