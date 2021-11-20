@@ -525,10 +525,69 @@ namespace BNA
 			return str;
 		}
 
-		public (Token, Token) GetPrimaryAndSecondaryTokens()
+		/// <summary>
+		/// Get the primary and secondary tokens of a statement.
+		/// This is determined by the statement sematics, not syntactic order.
+		/// </summary>
+		/// <returns>A tuple with the primary and secondary tokens in order.</returns>
+		public (Token, Token) GetPrimaryAndSecondaryTokens( )
 		{
-			throw new NotImplementedException( );
-		}
+			switch ( this.Type )
+			{
+				case StatementType.NULL:
+				case StatementType.COMMENT:
+				case StatementType.LABEL:
+				case StatementType.SCOPE_OPEN:
+				case StatementType.SCOPE_CLOSE:
+				case StatementType.EXIT:
+					return (default, default);
 
+				case StatementType.ADD:
+				case StatementType.SUBTRACT:
+				case StatementType.MODULUS:
+				case StatementType.LOGARITHM:
+				case StatementType.APPEND:
+				case StatementType.OPEN_READ:
+				case StatementType.OPEN_WRITE:
+				case StatementType.READ:
+				case StatementType.WRITE:
+					return (this.Operand2, this.Operand1);
+
+				case StatementType.SET:
+				case StatementType.MULTIPLY:
+				case StatementType.DIVIDE:
+				case StatementType.RANDOM:
+				case StatementType.POWER:
+				case StatementType.LIST:
+				case StatementType.SIZE:
+				case StatementType.TEST_GTR:
+				case StatementType.TEST_LSS:
+				case StatementType.TEST_EQU:
+				case StatementType.TEST_NEQ:
+				case StatementType.TYPE:
+					return (this.Operand1, this.Operand2);
+
+				case StatementType.ROUND:
+				case StatementType.CLOSE:
+				case StatementType.INPUT:
+				case StatementType.PRINT:
+					return (this.Operand1, default);
+
+				case StatementType.WAIT:
+				case StatementType.GOTO:
+				case StatementType.ERROR:
+					return (this.Operand2, default);
+
+				case StatementType.BITWISE_OR:
+				case StatementType.BITWISE_AND:
+				case StatementType.BITWISE_XOR:
+				case StatementType.BITWISE_NEGATE:
+					throw new NotImplementedException( );
+
+				case StatementType.UNKNOWN:
+				default:
+					throw new Exception( $"Unexpected statement type in token sorting: {this.Type}" );
+			}
+		}
 	}
 }

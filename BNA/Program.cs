@@ -97,7 +97,6 @@ namespace BNA
 					Instruction instruction = new( this.Current , this );
 
 					instruction.Execute( );
-					//this.ExecuteCurrentStatement( );
 				}
 				catch ( RuntimeException e )
 				{
@@ -301,6 +300,9 @@ namespace BNA
 			}
 		}
 
+		/// <summary>
+		/// Open a new scope of variables while passing in <see cref="SpecialVariables.ARGUMENT"/>.
+		/// </summary>
 		public void OpenScope( )
 		{
 			Value argument_val = this.GetValue( SpecialVariables.ARGUMENT );
@@ -308,6 +310,9 @@ namespace BNA
 			this.SetValue( SpecialVariables.ARGUMENT , argument_val );
 		}
 
+		/// <summary>
+		/// Close the current scope of variables while passing out <see cref="SpecialVariables.RETURN"/>.
+		/// </summary>
 		public void CloseScope( )
 		{
 			Value return_val = this.GetValue( SpecialVariables.RETURN );
