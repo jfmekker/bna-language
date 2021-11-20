@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using BNA.Exceptions;
 using BNA.Values;
 
@@ -17,11 +16,6 @@ namespace BNA
 		private Statement[] Statements { get; set; }
 
 		/// <summary>
-		/// Instruction pointer; what statement is the program currently on.
-		/// </summary>
-		private int IP { get; set; }
-
-		/// <summary>
 		/// Running list of variables held by the program while running.
 		/// Starts with label values and special variable default values.
 		/// </summary>
@@ -36,6 +30,7 @@ namespace BNA
 				this.SetValue( SpecialVariables.TEST_RESULT , SpecialVariables.TEST_RESULT_DEFAULT , true );
 				this.SetValue( SpecialVariables.ARGUMENT , SpecialVariables.ARGUMENT_DEFAULT , true );
 				this.SetValue( SpecialVariables.RETURN , SpecialVariables.RETURN_DEFAULT , true );
+				this.SetValue( SpecialVariables.NULL , SpecialVariables.NULL_DEFAULT , true );
 			}
 		}
 
@@ -47,7 +42,7 @@ namespace BNA
 		/// <summary>
 		/// Shortcut to the statement pointed to by <see cref="IP"/>.
 		/// </summary>
-		private Statement Current
+		public Statement Current
 		{
 			get
 			{
@@ -64,11 +59,16 @@ namespace BNA
 		}
 
 		/// <summary>
+		/// Instruction pointer; what statement is the program currently on.
+		/// </summary>
+		public int IP { get; set; }
+
+		/// <summary>
 		/// Whether the program is currently running.
 		/// </summary>
 		public bool Running
 		{
-			get; private set;
+			get; set;
 		}
 
 		/// <summary>
@@ -89,24 +89,22 @@ namespace BNA
 		/// </summary>
 		public void Run( )
 		{
-			if ( this.Statements == null )
-			{
-				throw new Exception( "Program told to run but Statements is null" );
-			}
-
 			this.Running = true;
 			while ( this.Running )
 			{
 				try
 				{
-					this.ExecuteCurrentStatement( );
+					Instruction instruction = new( this.Current , this );
+
+					instruction.Execute( );
+					//this.ExecuteCurrentStatement( );
 				}
 				catch ( RuntimeException e )
 				{
 					throw new RuntimeException( e , this.IP , this.Current );
 				}
 
-				if ( this.Running && ++this.IP == this.Statements.Length )
+				if ( this.Running && ++this.IP >= this.Statements.Length )
 				{
 					this.Running = false;
 				}
@@ -120,7 +118,7 @@ namespace BNA
 		/// </summary>
 		/// <param name="token">Token to identify/convert to a value</param>
 		/// <returns>Value of the operand</returns>
-		private Value GetValue( Token token )
+		public Value GetValue( Token token )
 		{
 			switch ( token.Type )
 			{
@@ -238,7 +236,7 @@ namespace BNA
 		/// <param name="token">Token to locate the value to change</param>
 		/// <param name="newValue">New value to insert or change</param>
 		/// <param name="add">Whether to add the variable if it does not exist</param>
-		private void SetValue( Token token , Value newValue , bool add = false )
+		public void SetValue( Token token , Value newValue , bool add = false )
 		{
 			// Unexpected token type
 			if ( token.Type != TokenType.VARIABLE )
@@ -301,6 +299,24 @@ namespace BNA
 			{
 				throw new RuntimeException( this.IP , this.Statements[this.IP] , "Could not find variable to set." );
 			}
+		}
+
+		public void OpenScope( )
+		{
+			Value argument_val = this.GetValue( SpecialVariables.ARGUMENT );
+			this.Variables = new Dictionary<Token , Value>( );
+			this.SetValue( SpecialVariables.ARGUMENT , argument_val );
+		}
+
+		public void CloseScope( )
+		{
+			Value return_val = this.GetValue( SpecialVariables.RETURN );
+			if ( this.Scopes.Count < 2 )
+			{
+				throw new RuntimeException( "Cannot close final scope." );
+			}
+			_ = this.Scopes.Pop( );
+			this.SetValue( SpecialVariables.RETURN , return_val );
 		}
 
 		/// <summary>

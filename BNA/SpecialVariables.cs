@@ -2,7 +2,7 @@
 
 namespace BNA
 {
-	public class SpecialVariables
+	public static class SpecialVariables
 	{
 		/// <summary>
 		/// Variable that is set by any TEST statements.
@@ -21,5 +21,11 @@ namespace BNA
 		/// </summary>
 		public static readonly Token RETURN = new( "return" , TokenType.VARIABLE );
 		public static readonly Value RETURN_DEFAULT = Value.NULL;
+
+		/// <summary>
+		/// Variable to compare nulls.
+		/// </summary>
+		public static readonly Token NULL = new( "null" , TokenType.VARIABLE );
+		public static readonly Value NULL_DEFAULT = Value.NULL;
 	}
 }

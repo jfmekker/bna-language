@@ -267,7 +267,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <param name="other">Object to compare against.</param>
 		/// <returns>True if the object is an equal <see cref="Value"/> or equals this object's stored value.</returns>
-		public override sealed bool Equals( object? obj ) => this.Equals( obj as Value ) || this.Get.Equals(obj);
+		public override sealed bool Equals( object? obj ) => this.Equals( obj as Value ) || this.Get.Equals( obj );
 
 		/// <summary>
 		/// Get a hash code of this <see cref="Value"/>'s stored object.
@@ -280,6 +280,8 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>String.</returns>
 		public override string ToString( ) => this.Get.ToString( ) ?? string.Empty;
+
+		#region REGION Operator Stubs
 
 		/// <summary>
 		/// Defined '==' operator for Value.
@@ -296,5 +298,59 @@ namespace BNA.Values
 		/// <param name="second">Second value to compare</param>
 		/// <returns>True if the two values are not equal</returns>
 		public static bool operator !=( Value first , Value second ) => !first.Equals( second );
+
+		/// <summary>
+		/// Throws <see cref="RuntimeException"/> if operation is not overriden in subclass.
+		/// </summary>
+		/// <exception cref="RuntimeException"/>
+		public static bool operator >( Value first , Value second ) => throw new RuntimeException( $"Invalid operation: {first.TypeString( )} > {second.TypeString( )}" );
+
+		/// <summary>
+		/// Throws <see cref="RuntimeException"/> if operation is not overriden in subclass.
+		/// </summary>
+		/// <exception cref="RuntimeException"/>
+		public static bool operator <( Value first , Value second ) => throw new RuntimeException( $"Invalid operation: {first.TypeString( )} < {second.TypeString( )}" );
+
+		/// <summary>
+		/// Throws <see cref="RuntimeException"/> if operation is not overriden in subclass.
+		/// </summary>
+		/// <exception cref="RuntimeException"/>
+		public static Value operator +( Value first , Value second ) => throw new RuntimeException( $"Invalid operation: {first.TypeString( )} + {second.TypeString( )}" );
+
+		/// <summary>
+		/// Throws <see cref="RuntimeException"/> if operation is not overriden in subclass.
+		/// </summary>
+		/// <exception cref="RuntimeException"/>
+		public static Value operator -( Value first , Value second ) => throw new RuntimeException( $"Invalid operation: {first.TypeString( )} - {second.TypeString( )}" );
+
+		/// <summary>
+		/// Throws <see cref="RuntimeException"/> if operation is not overriden in subclass.
+		/// </summary>
+		/// <exception cref="RuntimeException"/>
+		public static Value operator *( Value first , Value second ) => throw new RuntimeException( $"Invalid operation: {first.TypeString( )} * {second.TypeString( )}" );
+
+		/// <summary>
+		/// Throws <see cref="RuntimeException"/> if operation is not overriden in subclass.
+		/// </summary>
+		/// <exception cref="RuntimeException"/>
+		public static Value operator /( Value first , Value second ) => throw new RuntimeException( $"Invalid operation: {first.TypeString( )} / {second.TypeString( )}" );
+
+		/// <summary>
+		/// Throws <see cref="RuntimeException"/> if operation is not overriden in subclass.
+		/// </summary>
+		/// <exception cref="RuntimeException"/>
+		public virtual void Append( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} APPEND {value.TypeString( )}" );
+
+		public virtual Value RaiseTo(Value value) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} POW {value.TypeString( )}" );
+
+		public virtual Value Log( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} LOG {value.TypeString( )}" );
+
+		public virtual Value Modulus( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} MOD {value.TypeString( )}" );
+
+		public virtual Value Round() => throw new RuntimeException( $"Invalid operation: ROUND {this.TypeString( )}" );
+
+		public virtual Value Size() => throw new RuntimeException( $"Invalid operation: SIZE {this.TypeString( )}" );
+
+		#endregion
 	}
 }
