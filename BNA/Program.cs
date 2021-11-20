@@ -112,8 +112,7 @@ namespace BNA
 				}
 			}
 
-			var values = new List<Value>( this.Variables.Values );
-			this.CloseAllFiles( values );
+			CloseAllFiles( new List<Value>( this.Variables.Values ) );
 		}
 
 		/// <summary>
@@ -308,23 +307,18 @@ namespace BNA
 		/// Close all file-type values in a list
 		/// </summary>
 		/// <param name="values">Values to check and close</param>
-		private void CloseAllFiles( List<Value> values )
+		private static void CloseAllFiles( List<Value> values )
 		{
 			foreach ( Value v in values )
 			{
-				//if ( v.Type == ValueType.READ_FILE )
-				//{
-				//	( (StreamReader)v.Get ).Close( );
-				//}
-				//else if ( v.Type == ValueType.WRITE_FILE )
-				//{
-				//	( (StreamWriter)v.Get ).Close( );
-				//}
-				//else if ( v.Type == ValueType.LIST )
-				//{
-				//	this.CloseAllFiles( (List<Value>)v.Get );
-				//}
-				// TODO
+				if ( v is FileValue file )
+				{
+					file.Close( );
+				}
+				else if ( v is ListValue list )
+				{
+					CloseAllFiles( list.Get );
+				}
 			}
 		}
 

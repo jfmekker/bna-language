@@ -327,7 +327,6 @@ namespace BNA
 						throw new RuntimeException( $"Filename must be string: {op2.TypeString( )} '{op2}'" );
 					}
 
-					// var stream_r = new StreamReader( strVal.Get );
 					this.SetValue( this.Current.Operand1 , new ReadFileValue( strVal.Get ) , true );
 					break;
 				}
@@ -339,7 +338,6 @@ namespace BNA
 						throw new RuntimeException( $"Filename must be string: {op2.TypeString( )} '{op2}'" );
 					}
 
-					// var stream_w = new StreamWriter( filename , true ) { AutoFlush = true };
 					this.SetValue( this.Current.Operand1 , new WriteFileValue( strVal.Get ) , true );
 					break;
 				}
@@ -348,7 +346,7 @@ namespace BNA
 				{
 					if ( op1 is not WriteFileValue writeFileVal )
 					{
-						throw new RuntimeException( $"Operand to WRITE must be an opened write-file: {op1.TypeString( )} '{op1}'" );
+						throw new RuntimeException( $"Operand to WRITE must be a write-file: {op1.TypeString( )} '{op1}'" );
 					}
 
 					writeFileVal.WriteLine( op2.ToString( ) );
@@ -359,14 +357,14 @@ namespace BNA
 				{
 					if ( op2 is not ReadFileValue readFileVal )
 					{
-						throw new RuntimeException( $"Operand to READ must be an opened read-file: {op2.TypeString( )} '{op2}'" );
+						throw new RuntimeException( $"Operand to READ must be a read-file: {op2.TypeString( )} '{op2}'" );
 					}
 
 					string? str = readFileVal.ReadLine( );
 
 					if ( str is null )
 					{
-						// ( (StreamReader)op2.Get ).Close( );
+						readFileVal.Close( );
 						this.SetValue( this.Current.Operand2 , Value.NULL );
 					}
 
@@ -382,19 +380,15 @@ namespace BNA
 
 				case StatementType.OP_CLOSE:
 				{
-					// if ( op1.Type == ValueType.READ_FILE )
-					// {
-					// 	( (StreamReader)op1.Get ).Close( );
-					// }
-					// else if ( op1.Type == ValueType.WRITE_FILE )
-					// {
-					// 	( (StreamWriter)op1.Get ).Close( );
-					// }
-					// else
-					// {
-					// 	throw new RuntimeException( "Can not close non-file: '" + op1.ToString( ) + "'" );
-					// }
-					// TODO
+					if ( op1 is FileValue fileVal )
+					{
+						fileVal.Close( );
+					}
+					else
+					{
+						throw new RuntimeException( $"Can not close non-file: {op1.TypeString( )} '{op1}'" );
+					}
+
 					this.SetValue( this.Current.Operand1 , Value.NULL );
 					break;
 				}
@@ -485,7 +479,7 @@ namespace BNA
 			Value op1 = this.GetValue( this.Current.Operand1 );
 			if ( op1 == Value.NULL || op1 is not IntegerValue line ) // TODO more checks
 			{
-				throw new RuntimeException( $"Found no valid line value {op1.TypeString()} '{this.Current.Operand1}={op1}'" );
+				throw new RuntimeException( $"Found no valid line value {op1.TypeString( )} '{this.Current.Operand1}={op1}'" );
 			}
 
 			// Test condition
