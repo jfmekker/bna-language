@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BNA.Values
@@ -64,10 +65,10 @@ namespace BNA.Values
 			return new( newList );
 		}
 
-		/// <summary>
-		/// Append a value to the end of the list.
-		/// </summary>
-		/// <param name="value">Value to add.</param>
-		public override void Append( Value value ) => _ = this.Get.Append( value );
+		public override Value Append( Value value )
+			=> this.Get.Append( value ) is not null
+			 ? this : throw new Exception("Error occured while appending to list.");
+
+		public override Value Size( ) => new IntegerValue(this.Get.Count);
 	}
 }

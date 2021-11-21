@@ -10,9 +10,24 @@ namespace BNA.Values
 	/// </summary>
 	public abstract class Value : IEquatable<Value>
 	{
+		/// <summary>
+		/// Special <see cref="Value"/> to represent null values.
+		/// </summary>
 		public static readonly Value NULL = new NullValue( );
+
+		/// <summary>
+		/// Special <see cref="Value"/> to represent results of bad operations.
+		/// </summary>
 		public static readonly Value NAN = new NaNValue( );
+
+		/// <summary>
+		/// Special <see cref="Value"/> to represent true.
+		/// </summary>
 		public static readonly Value TRUE = new IntegerValue( 1 );
+
+		/// <summary>
+		/// Special <see cref="Value"/> to represent false.
+		/// </summary>
 		public static readonly Value FALSE = new IntegerValue( 0 );
 
 		/// <summary>
@@ -119,19 +134,12 @@ namespace BNA.Values
 		public virtual Value Divide( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} / {value.TypeString( )}" );
 
 		/// <summary>
-		/// Append a <see cref="Value"/>.
-		/// Throws <see cref="RuntimeException"/> if not overriden in derived class.
-		/// </summary>
-		/// <exception cref="RuntimeException"/>
-		public virtual void Append( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} APPEND {value.TypeString( )}" );
-
-		/// <summary>
 		/// Raise to the power of a <see cref="Value"/>.
 		/// Throws <see cref="RuntimeException"/> if not overriden in derived class.
 		/// </summary>
 		/// <returns>Raised <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value RaiseTo(Value value) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} POW {value.TypeString( )}" );
+		public virtual Value RaiseTo( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} POW {value.TypeString( )}" );
 
 		/// <summary>
 		/// Take the logarithm with a base of a <see cref="Value"/>.
@@ -150,12 +158,20 @@ namespace BNA.Values
 		public virtual Value Modulus( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} MOD {value.TypeString( )}" );
 
 		/// <summary>
+		/// Append a <see cref="Value"/>.
+		/// Throws <see cref="RuntimeException"/> if not overriden in derived class.
+		/// </summary>
+		/// <returns>Appended <see cref="Value"/>, needed for strings.</returns>
+		/// <exception cref="RuntimeException"/>
+		public virtual Value Append( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} APPEND {value.TypeString( )}" );
+
+		/// <summary>
 		/// Round this <see cref="Value"/> to the nearest integer.
 		/// Throws <see cref="RuntimeException"/> if not overriden in derived class.
 		/// </summary>
 		/// <returns>Rounded <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Round() => throw new RuntimeException( $"Invalid operation: ROUND {this.TypeString( )}" );
+		public virtual Value Round( ) => throw new RuntimeException( $"Invalid operation: ROUND {this.TypeString( )}" );
 
 		/// <summary>
 		/// Get the size of a <see cref="Value"/>.
@@ -163,7 +179,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Size stored in a <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Size() => throw new RuntimeException( $"Invalid operation: SIZE {this.TypeString( )}" );
+		public virtual Value Size( ) => throw new RuntimeException( $"Invalid operation: SIZE {this.TypeString( )}" );
 
 		#endregion
 	}

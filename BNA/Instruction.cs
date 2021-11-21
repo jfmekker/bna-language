@@ -139,20 +139,20 @@ namespace BNA
 
 				case StatementType.APPEND:
 				{
-					this.PrimaryValue.Append( this.SecondaryValue );
+					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Append( this.SecondaryValue ) );
 					break;
 				}
 
 				case StatementType.LIST:
 				{
 					int size = this.SecondaryValue is IntegerValue intVal ? intVal.Get : throw new RuntimeException( $"Argument to LIST must be integer: {this.SecondaryOperandInfo( )}" );
-					this.Program.SetValue( this.PrimaryToken , new ListValue( size ) );
+					this.Program.SetValue( this.PrimaryToken , new ListValue( size ) , true );
 					break;
 				}
 
 				case StatementType.SIZE:
 				{
-					this.Program.SetValue( this.PrimaryToken , this.SecondaryValue.Size( ) );
+					this.Program.SetValue( this.PrimaryToken , this.SecondaryValue.Size( ) , true );
 					break;
 				}
 
@@ -161,7 +161,7 @@ namespace BNA
 				{
 					bool read = this.Type == StatementType.READ;
 					string filename = this.SecondaryValue is StringValue strVal ? strVal.Get : throw new RuntimeException( $"Argument to OPEN must be string: {this.SecondaryOperandInfo( )}" );
-					this.Program.SetValue( this.PrimaryToken , read ? new ReadFileValue( filename ) : new WriteFileValue( filename ) );
+					this.Program.SetValue( this.PrimaryToken , read ? new ReadFileValue( filename ) : new WriteFileValue( filename ) , true );
 					break;
 				}
 
@@ -170,6 +170,7 @@ namespace BNA
 					if ( this.PrimaryValue is FileValue fileVal )
 					{
 						fileVal.Close( );
+						this.Program.SetValue( this.PrimaryToken , Value.NULL );
 						break;
 					}
 					else
