@@ -20,6 +20,7 @@ namespace BNA
 			(this.PrimaryToken, this.SecondaryToken) = statement.GetPrimaryAndSecondaryTokens( );
 			this.PrimaryValue = this.Program.GetValue( this.PrimaryToken );
 			this.SecondaryValue = this.Program.GetValue( this.SecondaryToken );
+			this.Type = statement.Type;
 		}
 
 		/// <summary>
@@ -249,7 +250,7 @@ namespace BNA
 
 				case StatementType.PRINT:
 				{
-					Console.Write( this.PrimaryValue.ToString( ) );
+					Console.WriteLine( this.PrimaryValue.ToString( ) );
 					break;
 				}
 

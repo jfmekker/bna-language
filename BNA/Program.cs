@@ -174,13 +174,10 @@ namespace BNA
 							return i >= 0 && i < list.Count ? list[i]
 								: throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index (" + i + ") for list of size " + list.Count );
 						}
-						else if ( accessedVal is StringValue strVal )
-						{
-							return new StringValue( "" + strVal.Get[i] );
-						}
 						else
 						{
-							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
+							return accessedVal is StringValue strVal ? new StringValue( "" + strVal.Get[i] )
+								: throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
 						}
 					}
 

@@ -19,17 +19,18 @@ namespace UnitTestProject
 			{
 				r = BNA.BNA.RunFromFiles( new string[] { "../../../../Tests/" + filename + ".bna" } );
 			}
-			catch ( Exception )
+			catch ( Exception e )
 			{
-				Assert.Inconclusive( );
+				Assert.Inconclusive( $"Exception caught while running test: {e.Message}" );
 			}
 
 			if ( r == ReturnCode.FILE_ERROR )
 			{
-				Assert.Inconclusive( );
+				Assert.Inconclusive( "File error: could not run test .bna file." );
 			}
 
-			Assert.AreEqual( !fails ? ReturnCode.SUCCESS : ReturnCode.BNA_ERROR , r );
+			ReturnCode expected = !fails ? ReturnCode.SUCCESS : ReturnCode.BNA_ERROR;
+			Assert.AreEqual(  expected, r , $"Return is {r} when {expected} was expected.");
 		}
 	}
 }

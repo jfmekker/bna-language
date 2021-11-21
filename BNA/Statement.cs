@@ -570,9 +570,9 @@ namespace BNA
 				case StatementType.ROUND:
 				case StatementType.CLOSE:
 				case StatementType.INPUT:
-				case StatementType.PRINT:
 					return (this.Operand1, default);
 
+				case StatementType.PRINT:
 				case StatementType.WAIT:
 				case StatementType.GOTO:
 				case StatementType.ERROR:
