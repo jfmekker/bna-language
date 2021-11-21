@@ -40,24 +40,46 @@ namespace BNA.Values
 			=> ( other is FloatValue floatVal && floatVal.Get == this.Get )
 			|| ( other is IntegerValue intVal && intVal.Get == this.Get );
 
-		public static Value operator +( FloatValue value , Value other )
-			=> other is FloatValue floatVal ? new FloatValue( value.Get + floatVal.Get )
-			 : other is IntegerValue intVal ? new FloatValue( value.Get + intVal.Get )
-			 : throw new RuntimeException( $"Invalid operation: {value.TypeString( )} + {other.TypeString( )}" );
+		public override bool GreaterThan( Value value )
+			=> value is IntegerValue intVal ? this.Get > intVal.Get
+			 : value is FloatValue floatVal ? this.Get > floatVal.Get
+			 : base.GreaterThan( value );
 
-		public static Value operator -( FloatValue value , Value other )
-			=> other is FloatValue floatVal ? new FloatValue( value.Get - floatVal.Get )
-			 : other is IntegerValue intVal ? new FloatValue( value.Get - intVal.Get )
-			 : throw new RuntimeException( $"Invalid operation: {value.TypeString( )} - {other.TypeString( )}" );
+		public override bool LessThan( Value value )
+			=> value is IntegerValue intVal ? this.Get < intVal.Get
+			 : value is FloatValue floatVal ? this.Get < floatVal.Get
+			 : base.LessThan( value );
 
-		public static Value operator *( FloatValue value , Value other )
-			=> other is FloatValue floatVal ? new FloatValue( value.Get * floatVal.Get )
-			 : other is IntegerValue intVal ? new FloatValue( value.Get * intVal.Get )
-			 : throw new RuntimeException( $"Invalid operation: {value.TypeString( )} * {other.TypeString( )}" );
+		public override Value Add( Value value )
+			=> value is FloatValue floatVal ? new FloatValue( this.Get + floatVal.Get )
+			 : value is IntegerValue intVal ? new FloatValue( this.Get + intVal.Get )
+			 : base.Add( value );
 
-		public static Value operator /( FloatValue value , Value other )
-			=> other is FloatValue floatVal ? new FloatValue( value.Get / floatVal.Get )
-			 : other is IntegerValue intVal ? new FloatValue( value.Get / intVal.Get )
-			 : throw new RuntimeException( $"Invalid operation: {value.TypeString( )} / {other.TypeString( )}" );
+		public override Value Subtract( Value value )
+			=> value is FloatValue floatVal ? new FloatValue( this.Get - floatVal.Get )
+			 : value is IntegerValue intVal ? new FloatValue( this.Get - intVal.Get )
+			 : base.Subtract( value );
+
+		public override Value Multiply( Value value )
+			=> value is FloatValue floatVal ? new FloatValue( this.Get * floatVal.Get )
+			 : value is IntegerValue intVal ? new FloatValue( this.Get * intVal.Get )
+			 : base.Multiply( value );
+
+		public override Value Divide( Value value )
+			=> value is FloatValue floatVal ? new FloatValue( this.Get / floatVal.Get )
+			 : value is IntegerValue intVal ? new FloatValue( this.Get / intVal.Get )
+			 : base.Divide( value );
+
+		public override Value RaiseTo( Value value )
+			=> value is IntegerValue intVal ? new FloatValue( Math.Pow( this.Get , intVal.Get ) )
+			 : value is FloatValue floatVal ? new FloatValue( Math.Pow( this.Get , floatVal.Get ) )
+			 : base.RaiseTo( value );
+
+		public override Value Log( Value value )
+			=> value is IntegerValue intVal ? new FloatValue( Math.Log( this.Get , intVal.Get ) )
+			 : value is FloatValue floatVal ? new FloatValue( Math.Log( this.Get , floatVal.Get ) )
+			 : base.Log( value );
+
+		public override Value Round( ) => new IntegerValue( (long)Math.Round( this.Get ) );
 	}
 }

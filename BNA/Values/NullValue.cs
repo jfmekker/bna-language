@@ -1,8 +1,10 @@
-﻿using System;
-using BNA.Exceptions;
+﻿using BNA.Exceptions;
 
 namespace BNA.Values
 {
+	/// <summary>
+	/// Null type value.
+	/// </summary>
 	public class NullValue : Value
 	{
 		public override object Get

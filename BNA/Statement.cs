@@ -551,8 +551,6 @@ namespace BNA
 				case StatementType.OPEN_WRITE:
 				case StatementType.READ:
 				case StatementType.WRITE:
-					return (this.Operand2, this.Operand1);
-
 				case StatementType.SET:
 				case StatementType.MULTIPLY:
 				case StatementType.DIVIDE:
@@ -564,6 +562,7 @@ namespace BNA
 				case StatementType.TEST_LSS:
 				case StatementType.TEST_EQU:
 				case StatementType.TEST_NEQ:
+				case StatementType.GOTO:
 				case StatementType.TYPE:
 					return (this.Operand1, this.Operand2);
 
@@ -574,7 +573,6 @@ namespace BNA
 
 				case StatementType.PRINT:
 				case StatementType.WAIT:
-				case StatementType.GOTO:
 				case StatementType.ERROR:
 					return (this.Operand2, default);
 

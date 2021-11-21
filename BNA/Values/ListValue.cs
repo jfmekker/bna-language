@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BNA.Values
 {
+	/// <summary>
+	/// List type value.
+	/// </summary>
 	public class ListValue : Value
 	{
 		/// <summary>
@@ -63,5 +63,11 @@ namespace BNA.Values
 
 			return new( newList );
 		}
+
+		/// <summary>
+		/// Append a value to the end of the list.
+		/// </summary>
+		/// <param name="value">Value to add.</param>
+		public override void Append( Value value ) => _ = this.Get.Append( value );
 	}
 }

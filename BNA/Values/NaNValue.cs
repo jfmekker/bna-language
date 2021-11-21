@@ -1,8 +1,10 @@
-﻿using System;
-using BNA.Exceptions;
+﻿using BNA.Exceptions;
 
 namespace BNA.Values
 {
+	/// <summary>
+	/// NaN type value.
+	/// </summary>
 	public class NaNValue : Value
 	{
 		public override object Get

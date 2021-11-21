@@ -75,25 +75,25 @@ namespace BNA
 
 				case StatementType.ADD:
 				{
-					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue + this.SecondaryValue );
+					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Add( this.SecondaryValue ) );
 					break;
 				}
 
 				case StatementType.SUBTRACT:
 				{
-					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue - this.SecondaryValue );
+					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Subtract( this.SecondaryValue ) );
 					break;
 				}
 
 				case StatementType.MULTIPLY:
 				{
-					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue * this.SecondaryValue );
+					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Multiply( this.SecondaryValue ) );
 					break;
 				}
 
 				case StatementType.DIVIDE:
 				{
-					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue / this.SecondaryValue );
+					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Divide( this.SecondaryValue ) );
 					break;
 				}
 
@@ -292,8 +292,8 @@ namespace BNA
 					Value result
 						= this.Type == StatementType.TEST_EQU ? this.PrimaryValue == this.SecondaryValue ? Value.TRUE : Value.FALSE
 						: this.Type == StatementType.TEST_NEQ ? this.PrimaryValue != this.SecondaryValue ? Value.TRUE : Value.FALSE
-						: this.Type == StatementType.TEST_GTR ? this.PrimaryValue > this.SecondaryValue ? Value.TRUE : Value.FALSE
-						: this.Type == StatementType.TEST_LSS ? this.PrimaryValue < this.SecondaryValue ? Value.TRUE : Value.FALSE
+						: this.Type == StatementType.TEST_GTR ? this.PrimaryValue.GreaterThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
+						: this.Type == StatementType.TEST_LSS ? this.PrimaryValue.LessThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
 						: throw new Exception( $"Unexpted TEST statement type: {this.Type}" );
 					this.Program.SetValue( SpecialVariables.TEST_RESULT , result );
 					break;
@@ -301,7 +301,8 @@ namespace BNA
 
 				case StatementType.TYPE:
 				{
-					this.Program.SetValue( this.PrimaryToken , new StringValue( this.SecondaryValue.TypeString( ) ) , true );
+					string type = this.SecondaryValue.TypeString( )[..^"Value".Length].ToUpper( );
+					this.Program.SetValue( this.PrimaryToken , new StringValue( type ) , true );
 					break;
 				}
 
