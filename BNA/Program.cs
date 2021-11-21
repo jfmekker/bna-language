@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using BNA.Exceptions;
+using BNA.Values;
 
 namespace BNA
 {
@@ -12,12 +13,7 @@ namespace BNA
 		/// <summary>
 		/// The statements that make up what the program does.
 		/// </summary>
-		private Statement[] Statements;
-
-		/// <summary>
-		/// Instruction pointer; what statement is the program currently on.
-		/// </summary>
-		private int IP;
+		private Statement[] Statements { get; set; }
 
 		/// <summary>
 		/// Running list of variables held by the program while running.
@@ -25,13 +21,7 @@ namespace BNA
 		/// </summary>
 		private Dictionary<Token , Value> Variables
 		{
-			get
-			{
-				if ( this.Scopes == null || this.Scopes.Count <= 0 ) {
-					throw new Exception( "No scopes found." );
-				}
-				return this.Scopes.Peek( );
-			}
+			get => ( this.Scopes is null || this.Scopes.Count <= 0 ) ? throw new Exception( "No scopes found." ) : this.Scopes.Peek( );
 
 			set
 			{
@@ -40,25 +30,28 @@ namespace BNA
 				this.SetValue( SpecialVariables.TEST_RESULT , SpecialVariables.TEST_RESULT_DEFAULT , true );
 				this.SetValue( SpecialVariables.ARGUMENT , SpecialVariables.ARGUMENT_DEFAULT , true );
 				this.SetValue( SpecialVariables.RETURN , SpecialVariables.RETURN_DEFAULT , true );
+				this.SetValue( SpecialVariables.NULL , SpecialVariables.NULL_DEFAULT , true );
 			}
 		}
 
 		/// <summary>
 		/// Stack of scopes, collections of variables.
 		/// </summary>
-		private Stack<Dictionary<Token , Value>> Scopes;
+		private Stack<Dictionary<Token , Value>> Scopes { get; set; }
 
 		/// <summary>
 		/// Shortcut to the statement pointed to by <see cref="IP"/>.
 		/// </summary>
-		private Statement Current
+		public Statement Current
 		{
 			get
 			{
-				if ( this.IP < 0 || this.IP >= this.Statements.Length ) {
+				if ( this.IP < 0 || this.IP >= this.Statements.Length )
+				{
 					throw new Exception( "Bad instruction pointer value ( " + this.IP + " )" );
 				}
-				if ( this.Statements[this.IP] == null ) {
+				else if ( this.Statements[this.IP] is null )
+				{
 					throw new Exception( "No statement at instruction pointer ( " + this.IP + " )" );
 				}
 				return this.Statements[this.IP];
@@ -66,11 +59,16 @@ namespace BNA
 		}
 
 		/// <summary>
+		/// Instruction pointer; what statement is the program currently on.
+		/// </summary>
+		public int IP { get; set; }
+
+		/// <summary>
 		/// Whether the program is currently running.
 		/// </summary>
 		public bool Running
 		{
-			get; private set;
+			get; set;
 		}
 
 		/// <summary>
@@ -91,26 +89,27 @@ namespace BNA
 		/// </summary>
 		public void Run( )
 		{
-			if ( this.Statements == null ) {
-				throw new Exception( "Program told to run but Statements is null" );
-			}
-
 			this.Running = true;
-			while ( this.Running ) {
-				try {
-					this.ExecuteCurrentStatement( );
+			while ( this.Running )
+			{
+				try
+				{
+					Instruction instruction = new( this.Current , this );
+
+					instruction.Execute( );
 				}
-				catch ( RuntimeException e ) {
+				catch ( RuntimeException e )
+				{
 					throw new RuntimeException( e , this.IP , this.Current );
 				}
 
-				if ( this.Running && ++this.IP == this.Statements.Length ) {
+				if ( this.Running && ++this.IP >= this.Statements.Length )
+				{
 					this.Running = false;
 				}
 			}
 
-			var values = new List<Value>( this.Variables.Values );
-			this.CloseAllFiles( values );
+			CloseAllFiles( new List<Value>( this.Variables.Values ) );
 		}
 
 		/// <summary>
@@ -118,74 +117,73 @@ namespace BNA
 		/// </summary>
 		/// <param name="token">Token to identify/convert to a value</param>
 		/// <returns>Value of the operand</returns>
-		private Value GetValue( Token token )
+		public Value GetValue( Token token )
 		{
-			switch ( token.Type ) {
+			switch ( token.Type )
+			{
 				// Parse the literal value from the token
-				case TokenType.LITERAL: {
-					if ( long.TryParse( token.Value , out long lval ) ) {
-						return new Value( ValueType.INTEGER , lval );
+				case TokenType.LITERAL:
+				{
+					if ( long.TryParse( token.Value , out long lval ) )
+					{
+						return new IntegerValue( lval );
 					}
-					else if ( double.TryParse( token.Value , out double dval ) ) {
-						return new Value( ValueType.FLOAT , dval );
+					else if ( double.TryParse( token.Value , out double dval ) )
+					{
+						return new FloatValue( dval );
 					}
-					else {
-						throw new RuntimeException( this.IP , this.Statements[this.IP] , "Could not parse value from literal: " + token );
-					}
+
+					// Should have caught this in compiler?
+					throw new Exception( $"Could not parse value from literal: {token}" );
+					// throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Could not parse value from literal: {token}" );
 				}
 
 				// Capture the string contents
-				case TokenType.STRING: {
-					if ( token.Value.Length < 2 ) {
-						throw new RuntimeException( this.IP , this.Statements[this.IP] , "String token too short to be valid: " + token );
-					}
-
-					return new Value( ValueType.STRING , token.Value.Substring( 1 , token.Value.Length - 2 ) );
+				case TokenType.STRING:
+				{
+					return token.Value.Length >= 2 ? new StringValue( token.Value[1..^1] ) : throw new RuntimeException( this.IP , this.Statements[this.IP] , $"String token too short to be valid: {token}" );
 				}
 
 				// Get the Value of a variable
-				case TokenType.VARIABLE: {
+				case TokenType.VARIABLE:
+				{
 					// Get list element
-					if ( token.Value.Contains( "" + (char)Symbol.ACCESSOR ) ) {
+					if ( token.Value.Contains( "" + (char)Symbol.ACCESSOR ) )
+					{
 						// Get last accessor first (so multi-lists are properly chained)
 						int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
-						if ( accessor == 0 || accessor == token.Value.Length ) {
+						if ( accessor == 0 || accessor == token.Value.Length )
+						{
 							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessor at start or end of token: " + token );
 						}
 
-						// Get value of list part
-						string listPart = token.Value.Substring( 0 , accessor );
-						Value list = this.GetValue( new Token( listPart ) );
-						if ( list.Type != ValueType.LIST && list.Type != ValueType.STRING ) {
-							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
-						}
-
 						// Get value of index part
-						string indxPart = token.Value.Substring( accessor + 1 );
-						Value index = this.GetValue( new Token( indxPart ) );
-						if ( index.Type != ValueType.INTEGER ) {
+						string indxPart = token.Value[( accessor + 1 )..];
+						if ( this.GetValue( new Token( indxPart ) ) is not IntegerValue index )
+						{
 							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Index is not an integer: " + token );
 						}
-						int i = (int)(long)index.Val;
+						int i = index.Get;
 
 						// Get the value
-						if ( list.Type == ValueType.LIST ) {
-							var l = (List<Value>)list.Val;
-
-							if ( i < 0 || i >= l.Count ) {
-								throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index (" + i + ") for list of size " + l.Count );
-							}
-
-							return l[i];
+						string listPart = token.Value.Substring( 0 , accessor );
+						Value accessedVal = this.GetValue( new Token( listPart ) );
+						if ( accessedVal is ListValue listVal )
+						{
+							List<Value> list = listVal.Get;
+							return i >= 0 && i < list.Count ? list[i]
+								: throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index (" + i + ") for list of size " + list.Count );
 						}
-						else {
-							string s = (string)list.Val;
-							return new Value( ValueType.STRING , "" + s[i] );
+						else
+						{
+							return accessedVal is StringValue strVal ? new StringValue( "" + strVal.Get[i] )
+								: throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
 						}
 					}
 
 					// Find variable
-					if ( this.Variables.TryGetValue( token , out Value v ) ) {
+					if ( this.Variables.TryGetValue( token , out Value? v ) )
+					{
 						return v;
 					}
 
@@ -194,27 +192,32 @@ namespace BNA
 				}
 
 				// Tokenize and evaluate the contents of a list literal
-				case TokenType.LIST: {
-					List<Token> listTokens = Token.TokenizeLine( token.Value.Substring( 1 , token.Value.Length - 2 ) );
-					var listValues = new List<Value>( );
+				case TokenType.LIST:
+				{
+					List<Token> listTokens = Token.TokenizeLine( token.Value[1..^1] );
+					List<Value> listValues = new( );
 
-					foreach ( Token t in listTokens ) {
-						if ( t.Type != TokenType.SYMBOL || t.Value[0] != (char)Symbol.LIST_SEPERATOR ) {
+					foreach ( Token t in listTokens )
+					{
+						if ( t.Type != TokenType.SYMBOL || t.Value[0] != (char)Symbol.LIST_SEPERATOR )
+						{
 							listValues.Add( this.GetValue( t ) );
 						}
 					}
 
-					return new Value( ValueType.LIST , listValues );
+					return new ListValue( listValues );
 				}
 
 				// Null operands for single operand statements
-				case TokenType.NULL: {
+				case TokenType.NULL:
+				{
 					return Value.NULL;
 				}
 
 				// Invalid token
 				case TokenType.INVALID:
-				case TokenType.UNKNOWN: {
+				case TokenType.UNKNOWN:
+				{
 					throw new RuntimeException( "Can not get value from invalid or unknown token: " + token.ToString( ) );
 				}
 
@@ -229,79 +232,110 @@ namespace BNA
 		/// <param name="token">Token to locate the value to change</param>
 		/// <param name="newValue">New value to insert or change</param>
 		/// <param name="add">Whether to add the variable if it does not exist</param>
-		private void SetValue( Token token , Value newValue , bool add = false )
+		public void SetValue( Token token , Value newValue , bool add = false )
 		{
 			// Unexpected token type
-			if ( token.Type != TokenType.VARIABLE ) {
+			if ( token.Type != TokenType.VARIABLE )
+			{
 				throw new Exception( "Unexpected token type in SetValue: " + token );
 			}
 
 			// Handle list element
-			if ( token.Value.Contains( "" + (char)Symbol.ACCESSOR ) ) {
+			if ( token.Value.Contains( "" + (char)Symbol.ACCESSOR ) )
+			{
 				// Get last accessor first (so multi-lists are properly chained)
 				int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
-				if ( accessor == 0 || accessor == token.Value.Length ) {
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessor at start or end of token: " + token );
-				}
-
-				// Get value of list part
-				string listPart = token.Value.Substring( 0 , accessor );
-				Value list = this.GetValue( new Token( listPart ) );
-				if ( list.Type != ValueType.LIST && list.Type != ValueType.STRING ) {
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
+				if ( accessor == 0 || accessor == token.Value.Length )
+				{
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Accessor at start or end of token: {token}" );
 				}
 
 				// Get value of index part
-				string indxPart = token.Value.Substring( accessor + 1 );
-				Value index = this.GetValue( new Token( indxPart ) );
-				if ( index.Type != ValueType.INTEGER ) {
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Index is not an integer: " + token );
+				string indxPart = token.Value[( accessor + 1 )..];
+				if ( this.GetValue( new Token( indxPart ) ) is not IntegerValue index )
+				{
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Index is not an integer: {token}" );
 				}
-				int i = (int)(long)index.Val;
 
 				// Set the value
-				if ( list.Type == ValueType.LIST ) {
-					var l = (List<Value>)list.Val;
+				string listPart = token.Value.Substring( 0 , accessor );
+				Value accessedVal = this.GetValue( new Token( listPart ) );
+				if ( accessedVal is ListValue listVal )
+				{
+					List<Value> list = listVal.Get;
 
-					if ( i < 0 || i >= l.Count ) {
-						throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index for list: " + i );
+					if ( index.Get < 0 || index.Get >= list.Count )
+					{
+						throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Invalid index for list: {index}" );
 					}
 
-					l[i] = newValue;
+					list[index.Get] = newValue;
 					return;
 				}
-				else {
+				else if ( accessedVal is StringValue )
+				{
 					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Can not set specific index of string." );
+				}
+				else
+				{
+					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Accessed variable not a list or string: {token}" );
 				}
 			}
 
 			// Set or add value
-			if ( this.Variables.ContainsKey( token ) ) {
+			if ( this.Variables.ContainsKey( token ) )
+			{
 				this.Variables[token] = newValue;
 			}
-			else if ( add ) {
+			else if ( add )
+			{
 				this.Variables.Add( token , newValue );
 			}
-			else {
+			else
+			{
 				throw new RuntimeException( this.IP , this.Statements[this.IP] , "Could not find variable to set." );
 			}
+		}
+
+		/// <summary>
+		/// Open a new scope of variables while passing in <see cref="SpecialVariables.ARGUMENT"/>.
+		/// </summary>
+		public void OpenScope( )
+		{
+			Value argument_val = this.GetValue( SpecialVariables.ARGUMENT );
+			this.Variables = new Dictionary<Token , Value>( );
+			this.SetValue( SpecialVariables.ARGUMENT , argument_val );
+		}
+
+		/// <summary>
+		/// Close the current scope of variables while passing out <see cref="SpecialVariables.RETURN"/>.
+		/// </summary>
+		public void CloseScope( )
+		{
+			Value return_val = this.GetValue( SpecialVariables.RETURN );
+			if ( this.Scopes.Count < 2 )
+			{
+				throw new RuntimeException( "Cannot close final scope." );
+			}
+			_ = this.Scopes.Pop( );
+			this.SetValue( SpecialVariables.RETURN , return_val );
 		}
 
 		/// <summary>
 		/// Close all file-type values in a list
 		/// </summary>
 		/// <param name="values">Values to check and close</param>
-		private void CloseAllFiles( List<Value> values )
+		private static void CloseAllFiles( List<Value> values )
 		{
-			foreach ( Value v in values ) {
-				if ( v.Type == ValueType.READ_FILE ) {
-					( (StreamReader)v.Val ).Close( );
+			foreach ( Value v in values )
+			{
+				if ( v is FileValue file )
+				{
+					file.Close( );
 				}
-				else if ( v.Type == ValueType.WRITE_FILE ) {
-					( (StreamWriter)v.Val ).Close( );
-				}
-				else if ( v.Type == ValueType.LIST ) {
-					this.CloseAllFiles( (List<Value>)v.Val );
+				else if ( v is ListValue list )
+				{
+					CloseAllFiles( list.Get );
 				}
 			}
 		}
@@ -311,9 +345,11 @@ namespace BNA
 		/// </summary>
 		private void CompileLabels( )
 		{
-			for ( int i = 0 ; i < this.Statements.Length ; i += 1 ) {
-				if ( this.Statements[i].Type == StatementType.LABEL ) {
-					this.SetValue( this.Statements[i].Operand1 , new Value( ValueType.INTEGER , (long)i ) , true );
+			for ( int i = 0 ; i < this.Statements.Length ; i += 1 )
+			{
+				if ( this.Statements[i].Type == StatementType.LABEL )
+				{
+					this.SetValue( this.Statements[i].Operand1 , new IntegerValue( i ) , true );
 				}
 			}
 		}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BNA.Exceptions;
 
 namespace BNA
 {
@@ -133,55 +134,55 @@ namespace BNA
 		public TokenType IdentifyType( )
 		{
 			// Don't re-identify if we know it
-			if ( this.Type == TokenType.UNKNOWN ) {
+			if ( this.Type == TokenType.UNKNOWN )
+			{
 				// Null
-				if ( this.Value.Length <= 0 ) {
+				if ( this.Value.Length <= 0 )
+				{
 					return TokenType.NULL;
 				}
 
 				// Literal
-				if ( char.IsDigit( this.Value[0] ) || this.Value[0] == '-' || this.Value[0] == '.' ) {
-					if ( int.TryParse( this.Value , out int i_val ) ) {
-						return TokenType.LITERAL;
-					}
-					else if ( double.TryParse( this.Value , out double d_val ) ) {
-						return TokenType.LITERAL;
-					}
-					else {
-						return TokenType.INVALID;
-					}
+				if ( char.IsDigit( this.Value[0] ) || this.Value[0] == '-' || this.Value[0] == '.' )
+				{
+					return int.TryParse( this.Value , out _ ) || double.TryParse( this.Value , out _ )
+						? TokenType.LITERAL : TokenType.INVALID;
 				}
 
 				// String
-				if ( this.Value[0] == (char)Symbol.STRING_MARKER ) {
-					if ( this.Value.Length >= 2 && this.Value[this.Value.Length - 1] == (char)Symbol.STRING_MARKER ) {
-						return TokenType.STRING;
-					}
-					else {
-						return TokenType.INVALID;
-					}
+				if ( this.Value[0] == (char)Symbol.STRING_MARKER )
+				{
+					return this.Value.Length >= 2
+						&& this.Value[0] == (char)Symbol.STRING_MARKER
+						&& this.Value[^1] == (char)Symbol.STRING_MARKER
+						? TokenType.STRING : TokenType.INVALID;
 				}
 
 				// List
-				if ( this.Value[0] == (char)Symbol.LIST_START ) {
-					if ( this.Value.Length >= 2 && this.Value[this.Value.Length - 1] == (char)Symbol.LIST_END ) {
+				if ( this.Value[0] == (char)Symbol.LIST_START )
+				{
+					if ( this.Value.Length >= 2 && this.Value[^1] == (char)Symbol.LIST_END )
+					{
 						// Tokenize contents to catch other compile errors
-						TokenizeLine( Value.Substring( 1 , Value.Length - 2 ) );
+						_ = TokenizeLine( this.Value[1..^1] );
 
 						return TokenType.LIST;
 					}
-					else {
+					else
+					{
 						return TokenType.INVALID;
 					}
 				}
 
 				// Keyword
-				if ( Enum.TryParse( this.Value.ToUpper( ) , out Keyword keyword ) ) {
+				if ( Enum.TryParse( this.Value.ToUpper( ) , out Keyword _ ) )
+				{
 					return TokenType.KEYWORD;
 				}
 
 				// Symbol
-				if ( this.Value.Length == 1 && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) ) {
+				if ( this.Value.Length == 1 && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) )
+				{
 					return TokenType.SYMBOL;
 				}
 
@@ -202,14 +203,16 @@ namespace BNA
 			var tokens = new List<Token>( );
 
 			// Ignore if the line empty
-			if ( line.Equals( "" ) ) {
+			if ( line.Equals( "" ) )
+			{
 				return tokens;
 			}
 
 			// Parse character by character
 			string candidate = "";
 			int list_nest_level = 0;
-			for ( int i = 0 ; i < line.Length ; i += 1 ) {
+			for ( int i = 0 ; i < line.Length ; i += 1 )
+			{
 				char c = line[i];
 				// Letters, numbers, underscores, accessor, or we are in a list
 				if ( char.IsLetterOrDigit( c )
@@ -218,20 +221,26 @@ namespace BNA
 					|| ( list_nest_level > 0
 						&& c != (char)Symbol.LIST_END
 						&& c != (char)Symbol.LIST_START )
-					) {
+					)
+				{
 
 					candidate += c;
 				}
 				// Other special characters
-				else {
-					switch ( c ) {
+				else
+				{
+					switch ( c )
+					{
 						// Comment
-						case (char)Symbol.COMMENT: {
-							if ( candidate.Length > 0 ) {
+						case (char)Symbol.COMMENT:
+						{
+							if ( candidate.Length > 0 )
+							{
 								throw new CompiletimeException( "Comment must be separated by whitespace" );
 							}
 
-							while ( i < line.Length ) {
+							while ( i < line.Length )
+							{
 								candidate += line[i];
 								i += 1;
 							}
@@ -248,10 +257,13 @@ namespace BNA
 						case (char)Symbol.LESS_THAN:
 						case (char)Symbol.EQUAL:
 						case (char)Symbol.NOT:
-						case (char)Symbol.LIST_SEPERATOR: {
-							if ( candidate.Length > 0 ) {
+						case (char)Symbol.LIST_SEPERATOR:
+						{
+							if ( candidate.Length > 0 )
+							{
 								var t = new Token( candidate );
-								if ( t.Type == TokenType.INVALID ) {
+								if ( t.Type == TokenType.INVALID )
+								{
 									throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
 								}
 								tokens.Add( t );
@@ -264,10 +276,13 @@ namespace BNA
 
 						// Whitespace
 						case ' ':
-						case '\t': {
-							if ( candidate.Length > 0 ) {
+						case '\t':
+						{
+							if ( candidate.Length > 0 )
+							{
 								var t = new Token( candidate );
-								if ( t.Type == TokenType.INVALID ) {
+								if ( t.Type == TokenType.INVALID )
+								{
 									throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
 								}
 								tokens.Add( t );
@@ -277,10 +292,11 @@ namespace BNA
 							break;
 						}
 
-
 						// Negative sign
-						case '-': {
-							if ( candidate.Length > 0 ) {
+						case '-':
+						{
+							if ( candidate.Length > 0 )
+							{
 								throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 							}
 
@@ -288,12 +304,14 @@ namespace BNA
 							break;
 						}
 
-
 						// Decimal point
-						case '.': {
-							for ( int j = 0 ; j < candidate.Length ; j += 1 ) {
+						case '.':
+						{
+							for ( int j = 0 ; j < candidate.Length ; j += 1 )
+							{
 								// Candidate must be all digits except for potential negative sign at the start
-								if ( !char.IsDigit( candidate[j] ) && candidate[j] != '-' && j == 0 ) {
+								if ( !char.IsDigit( candidate[j] ) && candidate[j] != '-' && j == 0 )
+								{
 									throw new CompiletimeException( "Unexpected symbol in middle of token: '" + c + "' (" + ( (uint)c ).ToString( ) + ")." );
 								}
 							}
@@ -302,21 +320,24 @@ namespace BNA
 							break;
 						}
 
-
 						// String
-						case (char)Symbol.STRING_MARKER: {
-							if ( candidate.Length > 0 && candidate[0] != (char)Symbol.STRING_MARKER ) {
+						case (char)Symbol.STRING_MARKER:
+						{
+							if ( candidate.Length > 0 && candidate[0] != (char)Symbol.STRING_MARKER )
+							{
 								throw new CompiletimeException( "String must be separated by whitespace" );
 							}
 
 							candidate += line[i];
 							i += 1;
 
-							while ( i < line.Length ) {
+							while ( i < line.Length )
+							{
 								candidate += line[i];
 								i += 1;
 
-								if ( line[i - 1] == (char)Symbol.STRING_MARKER ) {
+								if ( line[i - 1] == (char)Symbol.STRING_MARKER )
+								{
 									break;
 								}
 							}
@@ -326,29 +347,31 @@ namespace BNA
 							break;
 						}
 
-
 						// List
-						case (char)Symbol.LIST_START: {
+						case (char)Symbol.LIST_START:
+						{
 							candidate += c;
 
-							if ( list_nest_level == 0 && candidate.Length > 1 ) {
+							if ( list_nest_level == 0 && candidate.Length > 1 )
+							{
 								throw new CompiletimeException( "List start must be start of new token: '" + candidate + "'" );
 							}
 
 							list_nest_level += 1;
 							break;
 						}
-						case (char)Symbol.LIST_END: {
+						case (char)Symbol.LIST_END:
+						{
 							candidate += c;
 
-							if ( list_nest_level == 0 ) {
+							if ( list_nest_level == 0 )
+							{
 								throw new CompiletimeException( "List ending with no matching start: '" + candidate + "'" );
 							}
 
 							list_nest_level -= 1;
 							break;
 						}
-
 
 						// Unexpected
 						default:
@@ -358,13 +381,16 @@ namespace BNA
 			}
 
 			// Add last candidate
-			if ( candidate.Length > 0 ) {
-				if ( list_nest_level > 0 ) {
+			if ( candidate.Length > 0 )
+			{
+				if ( list_nest_level > 0 )
+				{
 					throw new CompiletimeException( "Line ended before list: '" + candidate + "'" );
 				}
 
 				var t = new Token( candidate );
-				if ( t.Type == TokenType.INVALID ) {
+				if ( t.Type == TokenType.INVALID )
+				{
 					throw new CompiletimeException( "Invalid token: '" + candidate + "'" );
 				}
 				tokens.Add( t );
@@ -380,7 +406,8 @@ namespace BNA
 		/// <param name="types">The TokenTypes to check for</param>
 		public static void ThrowIfNotTypes( Token token , ICollection<TokenType> types )
 		{
-			if ( !types.Contains( token.Type ) ) {
+			if ( !types.Contains( token.Type ) )
+			{
 				throw new CompiletimeException( "Unexpected token: '" + token.ToString( ) + "', expected {" + string.Join( ", " , types ) + "}." );
 			}
 		}
@@ -392,7 +419,8 @@ namespace BNA
 		public void ThrowIfNotKeywords( ICollection<Keyword> keywords )
 		{
 			ThrowIfNotTypes( this , new List<TokenType> { TokenType.KEYWORD } );
-			if ( Enum.TryParse( this.Value , out Keyword result ) && !keywords.Contains( result ) ) {
+			if ( Enum.TryParse( this.Value , out Keyword result ) && !keywords.Contains( result ) )
+			{
 				throw new CompiletimeException( "Unexpected keyword '" + this.ToString( ) + "', expected {" + string.Join( ", " , keywords ) + "}." );
 			}
 		}
@@ -404,7 +432,8 @@ namespace BNA
 		public void ThrowIfNotSymbols( ICollection<Symbol> symbols )
 		{
 			ThrowIfNotTypes( this , new List<TokenType> { TokenType.SYMBOL } );
-			if ( Enum.TryParse( this.Value , out Symbol result ) && !symbols.Contains( result ) ) {
+			if ( Enum.TryParse( this.Value , out Symbol result ) && !symbols.Contains( result ) )
+			{
 				throw new CompiletimeException( "Unexpected symbol '" + this.ToString( ) + "', expected {" + string.Join( ", " , symbols ) + "}." );
 			}
 		}
@@ -417,7 +446,8 @@ namespace BNA
 		/// <returns>True if the character was a defined Symbol</returns>
 		public static bool TryParseSymbol( char c , out Symbol value )
 		{
-			if ( Enum.IsDefined( typeof( Symbol ) , (int)c ) ) {
+			if ( Enum.IsDefined( typeof( Symbol ) , (int)c ) )
+			{
 				value = (Symbol)c;
 				return true;
 			}
@@ -426,28 +456,12 @@ namespace BNA
 		}
 
 		/// <summary>
-		/// Test equality to another Token.
+		/// Get a hash code for the Token object.
 		/// </summary>
-		/// <param name="obj">Object to test equality with.</param>
-		/// <returns>True if the object is a Token and shares TokenType and value with this.</returns>
-		public override bool Equals( object obj )
-		{
-			if ( obj is Token ) {
-				return ( this.Type == ( (Token)obj ).Type ) && ( this.Value == ( (Token)obj ).Value );
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// Get a hash code for the Token object
-		/// </summary>
-		/// <returns></returns>
+		/// <returns>Hash code.</returns>
 		public override int GetHashCode( )
 		{
-			int hashCode = 1265339359;
-			hashCode = hashCode * -1521134295 + this.Type.GetHashCode( );
-			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode( this.Value );
-			return hashCode;
+			return HashCode.Combine( this.Type , this.Value );
 		}
 
 		/// <summary>
@@ -457,15 +471,40 @@ namespace BNA
 		public override string ToString( )
 		{
 			string str = "<(" + this.Type;
-			if ( this.Type == TokenType.KEYWORD ) {
+			if ( this.Type == TokenType.KEYWORD )
+			{
 				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , this.Value , true ) ).ToString( );
 			}
-			else if ( this.Type == TokenType.SYMBOL && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) ) {
+			else if ( this.Type == TokenType.SYMBOL && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) )
+			{
 				str += ":" + Enum.GetName( typeof( Symbol ) , (int)this.Value[0] );
 			}
 			str += ( this.Type == TokenType.NULL ) ? ")>" : ( ") " + this.Value + ">" );
 
 			return str;
 		}
+
+		/// <summary>
+		/// Compare equality of two Token with the equality operator.
+		/// </summary>
+		/// <param name="left">Left hand operand.</param>
+		/// <param name="right">Right hand operand.</param>
+		/// <returns>True if the Tokens have the same type and value.</returns>
+		public static bool operator ==( Token left , Token right ) => ( left.Type == right.Type ) && ( left.Value == right.Value );
+
+		/// <summary>
+		/// Compare non-equality of two Token with the equality operator.
+		/// </summary>
+		/// <param name="left">Left hand operand.</param>
+		/// <param name="right">Right hand operand.</param>
+		/// <returns>True if the Tokens have different types or values.</returns>
+		public static bool operator !=( Token left , Token right ) => !( left == right );
+
+		/// <summary>
+		/// Compare a Token to an object.
+		/// </summary>
+		/// <param name="obj">Object to compare against.</param>
+		/// <returns>True if the object is an equal Token.</returns>
+		public override bool Equals( object? obj ) => obj is Token other && this == other;
 	}
 }

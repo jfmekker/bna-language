@@ -1,4 +1,5 @@
 ﻿using System;
+using BNA;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTestProject
@@ -12,20 +13,24 @@ namespace UnitTestProject
 		/// <param name="fails">True if a BNA_ERROR should be expected</param>
 		public static void RunTestFile( string filename , bool fails = false )
 		{
-			BNA.ReturnCode r = BNA.ReturnCode.UNEXPECTED_ERROR;
+			ReturnCode r = ReturnCode.UNEXPECTED_ERROR;
 
-			try {
+			try
+			{
 				r = BNA.BNA.RunFromFiles( new string[] { "../../../../Tests/" + filename + ".bna" } );
 			}
-			catch ( Exception e ) {
-				Assert.Inconclusive( );
+			catch ( Exception e )
+			{
+				Assert.Inconclusive( $"Exception caught while running test: {e.Message}" );
 			}
 
-			if ( r == BNA.ReturnCode.FILE_ERROR ) {
-				Assert.Inconclusive( );
+			if ( r == ReturnCode.FILE_ERROR )
+			{
+				Assert.Inconclusive( "File error: could not run test .bna file." );
 			}
 
-			Assert.AreEqual( !fails ? BNA.ReturnCode.SUCCESS : BNA.ReturnCode.BNA_ERROR , r );
+			ReturnCode expected = !fails ? ReturnCode.SUCCESS : ReturnCode.BNA_ERROR;
+			Assert.AreEqual(  expected, r , $"Return is {r} when {expected} was expected.");
 		}
 	}
 }

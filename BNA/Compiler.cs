@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BNA.Exceptions;
+using System.Collections.Generic;
 
 namespace BNA
 {
@@ -28,11 +29,14 @@ namespace BNA
 			// Convert lines to token stream
 			Debug.AddLine( "\nTokenizing..." );
 			var tokenLines = new List<List<Token>>( );
-			for ( int i = 0 ; i < this.Lines.Count ; i += 1 ) {
-				try {
+			for ( int i = 0 ; i < this.Lines.Count ; i += 1 )
+			{
+				try
+				{
 					tokenLines.Add( Token.TokenizeLine( this.Lines[i] ) );
 				}
-				catch ( CompiletimeException e ) {
+				catch ( CompiletimeException e )
+				{
 					throw new CompiletimeException( e , i , this.Lines[i] );
 				}
 			}
@@ -40,9 +44,11 @@ namespace BNA
 			// Print all Tokens for debugging
 			Debug.AddLine( "\nTokens:" );
 			int total = 0;
-			for ( int i = 1 ; i < tokenLines.Count ; i += 1 ) {
+			for ( int i = 1 ; i < tokenLines.Count ; i += 1 )
+			{
 				Debug.Add( "  Line " + i + ": " );
-				foreach ( Token t in tokenLines[i] ) {
+				foreach ( Token t in tokenLines[i] )
+				{
 					total += 1;
 					Debug.Add( t.ToString( ) + " " );
 				}
@@ -53,18 +59,22 @@ namespace BNA
 			// Parse Statements from Token lines
 			Debug.AddLine( "\nParsing..." );
 			var statements = new List<Statement>( );
-			for ( int i = 0 ; i < tokenLines.Count ; i += 1 ) {
-				try {
+			for ( int i = 0 ; i < tokenLines.Count ; i += 1 )
+			{
+				try
+				{
 					statements.Add( Statement.ParseStatement( tokenLines[i] ) );
 				}
-				catch ( CompiletimeException e ) {
+				catch ( CompiletimeException e )
+				{
 					throw new CompiletimeException( e , i , this.Lines[i] );
 				}
 			}
 
 			// Print all Statements for debugging
 			Debug.AddLine( "\nStatements:" );
-			for ( int i = 1 ; i < tokenLines.Count ; i += 1 ) {
+			for ( int i = 1 ; i < tokenLines.Count ; i += 1 )
+			{
 				Debug.AddLine( "  Line " + i + ": " + statements[i] );
 			}
 			Debug.AddLine( "" + ( statements.Count - 1 ) + " lines" );

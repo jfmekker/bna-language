@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BNA
+namespace BNA.Exceptions
 {
 	/// <summary>
 	/// A BNA exception encountered at compile time.
@@ -41,7 +41,7 @@ namespace BNA
 		public CompiletimeException( string message )
 			: base( message + "\nCompile error" )
 		{
-			this.Line = null;
+			this.Line = string.Empty;
 			this.LineNumber = -1;
 			this.BNAMessage = message;
 		}

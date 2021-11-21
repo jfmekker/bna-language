@@ -1,4 +1,6 @@
-﻿namespace BNA
+﻿using BNA.Values;
+
+namespace BNA
 {
 	/// <summary>
 	/// The coupling of a <see cref="Value"/> and an identifying <see cref="Token"/>.
@@ -26,10 +28,10 @@
 		/// </summary>
 		/// <param name="token">Identifiying token</param>
 		/// <param name="value">Initial value</param>
-		public Variable( Token token , Value value = new Value( ) )
+		public Variable( Token token , Value? value = null )
 		{
 			this.Identifier = token;
-			this.Value = value;
+			this.Value = value ?? Value.NULL;
 		}
 	}
 }
