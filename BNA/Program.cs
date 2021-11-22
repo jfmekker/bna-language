@@ -197,7 +197,8 @@ namespace BNA
 					}
 
 					// No value yet
-					throw new NonExistantVariableException( token );
+					//throw new NonExistantVariableException( token );
+					return Value.NULL;
 				}
 
 				// Tokenize and evaluate the contents of a list literal
