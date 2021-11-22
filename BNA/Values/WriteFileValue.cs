@@ -27,7 +27,7 @@ namespace BNA.Values
 		public void Write( string str )
 		{
 			if ( !this.Opened )
-				throw new RuntimeException( $"Cannot write to non-opened file: '{this.Filename}'" );
+				throw new Exception( $"Cannot write to non-opened file: '{this.Filename}'" );
 			else if ( this.writer is null )
 				throw new Exception( $"Tried to write to null writer ({this.Filename})" );
 
@@ -41,7 +41,7 @@ namespace BNA.Values
 		public void WriteLine( string str )
 		{
 			if ( !this.Opened )
-				throw new RuntimeException( $"Cannot write to non-opened file: '{this.Filename}'" );
+				throw new Exception( $"Cannot write to non-opened file: '{this.Filename}'" );
 			else if ( this.writer is null )
 				throw new Exception( $"Tried to write to null writer ({this.Filename})" );
 
@@ -57,7 +57,8 @@ namespace BNA.Values
 			}
 			catch (Exception e)
 			{
-				throw new RuntimeException( $"Exception caught while opening file: {e.Message}" );
+				// TODO make new runtime exception class
+				throw new Exception( $"Exception caught while opening file: {e.Message}" );
 			}
 		}
 

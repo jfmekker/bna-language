@@ -1,4 +1,4 @@
-﻿using BNA.Exceptions;
+﻿using System;
 
 namespace BNA.Values
 {
@@ -9,7 +9,7 @@ namespace BNA.Values
 	{
 		public override object Get
 		{
-			get => throw new RuntimeException( "Cannot get value of a NullValue." );
+			get => throw new Exception( "Cannot get value of a NullValue." );
 		}
 
 		public override string TypeString( ) => "NullValue";

@@ -98,9 +98,21 @@ namespace BNA
 
 					instruction.Execute( );
 				}
-				catch ( RuntimeException e )
+				catch ( Exception e )
 				{
-					throw new RuntimeException( e , this.IP , this.Current );
+					if ( e is UndefinedOperationException
+						   or IncorrectOperandTypeException
+						   or InvalidIndexValueException
+						   or NonIndexableValueException
+						   or NonExistantVariableException
+						   or ErrorStatementException )
+					{
+						throw new RuntimeException( this.IP , this.Current , e );
+					}
+					else
+					{
+						throw;
+					}
 				}
 
 				if ( this.Running && ++this.IP >= this.Statements.Length )
@@ -141,7 +153,7 @@ namespace BNA
 				// Capture the string contents
 				case TokenType.STRING:
 				{
-					return token.Value.Length >= 2 ? new StringValue( token.Value[1..^1] ) : throw new RuntimeException( this.IP , this.Statements[this.IP] , $"String token too short to be valid: {token}" );
+					return token.Value.Length >= 2 ? new StringValue( token.Value[1..^1] ) : throw new Exception( $"String token too short to be valid: {token}" );
 				}
 
 				// Get the Value of a variable
@@ -154,31 +166,28 @@ namespace BNA
 						int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
 						if ( accessor == 0 || accessor == token.Value.Length )
 						{
-							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessor at start or end of token: " + token );
+							// compiletime error?
+							throw new CompiletimeException( this.IP , this.Statements[this.IP].ToString( ) , "Accessor at start or end of token: " + token );
 						}
 
 						// Get value of index part
-						string indxPart = token.Value[( accessor + 1 )..];
-						if ( this.GetValue( new Token( indxPart ) ) is not IntegerValue index )
+						Token indexTok = new( token.Value[( accessor + 1 )..] );
+						Value indexVal = this.GetValue( indexTok );
+						if ( indexVal is not IntegerValue index )
 						{
-							throw new RuntimeException( this.IP , this.Statements[this.IP] , "Index is not an integer: " + token );
+							throw new InvalidIndexValueException( indexTok , indexVal );
 						}
-						int i = index.Get;
 
 						// Get the value
-						string listPart = token.Value.Substring( 0 , accessor );
-						Value accessedVal = this.GetValue( new Token( listPart ) );
-						if ( accessedVal is ListValue listVal )
-						{
-							List<Value> list = listVal.Get;
-							return i >= 0 && i < list.Count ? list[i]
-								: throw new RuntimeException( this.IP , this.Statements[this.IP] , "Invalid index (" + i + ") for list of size " + list.Count );
-						}
-						else
-						{
-							return accessedVal is StringValue strVal ? new StringValue( "" + strVal.Get[i] )
-								: throw new RuntimeException( this.IP , this.Statements[this.IP] , "Accessed variable not a list or string: " + token );
-						}
+						Token accessedTok = new( token.Value.Substring( 0 , accessor ) );
+						Value accessedVal = this.GetValue( accessedTok );
+						return accessedVal is ListValue listVal
+								? index.Get >= 0 && index.Get < listVal.Get.Count ? listVal.Get[index.Get]
+								: throw new ValueOutOfRangeException( indexVal , $"List {listVal}" )
+							: accessedVal is StringValue strVal
+								? index.Get >= 0 && index.Get < strVal.Get.Length ? new StringValue( "" + strVal.Get[index.Get] )
+								: throw new ValueOutOfRangeException( indexVal , $"String \"{strVal}\"" )
+							: throw new NonIndexableValueException( accessedTok , accessedVal );
 					}
 
 					// Find variable
@@ -188,7 +197,7 @@ namespace BNA
 					}
 
 					// No value yet
-					return Value.NULL;
+					throw new NonExistantVariableException( token );
 				}
 
 				// Tokenize and evaluate the contents of a list literal
@@ -218,11 +227,11 @@ namespace BNA
 				case TokenType.INVALID:
 				case TokenType.UNKNOWN:
 				{
-					throw new RuntimeException( "Can not get value from invalid or unknown token: " + token.ToString( ) );
+					throw new Exception( "Can not get value from invalid or unknown token: " + token.ToString( ) );
 				}
 
 				default:
-					throw new RuntimeException( "Unexpected token type for operand: " + token.ToString( ) );
+					throw new Exception( "Unexpected token type in GetValue: " + token.ToString( ) );
 			}
 		}
 
@@ -247,38 +256,39 @@ namespace BNA
 				int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
 				if ( accessor == 0 || accessor == token.Value.Length )
 				{
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Accessor at start or end of token: {token}" );
+					throw new Exception( $"Accessor at start or end of token: {token}" );
 				}
 
 				// Get value of index part
-				string indxPart = token.Value[( accessor + 1 )..];
-				if ( this.GetValue( new Token( indxPart ) ) is not IntegerValue index )
+				// Get value of index part
+				Token indexTok = new( token.Value[( accessor + 1 )..] );
+				Value indexVal = this.GetValue( indexTok );
+				if ( indexVal is not IntegerValue index )
 				{
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Index is not an integer: {token}" );
+					throw new InvalidIndexValueException( indexTok , indexVal );
 				}
 
 				// Set the value
 				string listPart = token.Value.Substring( 0 , accessor );
+				Token accessedTok = new( token.Value.Substring( 0 , accessor ) );
 				Value accessedVal = this.GetValue( new Token( listPart ) );
 				if ( accessedVal is ListValue listVal )
 				{
-					List<Value> list = listVal.Get;
-
-					if ( index.Get < 0 || index.Get >= list.Count )
+					if ( index.Get < 0 || index.Get >= listVal.Get.Count )
 					{
-						throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Invalid index for list: {index}" );
+						throw new ValueOutOfRangeException( indexVal , $"List {listVal}" );
 					}
 
-					list[index.Get] = newValue;
+					listVal.Get[index.Get] = newValue;
 					return;
 				}
 				else if ( accessedVal is StringValue )
 				{
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , "Can not set specific index of string." );
+					throw new NotImplementedException( );
 				}
 				else
 				{
-					throw new RuntimeException( this.IP , this.Statements[this.IP] , $"Accessed variable not a list or string: {token}" );
+					throw new NonIndexableValueException( accessedTok , accessedVal );
 				}
 			}
 
@@ -293,7 +303,7 @@ namespace BNA
 			}
 			else
 			{
-				throw new RuntimeException( this.IP , this.Statements[this.IP] , "Could not find variable to set." );
+				throw new NonExistantVariableException( token );
 			}
 		}
 
@@ -315,7 +325,7 @@ namespace BNA
 			Value return_val = this.GetValue( SpecialVariables.RETURN );
 			if ( this.Scopes.Count < 2 )
 			{
-				throw new RuntimeException( "Cannot close final scope." );
+				throw new CloseFinalScopeException( );
 			}
 			_ = this.Scopes.Pop( );
 			this.SetValue( SpecialVariables.RETURN , return_val );

@@ -25,7 +25,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>A single character, or null if the end of the file is reached.</returns>
 		public char? Read( )
-			=> !this.Opened ? throw new RuntimeException( $"Cannot read from non-opened file: '{this.Filename}'" )
+			=> !this.Opened ? throw new Exception( $"Cannot read from non-opened file: '{this.Filename}'" )
 			 : this.reader is null ? throw new Exception( $"Tried to read from null reader ({this.Filename})" )
 			 : this.reader.Read( ) is int next && next == -1 ? null : (char)next;
 
@@ -34,7 +34,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>A string of the whole next line, or null if the end of the file is reached.</returns>
 		public string? ReadLine( )
-			=> !this.Opened ? throw new RuntimeException( $"Cannot read from non-opened file: '{this.Filename}'" )
+			=> !this.Opened ? throw new Exception( $"Cannot read from non-opened file: '{this.Filename}'" )
 			 : this.reader is null ? throw new Exception( $"Tried to read from null reader ({this.Filename})" )
 			 : this.reader.ReadLine( );
 
@@ -47,7 +47,8 @@ namespace BNA.Values
 			}
 			catch ( Exception e )
 			{
-				throw new RuntimeException( $"Exception caught while opening file: {e.Message}" );
+				// TODO make new runtime exception class
+				throw new Exception( $"Exception caught while opening file: {e.Message}" );
 			}
 		}
 

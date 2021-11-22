@@ -1,4 +1,5 @@
 ﻿using System;
+using BNA.Values;
 
 namespace BNA.Exceptions
 {
@@ -7,50 +8,117 @@ namespace BNA.Exceptions
 	/// </summary>
 	public class RuntimeException : Exception
 	{
-		/// <summary>
-		/// The statement that threw the error.
-		/// </summary>
-		public readonly Statement? Line;
+		public readonly int Line;
 
-		/// <summary>
-		/// The line number of the statement.
-		/// </summary>
-		public readonly int LineNumber;
+		public readonly Statement Statement;
 
-		/// <summary>
-		/// Specific BNA info message.
-		/// </summary>
-		public readonly string BNAMessage;
-
-		/// <summary>
-		/// True if this was thrown by the ERROR statement.
-		/// </summary>
-		public readonly bool BNAError;
-
-		public RuntimeException( int line_number , Statement badGuy , string message )
-			: base( message + "\nRuntime error statement " + line_number + ":\n\t" + badGuy.RawString( ) )
+		public RuntimeException( int line , Statement statement , Exception innerException )
+			: base( $"t{innerException.Message}\nRuntime Error - line {line}: {statement}" , innerException )
 		{
-			this.Line = badGuy;
-			this.LineNumber = line_number;
-			this.BNAMessage = message;
+			this.Line = line;
+			this.Statement = statement;
 		}
+	}
 
-		public RuntimeException( RuntimeException exception , int line_number , Statement badGuy )
-			: base( exception.BNAMessage + "\nRuntime error statement " + line_number + ":\n\t" + badGuy.RawString( ) )
+	public class UndefinedOperationException : Exception
+	{
+		public readonly string Operation;
+
+		public readonly Value Operand1;
+
+		public readonly Value? Operand2;
+
+		public UndefinedOperationException( Value operand1 , string operation , Value? operand2 = null )
+			: base( $"Undefined operation: {operand1.TypeString( )} {operation} {operand2?.TypeString( ) ?? string.Empty}" )
 		{
-			this.Line = badGuy;
-			this.LineNumber = line_number;
-			this.BNAMessage = exception.BNAMessage;
-			this.BNAError = exception.BNAError;
+			this.Operation = operation;
+			this.Operand1 = operand1;
+			this.Operand2 = operand2;
 		}
+	}
 
-		public RuntimeException( string message , bool bnaError = false )
-			: base( message + "\nRuntime error" )
+	public class IncorrectOperandTypeException : Exception
+	{
+		public readonly Token Token;
+
+		public readonly Value Value;
+
+		public readonly StatementType Statement;
+
+		public IncorrectOperandTypeException( StatementType statement , Token token , Value value )
+			: base( $"Incorrect operand type for {statement} statement: {token} = {value.TypeString( )} '({value})'" )
 		{
-			this.Line = null;
-			this.LineNumber = -1;
-			this.BNAMessage = message;
-			this.BNAError = bnaError;
+			this.Statement = statement;
+			this.Token = token;
+			this.Value = value;
+		}
+	}
+
+	public class InvalidIndexValueException : Exception
+	{
+		public readonly Token Token;
+
+		public readonly Value Value;
+
+		public InvalidIndexValueException( Token token , Value value )
+			: base( $"Invalid index ({token} = {value}), index must be integer." )
+		{
+			this.Token = token;
+			this.Value = value;
+		}
+	}
+
+	public class ValueOutOfRangeException : Exception
+	{
+		public readonly Value Index;
+
+		public readonly string Reason;
+
+		public ValueOutOfRangeException( Value index , string reason )
+			: base( $"Value ({index}) out of range for {reason}." )
+		{
+			this.Index = index;
+			this.Reason = reason;
+		}
+	}
+
+	public class NonIndexableValueException : Exception
+	{
+		public readonly Token Token;
+
+		public readonly Value Value;
+
+		public NonIndexableValueException( Token token , Value value )
+			: base( $"Cannot access index of non-indexable value ({token} = {value})" )
+		{
+			this.Token = token;
+			this.Value = value;
+		}
+	}
+
+	public class NonExistantVariableException : Exception
+	{
+		public readonly Token Token;
+
+		public NonExistantVariableException( Token token )
+			: base( $"Variable '{token}' does not exist in current scope." )
+		{
+			this.Token = token;
+		}
+	}
+
+	public class CloseFinalScopeException : Exception
+	{
+		public CloseFinalScopeException( ) : base( "Cannot close the final scope." ) { }
+	}
+
+	public class ErrorStatementException : Exception
+	{
+		public string StatementMessage;
+
+		public ErrorStatementException( Value value ) : base( $"ERROR {value}" )
+		{
+			this.StatementMessage = value.ToString( );
 		}
 	}
 }

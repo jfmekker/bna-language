@@ -91,7 +91,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>True if this <see cref="Value"/> is greater than the argument <see cref="Value"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual bool GreaterThan( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} > {value.TypeString( )}" );
+		public virtual bool GreaterThan( Value value ) => throw new UndefinedOperationException( this , ">" , value );
 
 		/// <summary>
 		/// Compare inequality against another <see cref="Value"/>.
@@ -99,7 +99,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>True if this <see cref="Value"/> is less than the argument <see cref="Value"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual bool LessThan( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} < {value.TypeString( )}" );
+		public virtual bool LessThan( Value value ) => throw new UndefinedOperationException( this , "<" , value );
 
 		/// <summary>
 		/// Add a <see cref="Value"/>.
@@ -107,7 +107,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Added <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Add( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} + {value.TypeString( )}" );
+		public virtual Value Add( Value value ) => throw new UndefinedOperationException( this , "+" , value );
 
 		/// <summary>
 		/// Subtract a <see cref="Value"/>.
@@ -115,7 +115,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Subtracted <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Subtract( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} - {value.TypeString( )}" );
+		public virtual Value Subtract( Value value ) => throw new UndefinedOperationException( this , "-" , value );
 
 		/// <summary>
 		/// Multiply a <see cref="Value"/>.
@@ -123,7 +123,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Multiplied <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Multiply( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} * {value.TypeString( )}" );
+		public virtual Value Multiply( Value value ) => throw new UndefinedOperationException( this , "*" , value );
 
 		/// <summary>
 		/// Divide a <see cref="Value"/>.
@@ -131,7 +131,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Divided <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Divide( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} / {value.TypeString( )}" );
+		public virtual Value Divide( Value value ) => throw new UndefinedOperationException( this , "/" , value );
 
 		/// <summary>
 		/// Raise to the power of a <see cref="Value"/>.
@@ -139,7 +139,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Raised <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value RaiseTo( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} POW {value.TypeString( )}" );
+		public virtual Value RaiseTo( Value value ) => throw new UndefinedOperationException( this , "POW" , value );
 
 		/// <summary>
 		/// Take the logarithm with a base of a <see cref="Value"/>.
@@ -147,7 +147,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Resulting <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Log( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} LOG {value.TypeString( )}" );
+		public virtual Value Log( Value value ) => throw new UndefinedOperationException( this , "LGO" , value );
 
 		/// <summary>
 		/// Take the modulus of a <see cref="Value"/>.
@@ -155,7 +155,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Modulated <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Modulus( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} MOD {value.TypeString( )}" );
+		public virtual Value Modulus( Value value ) => throw new UndefinedOperationException( this , "%" , value );
 
 		/// <summary>
 		/// Append a <see cref="Value"/>.
@@ -163,7 +163,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Appended <see cref="Value"/>, needed for strings.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Append( Value value ) => throw new RuntimeException( $"Invalid operation: {this.TypeString( )} APPEND {value.TypeString( )}" );
+		public virtual Value Append( Value value ) => throw new UndefinedOperationException( this , "APPEND" , value );
 
 		/// <summary>
 		/// Round this <see cref="Value"/> to the nearest integer.
@@ -171,7 +171,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Rounded <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Round( ) => throw new RuntimeException( $"Invalid operation: ROUND {this.TypeString( )}" );
+		public virtual Value Round( ) => throw new UndefinedOperationException( this , "ROUND" );
 
 		/// <summary>
 		/// Get the size of a <see cref="Value"/>.
@@ -179,7 +179,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Size stored in a <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value Size( ) => throw new RuntimeException( $"Invalid operation: SIZE {this.TypeString( )}" );
+		public virtual Value Size( ) => throw new UndefinedOperationException( this , "SIZE" );
 
 		#endregion
 	}

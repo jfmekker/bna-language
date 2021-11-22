@@ -46,21 +46,6 @@ namespace BNA.Values
 			=> ( other is IntegerValue intVal && intVal.Get == this.Get )
 			|| ( other is FloatValue floatVal && floatVal.Get == this.Get );
 
-		public static Value operator -( IntegerValue value , Value other )
-			=> other is IntegerValue intVal ? new IntegerValue( value.Get - intVal.Get )
-			 : other is FloatValue floatVal ? new FloatValue( value.Get - floatVal.Get )
-			 : throw new RuntimeException( $"Invalid operation: {value.TypeString( )} - {other.TypeString( )}" );
-
-		public static Value operator *( IntegerValue value , Value other )
-			=> other is IntegerValue intVal ? new IntegerValue( value.Get * intVal.Get )
-			 : other is FloatValue floatVal ? new FloatValue( value.Get * floatVal.Get )
-			 : throw new RuntimeException( $"Invalid operation: {value.TypeString( )} * {other.TypeString( )}" );
-
-		public static Value operator /( IntegerValue value , Value other )
-			=> other is IntegerValue intVal ? new IntegerValue( value.Get / intVal.Get )
-			 : other is FloatValue floatVal ? new FloatValue( value.Get / floatVal.Get )
-			 : throw new RuntimeException( $"Invalid operation: {value.TypeString( )} / {other.TypeString( )}" );
-
 		public override bool GreaterThan( Value value )
 			=> value is IntegerValue intVal ? this.Get > intVal.Get
 			 : value is FloatValue floatVal ? this.Get > floatVal.Get

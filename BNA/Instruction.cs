@@ -102,7 +102,7 @@ namespace BNA
 					Value randVal
 						= this.SecondaryValue is IntegerValue intVal ? new IntegerValue( BNA.RNG.Next( intVal.Get ) )
 						: this.SecondaryValue is FloatValue floatVal ? new FloatValue( BNA.RNG.NextDouble( ) * floatVal.Get )
-						: throw new RuntimeException( $"Argument to RANDOM must be numeric: {this.SecondaryOperandInfo( )}" );
+						: throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue );
 					this.Program.SetValue( this.PrimaryToken , randVal , true );
 					break;
 				}
@@ -145,7 +145,7 @@ namespace BNA
 
 				case StatementType.LIST:
 				{
-					int size = this.SecondaryValue is IntegerValue intVal ? intVal.Get : throw new RuntimeException( $"Argument to LIST must be integer: {this.SecondaryOperandInfo( )}" );
+					int size = this.SecondaryValue is IntegerValue intVal ? intVal.Get : throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue );
 					this.Program.SetValue( this.PrimaryToken , new ListValue( size ) , true );
 					break;
 				}
@@ -160,7 +160,7 @@ namespace BNA
 				case StatementType.OPEN_READ:
 				{
 					bool read = this.Type == StatementType.READ;
-					string filename = this.SecondaryValue is StringValue strVal ? strVal.Get : throw new RuntimeException( $"Argument to OPEN must be string: {this.SecondaryOperandInfo( )}" );
+					string filename = this.SecondaryValue is StringValue strVal ? strVal.Get : throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue );
 					this.Program.SetValue( this.PrimaryToken , read ? new ReadFileValue( filename ) : new WriteFileValue( filename ) , true );
 					break;
 				}
@@ -175,7 +175,7 @@ namespace BNA
 					}
 					else
 					{
-						throw new RuntimeException( $"Argument to CLOSE must be file: {this.PrimaryOperandInfo( )}" );
+						throw new IncorrectOperandTypeException( this.Type , this.PrimaryToken , this.PrimaryValue );
 					}
 				}
 
@@ -201,7 +201,7 @@ namespace BNA
 					}
 					else
 					{
-						throw new RuntimeException( $"Argument to READ must be read file: {this.PrimaryOperandInfo( )}" );
+						throw new IncorrectOperandTypeException( this.Type , this.PrimaryToken , this.PrimaryValue );
 					}
 				}
 
@@ -214,7 +214,7 @@ namespace BNA
 					}
 					else
 					{
-						throw new RuntimeException( $"Argument to WRITE must be write file: {this.PrimaryOperandInfo( )}" );
+						throw new IncorrectOperandTypeException( this.Type , this.PrimaryToken , this.PrimaryValue );
 					}
 				}
 
@@ -222,7 +222,7 @@ namespace BNA
 				{
 					Console.Write(
 						this.SecondaryValue is StringValue strVal ? strVal.Get
-						: throw new RuntimeException( $"Argument to INPUT must be string: {this.SecondaryOperandInfo( )}" )
+						: throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue )
 					);
 
 					var token = new Token( Console.ReadLine( ) ?? string.Empty );
@@ -244,7 +244,7 @@ namespace BNA
 							break;
 
 						default:
-							throw new RuntimeException( "Invalid input: " + token.ToString( ) );
+							throw new Exception( "Unexpected data from INPUT return: " + token.ToString( ) );
 					}
 					break;
 				}
@@ -260,7 +260,7 @@ namespace BNA
 					int ms = (int)( 1000 *
 						( this.PrimaryValue is IntegerValue intVal ? intVal.Get
 						: this.PrimaryValue is FloatValue floatVal ? floatVal.Get
-						: throw new RuntimeException( $"Argument to WAIT must be numeric: {this.PrimaryOperandInfo( )}" ) ) );
+						: throw new IncorrectOperandTypeException( this.Type , this.PrimaryToken , this.PrimaryValue ) ) );
 
 					try
 					{
@@ -268,7 +268,8 @@ namespace BNA
 					}
 					catch ( Exception e )
 					{
-						throw new RuntimeException( "Exception caught while waiting:\n" + e.Message );
+						// TODO make this a new runtime exception class?
+						throw new Exception( "Exception caught while waiting:\n" + e.Message );
 					}
 
 					break;
@@ -276,7 +277,7 @@ namespace BNA
 
 				case StatementType.ERROR:
 				{
-					throw new RuntimeException( this.PrimaryValue.ToString( ) , true );
+					throw new ErrorStatementException( this.PrimaryValue );
 				}
 
 				case StatementType.EXIT:
@@ -322,12 +323,12 @@ namespace BNA
 				case StatementType.GOTO:
 				{
 					// Subtract one because the IP will be incremented after this
-					int newIP = this.PrimaryValue is IntegerValue intVal ? intVal.Get - 1 : throw new RuntimeException( $"Argument to GOTO must be integer: {this.PrimaryOperandInfo( )}" );
+					int newIP = this.PrimaryValue is IntegerValue intVal ? intVal.Get - 1 : throw new IncorrectOperandTypeException( this.Type , this.PrimaryToken , this.PrimaryValue );
 
 					// No negative values or overflow (after increment)
 					if ( newIP is < -1 or int.MaxValue )
 					{
-						throw new RuntimeException( $"Invalid GOTO address: {newIP}" );
+						throw new ValueOutOfRangeException( this.PrimaryValue , "GOTO address" );
 					}
 
 					// Check condition
@@ -344,6 +345,8 @@ namespace BNA
 					throw new Exception( $"Unexpected statement type: {this.Type}" );
 			}
 		}
+
+		public override string ToString( ) => $"{this.Type} ({this.PrimaryOperandInfo( )}) ({this.SecondaryOperandInfo( )})";
 
 		/// <summary>
 		/// Display relevant info on the primary operand.
