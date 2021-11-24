@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BNA.Exceptions;
 
-namespace BNA
+namespace BNA.Compile
 {
 	/// <summary>
 	/// The recognized and reserved keywords of BNA.

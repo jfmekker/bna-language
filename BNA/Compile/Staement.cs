@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BNA
+namespace BNA.Compile
 {
 	/// <summary>
 	/// Valid statements or instructions

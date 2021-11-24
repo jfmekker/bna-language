@@ -1,10 +1,11 @@
-﻿using BNA;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using BNA;
+using BNA.Compile;
 
 namespace BnaUnitTests
 {
@@ -93,6 +94,27 @@ namespace BnaUnitTests
 			{
 				Token token = new( str );
 				Assert.AreNotEqual( TokenType.LITERAL , token.Type , $"Failed value: {str}" );
+			}
+		}
+
+		[TestMethod]
+		public void Parse_Null_Happy_Test( )
+		{
+			Token token = new( string.Empty );
+			Assert.AreNotEqual( TokenType.NULL , token.Type );
+		}
+
+		[TestMethod]
+		public void Parse_Null_Sad_Test( )
+		{
+			foreach ( string str in new string[]
+				{
+					"zero", "_1", "1_2345", ",234,567", "0.0.0", "..333", "1 2", "1 2 3",
+				}
+			)
+			{
+				Token token = new( str );
+				Assert.AreNotEqual( TokenType.NULL , token.Type , $"Failed value: {str}" );
 			}
 		}
 	}

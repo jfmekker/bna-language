@@ -1,8 +1,10 @@
 ﻿using System;
+using BNA.Compile;
 using BNA.Exceptions;
+using BNA.Run;
 using BNA.Values;
 
-namespace BNA
+namespace BNA.Run
 {
 	/// <summary>
 	/// Executable statement object.

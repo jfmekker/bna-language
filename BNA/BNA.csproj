@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Compile\" />
+    <Folder Include="Run\" />
+  </ItemGroup>
+
 </Project>

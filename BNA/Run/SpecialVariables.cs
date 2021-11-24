@@ -1,6 +1,7 @@
-﻿using BNA.Values;
+﻿using BNA.Compile;
+using BNA.Values;
 
-namespace BNA
+namespace BNA.Run
 {
 	public static class SpecialVariables
 	{

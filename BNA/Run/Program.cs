@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using BNA.Compile;
 using BNA.Exceptions;
 using BNA.Values;
 
-namespace BNA
+namespace BNA.Run
 {
 	/// <summary>
 	/// Object class representing a BNA program.

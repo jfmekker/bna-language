@@ -1,7 +1,9 @@
-﻿using BNA.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using BNA.Exceptions;
+using BNA.Compile;
+using BNA.Run;
 
 namespace BNA
 {

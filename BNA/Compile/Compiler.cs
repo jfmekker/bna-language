@@ -1,7 +1,8 @@
 ﻿using BNA.Exceptions;
+using BNA.Run;
 using System.Collections.Generic;
 
-namespace BNA
+namespace BNA.Compile
 {
 	public class Compiler
 	{
