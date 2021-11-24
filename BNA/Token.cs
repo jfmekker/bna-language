@@ -149,6 +149,12 @@ namespace BNA
 						? TokenType.LITERAL : TokenType.INVALID;
 				}
 
+				// Symbol
+				if ( this.Value.Length == 1 && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) )
+				{
+					return TokenType.SYMBOL;
+				}
+
 				// String
 				if ( this.Value[0] == (char)Symbol.STRING_MARKER )
 				{
@@ -178,12 +184,6 @@ namespace BNA
 				if ( Enum.TryParse( this.Value.ToUpper( ) , out Keyword _ ) )
 				{
 					return TokenType.KEYWORD;
-				}
-
-				// Symbol
-				if ( this.Value.Length == 1 && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) )
-				{
-					return TokenType.SYMBOL;
 				}
 
 				// Variable
