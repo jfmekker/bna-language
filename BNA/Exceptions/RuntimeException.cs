@@ -1,4 +1,5 @@
 ﻿using System;
+using BNA.Common;
 using BNA.Compile;
 using BNA.Run;
 using BNA.Values;
@@ -45,9 +46,9 @@ namespace BNA.Exceptions
 
 		public readonly Value Value;
 
-		public readonly StatementType Statement;
+		public readonly Operation Statement;
 
-		public IncorrectOperandTypeException( StatementType statement , Token token , Value value )
+		public IncorrectOperandTypeException( Operation statement , Token token , Value value )
 			: base( $"Incorrect operand type for {statement} statement: {token} = {value.TypeString( )} '({value})'" )
 		{
 			this.Statement = statement;

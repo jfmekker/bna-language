@@ -1,82 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using BNA.Common;
 using BNA.Exceptions;
 
 namespace BNA.Compile
 {
-	/// <summary>
-	/// The recognized and reserved keywords of BNA.
-	/// </summary>
-	public enum Keyword
-	{
-		// Empty keyword to represent unknown
-		_ = 0,
-
-		// Operation start keywords
-		SET,
-		ADD,
-		SUBTRACT,
-		MULTIPLY,
-		DIVIDE,
-		WAIT,
-		RANDOM,
-		TEST,
-		GOTO,
-		OR,
-		AND,
-		XOR,
-		NEGATE,
-		RAISE,
-		MOD,
-		LOG,
-		ROUND,
-		LIST,
-		APPEND,
-		SIZE,
-		OPEN,
-		CLOSE,
-		READ,
-		WRITE,
-		INPUT,
-		PRINT,
-		TYPE,
-		EXIT,
-		ERROR,
-		SCOPE,
-
-		// Operation mid keywords
-		TO,
-		BY,
-		FROM,
-		MAX,
-		IF,
-		WITH,
-		OF,
-		AS,
-	}
-
-	/// <summary>
-	/// Special symbols within the BNA language.
-	/// </summary>
-	public enum Symbol
-	{
-		// Default to 'null' value
-		NULL = '\0',
-		COMMENT = '#',
-		GREATER_THAN = '>',
-		LESS_THAN = '<',
-		EQUAL = '=',
-		NOT = '!',
-		LABEL_START = '^',
-		LABEL_END = ':',
-		LINE_END = '\n',
-		STRING_MARKER = '"',
-		ACCESSOR = '@',
-		LIST_START = '(',
-		LIST_END = ')',
-		LIST_SEPERATOR = ',',
-	}
-
 	/// <summary>
 	/// What a given Token is identified as.
 	/// </summary>

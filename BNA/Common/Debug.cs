@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BNA
+namespace BNA.Common
 {
 	/// <summary>
 	/// Static class to separate debug prints.

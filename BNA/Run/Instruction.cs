@@ -1,4 +1,5 @@
 ﻿using System;
+using BNA.Common;
 using BNA.Compile;
 using BNA.Exceptions;
 using BNA.Run;
@@ -48,7 +49,7 @@ namespace BNA.Run
 		/// <summary>
 		/// The type of statement the instruction executes.
 		/// </summary>
-		public StatementType Type { get; init; }
+		public Operation Type { get; init; }
 
 		/// <summary>
 		/// Program to modify and get values from.
@@ -62,12 +63,12 @@ namespace BNA.Run
 		{
 			switch ( this.Type )
 			{
-				case StatementType.NULL:
-				case StatementType.LABEL:
-				case StatementType.COMMENT:
+				case Operation.NULL:
+				case Operation.LABEL:
+				case Operation.COMMENT:
 					break;
 
-				case StatementType.SET:
+				case Operation.SET:
 				{
 					this.Program.SetValue( this.PrimaryToken ,
 						this.SecondaryValue is ListValue list ? list.DeepCopy( ) : this.SecondaryValue ,
@@ -75,31 +76,31 @@ namespace BNA.Run
 					break;
 				}
 
-				case StatementType.ADD:
+				case Operation.ADD:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Add( this.SecondaryValue ) );
 					break;
 				}
 
-				case StatementType.SUBTRACT:
+				case Operation.SUBTRACT:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Subtract( this.SecondaryValue ) );
 					break;
 				}
 
-				case StatementType.MULTIPLY:
+				case Operation.MULTIPLY:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Multiply( this.SecondaryValue ) );
 					break;
 				}
 
-				case StatementType.DIVIDE:
+				case Operation.DIVIDE:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Divide( this.SecondaryValue ) );
 					break;
 				}
 
-				case StatementType.RANDOM:
+				case Operation.RANDOM:
 				{
 					Value randVal
 						= this.SecondaryValue is IntegerValue intVal ? new IntegerValue( BNA.RNG.Next( intVal.Get ) )
@@ -109,65 +110,65 @@ namespace BNA.Run
 					break;
 				}
 
-				case StatementType.BITWISE_OR:
-				case StatementType.BITWISE_AND:
-				case StatementType.BITWISE_XOR:
-				case StatementType.BITWISE_NEGATE:
+				case Operation.BITWISE_OR:
+				case Operation.BITWISE_AND:
+				case Operation.BITWISE_XOR:
+				case Operation.BITWISE_NEGATE:
 					throw new NotImplementedException( );
 
-				case StatementType.POWER:
+				case Operation.POWER:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.RaiseTo( this.SecondaryValue ) );
 					break;
 				}
 
-				case StatementType.MODULUS:
+				case Operation.MODULUS:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Modulus( this.SecondaryValue ) );
 					break;
 				}
 
-				case StatementType.LOGARITHM:
+				case Operation.LOGARITHM:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Log( this.SecondaryValue ) );
 					break;
 				}
 
-				case StatementType.ROUND:
+				case Operation.ROUND:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Round( ) );
 					break;
 				}
 
-				case StatementType.APPEND:
+				case Operation.APPEND:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.PrimaryValue.Append( this.SecondaryValue ) );
 					break;
 				}
 
-				case StatementType.LIST:
+				case Operation.LIST:
 				{
 					int size = this.SecondaryValue is IntegerValue intVal ? intVal.Get : throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue );
 					this.Program.SetValue( this.PrimaryToken , new ListValue( size ) , true );
 					break;
 				}
 
-				case StatementType.SIZE:
+				case Operation.SIZE:
 				{
 					this.Program.SetValue( this.PrimaryToken , this.SecondaryValue.Size( ) , true );
 					break;
 				}
 
-				case StatementType.OPEN_WRITE:
-				case StatementType.OPEN_READ:
+				case Operation.OPEN_WRITE:
+				case Operation.OPEN_READ:
 				{
-					bool read = this.Type == StatementType.READ;
+					bool read = this.Type == Operation.READ;
 					string filename = this.SecondaryValue is StringValue strVal ? strVal.Get : throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue );
 					this.Program.SetValue( this.PrimaryToken , read ? new ReadFileValue( filename ) : new WriteFileValue( filename ) , true );
 					break;
 				}
 
-				case StatementType.CLOSE:
+				case Operation.CLOSE:
 				{
 					if ( this.PrimaryValue is FileValue fileVal )
 					{
@@ -181,7 +182,7 @@ namespace BNA.Run
 					}
 				}
 
-				case StatementType.READ:
+				case Operation.READ:
 				{
 					if ( this.PrimaryValue is ReadFileValue readFileVal )
 					{
@@ -207,7 +208,7 @@ namespace BNA.Run
 					}
 				}
 
-				case StatementType.WRITE:
+				case Operation.WRITE:
 				{
 					if ( this.PrimaryValue is WriteFileValue writeFileVal )
 					{
@@ -220,7 +221,7 @@ namespace BNA.Run
 					}
 				}
 
-				case StatementType.INPUT:
+				case Operation.INPUT:
 				{
 					Console.Write(
 						this.SecondaryValue is StringValue strVal ? strVal.Get
@@ -251,13 +252,13 @@ namespace BNA.Run
 					break;
 				}
 
-				case StatementType.PRINT:
+				case Operation.PRINT:
 				{
 					Console.WriteLine( this.PrimaryValue.ToString( ) );
 					break;
 				}
 
-				case StatementType.WAIT:
+				case Operation.WAIT:
 				{
 					int ms = (int)( 1000 *
 						( this.PrimaryValue is IntegerValue intVal ? intVal.Get
@@ -277,52 +278,52 @@ namespace BNA.Run
 					break;
 				}
 
-				case StatementType.ERROR:
+				case Operation.ERROR:
 				{
 					throw new ErrorStatementException( this.PrimaryValue );
 				}
 
-				case StatementType.EXIT:
+				case Operation.EXIT:
 				{
 					this.Program.Running = false;
 					break;
 				}
 
-				case StatementType.TEST_EQU:
-				case StatementType.TEST_NEQ:
-				case StatementType.TEST_GTR:
-				case StatementType.TEST_LSS:
+				case Operation.TEST_EQU:
+				case Operation.TEST_NEQ:
+				case Operation.TEST_GTR:
+				case Operation.TEST_LSS:
 				{
 					Value result
-						= this.Type == StatementType.TEST_EQU ? this.PrimaryValue == this.SecondaryValue ? Value.TRUE : Value.FALSE
-						: this.Type == StatementType.TEST_NEQ ? this.PrimaryValue != this.SecondaryValue ? Value.TRUE : Value.FALSE
-						: this.Type == StatementType.TEST_GTR ? this.PrimaryValue.GreaterThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
-						: this.Type == StatementType.TEST_LSS ? this.PrimaryValue.LessThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
+						= this.Type == Operation.TEST_EQU ? this.PrimaryValue == this.SecondaryValue ? Value.TRUE : Value.FALSE
+						: this.Type == Operation.TEST_NEQ ? this.PrimaryValue != this.SecondaryValue ? Value.TRUE : Value.FALSE
+						: this.Type == Operation.TEST_GTR ? this.PrimaryValue.GreaterThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
+						: this.Type == Operation.TEST_LSS ? this.PrimaryValue.LessThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
 						: throw new Exception( $"Unexpted TEST statement type: {this.Type}" );
 					this.Program.SetValue( SpecialVariables.TEST_RESULT , result );
 					break;
 				}
 
-				case StatementType.TYPE:
+				case Operation.TYPE:
 				{
 					string type = this.SecondaryValue.TypeString( )[..^"Value".Length].ToUpper( );
 					this.Program.SetValue( this.PrimaryToken , new StringValue( type ) , true );
 					break;
 				}
 
-				case StatementType.SCOPE_OPEN:
+				case Operation.SCOPE_OPEN:
 				{
 					this.Program.OpenScope( );
 					break;
 				}
 
-				case StatementType.SCOPE_CLOSE:
+				case Operation.SCOPE_CLOSE:
 				{
 					this.Program.CloseScope( );
 					break;
 				}
 
-				case StatementType.GOTO:
+				case Operation.GOTO:
 				{
 					// Subtract one because the IP will be incremented after this
 					int newIP = this.PrimaryValue is IntegerValue intVal ? intVal.Get - 1 : throw new IncorrectOperandTypeException( this.Type , this.PrimaryToken , this.PrimaryValue );
@@ -342,7 +343,7 @@ namespace BNA.Run
 					break;
 				}
 
-				case StatementType.UNKNOWN:
+				case Operation.UNKNOWN:
 				default:
 					throw new Exception( $"Unexpected statement type: {this.Type}" );
 			}

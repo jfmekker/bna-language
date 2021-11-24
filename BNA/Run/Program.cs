@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BNA.Common;
 using BNA.Compile;
 using BNA.Exceptions;
 using BNA.Values;
@@ -359,7 +360,7 @@ namespace BNA.Run
 		{
 			for ( int i = 0 ; i < this.Statements.Length ; i += 1 )
 			{
-				if ( this.Statements[i].Type == StatementType.LABEL )
+				if ( this.Statements[i].Type == Operation.LABEL )
 				{
 					this.SetValue( this.Statements[i].Operand1 , new IntegerValue( i ) , true );
 				}

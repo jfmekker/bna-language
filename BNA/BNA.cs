@@ -171,8 +171,8 @@ namespace BNA
 			try
 			{
 				Console.WriteLine( "Compiling Program..." );
-				var comp = new Compiler( lines );
-				Program prog = comp.Compile( );
+				Compiler comp = new( lines );
+				Program prog = new( comp.Compile( ) );
 				Console.WriteLine( "\nRunning Program...\n" );
 				prog.Run( );
 				Console.WriteLine( );

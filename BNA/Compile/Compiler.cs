@@ -1,4 +1,5 @@
-﻿using BNA.Exceptions;
+﻿using BNA.Common;
+using BNA.Exceptions;
 using BNA.Run;
 using System.Collections.Generic;
 
@@ -22,7 +23,7 @@ namespace BNA.Compile
 			this.Lines = lines;
 		}
 
-		public Program Compile( )
+		public Statement[] Compile( )
 		{
 			// Start with empty line to one-index lines and avoid 0-line programs
 			this.Lines.Insert( 0 , "" );
@@ -81,7 +82,7 @@ namespace BNA.Compile
 			Debug.AddLine( "" + ( statements.Count - 1 ) + " lines" );
 
 			// Create Program object
-			return new Program( statements.ToArray( ) );
+			return statements.ToArray();
 		}
 	}
 }
