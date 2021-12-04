@@ -19,6 +19,7 @@ namespace BNA.Compile
 		LIST,
 		KEYWORD,
 		SYMBOL,
+		LABEL,
 		COMMENT
 	}
 

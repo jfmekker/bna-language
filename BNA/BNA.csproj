@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Compile\" />
     <Folder Include="Run\" />
   </ItemGroup>
 

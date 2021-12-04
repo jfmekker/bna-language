@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BNA.Compile;
+using System;
 
 namespace BNA.Exceptions
 {
@@ -7,20 +8,19 @@ namespace BNA.Exceptions
 	/// </summary>
 	public class CompiletimeException : Exception
 	{
-		/// <summary>
-		/// The line that threw the error.
-		/// </summary>
-		public readonly string Line;
+		public readonly int Line;
 
-		/// <summary>
-		/// The line number of the bad line.
-		/// </summary>
-		public readonly int LineNumber;
+		public readonly int Column;
 
-		/// <summary>
-		/// Specific BNA info message.
-		/// </summary>
-		public readonly string BNAMessage;
+		public readonly string LineString;
+
+		public CompiletimeException( int line, int column , string lineString , Exception innerException )
+			: base( $"t{innerException.Message}\nCompiletime Error - line {line}: {lineString}" , innerException )
+		{
+			this.Line = line;
+			this.Column = column;
+			this.LineString = lineString;
+		}
 
 		public CompiletimeException( int line_number , string line , string message )
 			: base( message + "\nCompile error on line " + line_number + ":\n\t" + line )
@@ -46,4 +46,19 @@ namespace BNA.Exceptions
 			this.BNAMessage = message;
 		}
 	}
+
+	public class MissingWhitespaceException : Exception
+	{ }
+
+	public class InvalidTokenException : Exception
+	{ }
+
+	public class IllegalSymbolException : Exception
+	{ }
+
+	public class UnmatchedTerminatorException : Exception
+	{ }
+
+	public class UnexpectedTokenException : Exception
+	{ }
 }

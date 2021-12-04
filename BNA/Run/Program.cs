@@ -168,8 +168,8 @@ namespace BNA.Run
 						int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
 						if ( accessor == 0 || accessor == token.Value.Length )
 						{
-							// compiletime error?
-							throw new CompiletimeException( this.IP , this.Statements[this.IP].ToString( ) , "Accessor at start or end of token: " + token );
+							// Should have been detected at compiletime
+							throw new Exception( $"Accessor at start or end of token: {token}" );
 						}
 
 						// Get value of index part

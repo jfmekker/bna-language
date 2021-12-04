@@ -10,6 +10,7 @@ namespace BNA.Common
 	{
 		// Default to 'null' value
 		NULL = '\0',
+		ESCAPE = '\\',
 		COMMENT = '#',
 		GREATER_THAN = '>',
 		LESS_THAN = '<',
