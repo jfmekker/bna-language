@@ -14,7 +14,11 @@ namespace BNA.Compile
 
 		public int Index { get; private set; }
 
-		public char Current => this.Line[this.Index];
+		public char? Current => this.Index < this.Line.Length ? this.Line[this.Index] : null;
+
+		public char? Previous => this.Index + 1 < this.Line.Length ? this.Line[this.Index + 1] : null;
+
+		public char? Next => this.Index - 1 > 0 ? this.Line[this.Index - 1] : null;
 
 		public Parser( string line )
 		{
@@ -25,9 +29,9 @@ namespace BNA.Compile
 		public List<Token> ParseTokens( )
 		{
 			List<Token> tokens = new( );
-			while ( this.Index < this.Line.Length )
+			while ( this.Current is not null )
 			{
-				if ( this.Next( ) is Token token )
+				if ( this.NextToken( ) is Token token )
 				{
 					tokens.Add( token );
 				}
@@ -35,9 +39,9 @@ namespace BNA.Compile
 			return tokens;
 		}
 
-		private Token? Next( )
+		private Token? NextToken( )
 		{
-			while ( this.Index < this.Line.Length )
+			while ( this.Current is not null )
 			{
 				if ( this.Current is ' ' or '\t' )
 				{
@@ -46,8 +50,8 @@ namespace BNA.Compile
 				}
 				else
 				{
-					return char.IsDigit( this.Current ) || this.Current is '-' or '.' ? this.NextLiteral( )
-						: char.IsLetter( this.Current ) ? this.NextVariableOrKeyword( )
+					return this.Current.IsDigit( ) || this.Current is '-' or '.' ? this.NextLiteral( )
+						: this.Current.IsLetter( ) ? this.NextVariableOrKeyword( )
 						: this.Current is (char)Symbol.LABEL_START ? this.NextLabel( )
 						: this.Current is (char)Symbol.STRING_MARKER ? this.NextString( )
 						: this.Current is (char)Symbol.LIST_START ? this.NextList( )
@@ -60,27 +64,91 @@ namespace BNA.Compile
 			return null;
 		}
 
-		private Token? NextVariableOrKeyword( ) { throw new NotImplementedException( ); }
+		private Token NextVariableOrKeyword( )
+		{
+			StringBuilder builder = new( );
 
-		private Token? NextSymbol( ) { throw new NotImplementedException( ); }
+			while ( this.Current is not null )
+			{
+				if ( this.Current.IsLetter( ) || this.Current is '_' )
+				{
+					_ = builder.Append( this.Current );
+				}
+				else if ( this.Current is ' ' or '\t' or (char)Symbol.LIST_SEPERATOR or (char)Symbol.LIST_END )
+				{
+					break;
+				}
+				else
+				{
+					throw new Exception( ); // TODO
+				}
 
-		private Token? NextLiteral( ) { throw new NotImplementedException( ); }
+				this.Index += 1;
+			}
+
+			string str = builder.ToString( );
+			return new Token( str , Enum.TryParse( str , out Keyword _ ) ? TokenType.KEYWORD : TokenType.VARIABLE );
+		}
+
+		private Token NextSymbol( )
+		{
+			return this.Current is '<' or '>' or '=' or '!'
+				? new Token( $"{this.Line[this.Index++]}" , TokenType.SYMBOL )
+				: throw new Exception( ); // TODO
+		}
+
+		private Token NextLiteral( )
+		{
+			StringBuilder builder = new( $"{this.Current}" );
+			this.Index += 1;
+
+			while ( this.Current is not null )
+			{
+				if ( this.Current.IsDigit( ) )
+				{
+					_ = builder.Append( this.Current );
+				}
+				else if ( this.Current is '.' )
+				{
+					if ( builder.ToString( ).Contains( '.' ) )
+					{
+						throw new Exception( ); // TODO
+					}
+
+					_ = builder.Append( this.Current );
+				}
+				else if ( this.Current is ' ' or '\t' or (char)Symbol.LIST_SEPERATOR or (char)Symbol.LIST_END )
+				{
+					break;
+				}
+				else
+				{
+					throw new Exception( ); // TODO
+				}
+
+				this.Index += 1;
+			}
+
+			return new Token( builder.ToString( ) , TokenType.LITERAL );
+		}
 
 		private Token NextString( )
 		{
 			StringBuilder builder = new( $"{this.Current}" );
-			while ( this.Index < this.Line.Length )
+			this.Index += 1;
+
+			while ( this.Current is not null )
 			{
 				if ( this.Current is (char)Symbol.ESCAPE )
 				{
 					_ = builder.Append( this.Current );
 
-					this.Index += 1;
-					if ( this.Index >= this.Line.Length || this.Current is (char)Symbol.STRING_MARKER )
+					if ( this.Next is null )
 					{
 						throw new Exception( ); // TODO
 					}
 
+					this.Index += 1;
 					_ = builder.Append( this.Current );
 				}
 				else if ( this.Current is (char)Symbol.STRING_MARKER )
@@ -93,7 +161,8 @@ namespace BNA.Compile
 				this.Index += 1;
 			}
 
-			if ( builder.ToString( )[^1] is not (char)Symbol.STRING_MARKER )
+			if ( builder.ToString( )[^1] is not (char)Symbol.STRING_MARKER
+				|| builder.ToString( )[^2] is (char)Symbol.ESCAPE )
 			{
 				throw new Exception( ); // TODO
 			}
@@ -101,14 +170,44 @@ namespace BNA.Compile
 			return new Token( builder.ToString( ) , TokenType.STRING );
 		}
 
-		private Token? NextList( ) { throw new NotImplementedException( ); }
+		private Token NextList( )
+		{
+			StringBuilder builder = new( $"{this.Current}" );
+			this.Index += 1;
+
+			while ( this.Current is not null and not (char)Symbol.LIST_END )
+			{
+				if ( this.Current is (char)Symbol.LIST_SEPERATOR )
+				{
+					_ = builder.Append( this.Current );
+					this.Index += 1;
+				}
+				else
+				{
+					_ = builder.Append( this.NextToken( )?.Value );
+				}
+			}
+
+			if ( this.Current is (char)Symbol.LIST_END )
+			{
+				_ = builder.Append( this.Current );
+				this.Index += 1;
+				return new Token( builder.ToString( ) , TokenType.LIST );
+			}
+			else
+			{
+				throw new Exception( ); // TODO
+			}
+		}
 
 		private Token NextLabel( )
 		{
 			StringBuilder builder = new( $"{this.Current}" );
-			while ( this.Index < this.Line.Length )
+			this.Index += 1;
+
+			while ( this.Current is not null )
 			{
-				if ( char.IsLetter( this.Current ) )
+				if ( this.Current.IsLetter( ) )
 				{
 					_ = builder.Append( this.Current );
 				}
@@ -132,7 +231,10 @@ namespace BNA.Compile
 				this.Index += 1;
 			}
 
-			// TODO check it's not a keyword
+			if ( Enum.TryParse( builder.ToString( ) , out Keyword _ ) )
+			{
+				throw new Exception( ); // TODO
+			}
 
 			return new Token( builder.ToString( ) , TokenType.LABEL );
 		}
@@ -140,11 +242,13 @@ namespace BNA.Compile
 		private Token NextComment( )
 		{
 			StringBuilder builder = new( );
-			while ( this.Index < this.Line.Length )
+
+			while ( this.Current is not null )
 			{
 				_ = builder.Append( this.Current );
 				this.Index += 1;
 			}
+
 			return new Token( builder.ToString( ) , TokenType.COMMENT );
 		}
 	}
