@@ -13,5 +13,17 @@ namespace BNA.Common
 		public static bool IsDigit( this char? character ) => character is char c && char.IsDigit( c );
 
 		public static bool IsLetterOrDigit( this char? character ) => character is char c && char.IsLetterOrDigit( c );
+
+		public static string Repeat( this string str , int times )
+		{
+			StringBuilder builder = new( times );
+
+			for ( int i = 0 ; i < times ; i += 1 )
+			{
+				_ = builder.Append( str );
+			}
+
+			return builder.ToString( );
+		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using BNA.Compile;
+﻿using BNA.Common;
+using BNA.Compile;
 using System;
 
 namespace BNA.Exceptions
@@ -14,8 +15,11 @@ namespace BNA.Exceptions
 
 		public readonly string LineString;
 
-		public CompiletimeException( int line, int column , string lineString , Exception innerException )
-			: base( $"t{innerException.Message}\nCompiletime Error - line {line}: {lineString}" , innerException )
+		public CompiletimeException( int line , int column , string lineString , Exception innerException )
+			: base( $"{innerException.Message}\n" +
+					$"Compiletime Error - line {line}: {lineString}\n" +
+					$"                         {" ".Repeat( line.ToString( ).Length )}  {" ".Repeat( column )}" ,
+				  innerException )
 		{
 			this.Line = line;
 			this.Column = column;

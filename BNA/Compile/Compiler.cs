@@ -33,13 +33,14 @@ namespace BNA.Compile
 			var tokenLines = new List<List<Token>>( );
 			for ( int i = 0 ; i < this.Lines.Count ; i += 1 )
 			{
+				Parser parser = new( this.Lines[i] );
 				try
 				{
-					tokenLines.Add( Token.TokenizeLine( this.Lines[i] ) );
+					tokenLines.Add( parser.ParseTokens( ) );
 				}
 				catch ( CompiletimeException e )
 				{
-					throw new CompiletimeException( e , i , this.Lines[i] );
+					throw new CompiletimeException( i, parser.Index , this.Lines[i], e );
 				}
 			}
 
