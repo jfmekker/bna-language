@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BNA.Common;
 using BNA.Exceptions;
 
@@ -19,6 +17,8 @@ namespace BNA.Compile
 		public char? Previous => this.Index + 1 < this.Line.Length ? this.Line[this.Index + 1] : null;
 
 		public char? Next => this.Index - 1 > 0 ? this.Line[this.Index - 1] : null;
+
+		private char ConsumeCurrent => this.Line[this.Index++];
 
 		public Parser( string line )
 		{
@@ -39,7 +39,7 @@ namespace BNA.Compile
 			return tokens;
 		}
 
-		private Token? NextToken( )
+		public Token? NextToken( )
 		{
 			while ( this.Current is not null )
 			{
@@ -51,11 +51,9 @@ namespace BNA.Compile
 				else
 				{
 					return this.Current.IsDigit( ) || this.Current is '-' or '.' ? this.NextLiteral( )
-						: this.Current.IsLetter( ) ? this.NextVariableOrKeyword( )
-						: this.Current is (char)Symbol.LABEL_START ? this.NextLabel( )
+						: this.Current.IsLetter( ) || this.Current is '_' ? this.NextVariableOrKeyword( )
 						: this.Current is (char)Symbol.STRING_MARKER ? this.NextString( )
 						: this.Current is (char)Symbol.LIST_START ? this.NextList( )
-						: this.Current is (char)Symbol.LABEL_END ? throw new UnmatchedTerminatorException( ) // TODO
 						: this.Current is (char)Symbol.COMMENT ? this.NextComment( )
 						: this.NextSymbol( );
 				}
@@ -64,179 +62,108 @@ namespace BNA.Compile
 			return null;
 		}
 
-		private Token NextVariableOrKeyword( )
+		private Token NextLiteral( )
 		{
-			StringBuilder builder = new( );
+			StringBuilder builder = new( $"{this.ConsumeCurrent}" );
 
 			while ( this.Current is not null )
 			{
-				if ( this.Current.IsLetter( ) || this.Current is '_' )
+				if ( this.Current.IsLetterOrDigit( ) || this.Current is '.' or '+' or '-' )
 				{
-					_ = builder.Append( this.Current );
-				}
-				else if ( this.Current is ' ' or '\t' or (char)Symbol.LIST_SEPERATOR or (char)Symbol.LIST_END )
-				{
-					break;
+					_ = builder.Append( this.ConsumeCurrent );
 				}
 				else
 				{
-					throw new Exception( ); // TODO
+					break;
+				}
+			}
+
+			string str = builder.ToString( );
+			return long.TryParse( str , out long _ ) || double.TryParse( str , out double _ )
+				? new Token( str , TokenType.LITERAL )
+				: throw new InvalidTokenException( "Literal is not parsable as number." );
+		}
+
+		private Token NextVariableOrKeyword( )
+		{
+			StringBuilder builder = new( $"{this.ConsumeCurrent}" );
+
+			while ( this.Current is not null )
+			{
+				if ( !this.Current.IsLetterOrDigit( ) && this.Current is not '_' )
+				{
+					break;
 				}
 
-				this.Index += 1;
+				_ = builder.Append( this.ConsumeCurrent );
 			}
 
 			string str = builder.ToString( );
 			return new Token( str , Enum.TryParse( str , out Keyword _ ) ? TokenType.KEYWORD : TokenType.VARIABLE );
 		}
 
-		private Token NextSymbol( )
-		{
-			return this.Current is '<' or '>' or '=' or '!'
-				? new Token( $"{this.Line[this.Index++]}" , TokenType.SYMBOL )
-				: throw new Exception( ); // TODO
-		}
-
-		private Token NextLiteral( )
-		{
-			StringBuilder builder = new( $"{this.Current}" );
-			this.Index += 1;
-
-			while ( this.Current is not null )
-			{
-				if ( this.Current.IsDigit( ) )
-				{
-					_ = builder.Append( this.Current );
-				}
-				else if ( this.Current is '.' )
-				{
-					if ( builder.ToString( ).Contains( '.' ) )
-					{
-						throw new Exception( ); // TODO
-					}
-
-					_ = builder.Append( this.Current );
-				}
-				else if ( this.Current is ' ' or '\t' or (char)Symbol.LIST_SEPERATOR or (char)Symbol.LIST_END )
-				{
-					break;
-				}
-				else
-				{
-					throw new Exception( ); // TODO
-				}
-
-				this.Index += 1;
-			}
-
-			return new Token( builder.ToString( ) , TokenType.LITERAL );
-		}
-
 		private Token NextString( )
 		{
-			StringBuilder builder = new( $"{this.Current}" );
-			this.Index += 1;
+			StringBuilder builder = new( $"{this.ConsumeCurrent}" );
 
+			bool string_ended = false;
 			while ( this.Current is not null )
 			{
-				if ( this.Current is (char)Symbol.ESCAPE )
-				{
-					_ = builder.Append( this.Current );
+				_ = builder.Append( this.ConsumeCurrent );
 
-					if ( this.Next is null )
-					{
-						throw new Exception( ); // TODO
-					}
-
-					this.Index += 1;
-					_ = builder.Append( this.Current );
-				}
-				else if ( this.Current is (char)Symbol.STRING_MARKER )
+				if ( builder.ToString( )[^1] == (char)Symbol.STRING_MARKER &&
+					builder.ToString( )[^2] != (char)Symbol.ESCAPE )
 				{
-					_ = builder.Append( this.Current );
+					string_ended = true;
 					break;
 				}
-
-				_ = builder.Append( this.Current );
-				this.Index += 1;
 			}
 
-			if ( builder.ToString( )[^1] is not (char)Symbol.STRING_MARKER
-				|| builder.ToString( )[^2] is (char)Symbol.ESCAPE )
-			{
-				throw new Exception( ); // TODO
-			}
-
-			return new Token( builder.ToString( ) , TokenType.STRING );
+			return string_ended ? new Token( builder.ToString( ) , TokenType.STRING )
+				: throw new MissingTerminatorException( "String" , (char)Symbol.STRING_MARKER );
 		}
 
 		private Token NextList( )
 		{
-			StringBuilder builder = new( $"{this.Current}" );
-			this.Index += 1;
-
-			while ( this.Current is not null and not (char)Symbol.LIST_END )
-			{
-				if ( this.Current is (char)Symbol.LIST_SEPERATOR )
-				{
-					_ = builder.Append( this.Current );
-					this.Index += 1;
-				}
-				else
-				{
-					_ = builder.Append( this.NextToken( )?.Value );
-				}
-			}
-
-			if ( this.Current is (char)Symbol.LIST_END )
-			{
-				_ = builder.Append( this.Current );
-				this.Index += 1;
-				return new Token( builder.ToString( ) , TokenType.LIST );
-			}
-			else
-			{
-				throw new Exception( ); // TODO
-			}
-		}
-
-		private Token NextLabel( )
-		{
-			StringBuilder builder = new( $"{this.Current}" );
-			this.Index += 1;
+			int start_index = this.Index;
+			List<Token> list = new( ) { new Token( $"{this.ConsumeCurrent}" , TokenType.SYMBOL ) };
 
 			while ( this.Current is not null )
 			{
-				if ( this.Current.IsLetter( ) )
+				if ( this.NextToken( ) is Token token )
 				{
-					_ = builder.Append( this.Current );
-				}
-				else if ( this.Current is (char)Symbol.LABEL_END )
-				{
-					if ( builder.Length > 1 )
+					if ( token.Equals( Symbol.LIST_END ) )
 					{
-						_ = builder.Append( this.Current );
+						list.Add( token );
+						break;
+					}
+					else if ( token.Equals( Symbol.LIST_SEPERATOR ) )
+					{
+						list.Add( token );
+					}
+					else if ( token.Type is TokenType.LITERAL or TokenType.VARIABLE or TokenType.STRING or TokenType.LIST )
+					{
+						if ( list[^1].Equals( Symbol.LIST_SEPERATOR ) || list[^1].Equals( Symbol.LIST_START ) )
+						{
+							list.Add( token );
+						}
+						else
+						{
+							throw new IllegalTokenException( $"Tokens in lists must be separated by '{Symbol.LIST_SEPERATOR}'." );
+						}
 					}
 					else
 					{
-						throw new Exception( ); // TODO
+						throw new IllegalTokenException( $"Tokens of type '{token.Type}' not allowed in lists." );
 					}
-					break;
 				}
 				else
 				{
-					throw new Exception( ); // TODO
+					throw new MissingTerminatorException( "List" , (char)Symbol.LIST_END );
 				}
-
-				this.Index += 1;
 			}
 
-			if ( Enum.TryParse( builder.ToString( ) , out Keyword _ ) )
-			{
-				throw new Exception( ); // TODO
-			}
-
-			return new Token( builder.ToString( ) , TokenType.LABEL );
+			return new Token( this.Line[start_index..this.Index] , TokenType.LIST );
 		}
 
 		private Token NextComment( )
@@ -245,11 +172,24 @@ namespace BNA.Compile
 
 			while ( this.Current is not null )
 			{
-				_ = builder.Append( this.Current );
-				this.Index += 1;
+				_ = builder.Append( this.ConsumeCurrent );
 			}
 
 			return new Token( builder.ToString( ) , TokenType.COMMENT );
+		}
+
+		private Token NextSymbol( )
+		{
+			return this.Current is (char)Symbol.LESS_THAN
+								or (char)Symbol.GREATER_THAN
+								or (char)Symbol.EQUAL
+								or (char)Symbol.NOT
+								or (char)Symbol.LIST_SEPERATOR
+								or (char)Symbol.LIST_END
+								or (char)Symbol.LABEL_START
+								or (char)Symbol.LABEL_END
+				? new Token( $"{this.ConsumeCurrent}" , TokenType.SYMBOL )
+				: throw new UnexpectedSymbolException( this.Current );
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BNA.Compile;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,14 @@ namespace BNA.Common
 			}
 
 			return builder.ToString( );
+		}
+
+		public static void AddIfNotNull(this List<Token> collection, Token? obj)
+		{
+			if (obj is Token token)
+			{
+				collection.Add( token );
+			}
 		}
 	}
 }

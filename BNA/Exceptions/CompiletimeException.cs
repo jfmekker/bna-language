@@ -26,43 +26,48 @@ namespace BNA.Exceptions
 			this.LineString = lineString;
 		}
 
-		public CompiletimeException( int line_number , string line , string message )
-			: base( message + "\nCompile error on line " + line_number + ":\n\t" + line )
-		{
-			this.Line = line;
-			this.LineNumber = line_number;
-			this.BNAMessage = message;
-		}
-
 		public CompiletimeException( CompiletimeException exception , int line_number , string line )
-			: base( exception.BNAMessage + "\nCompile error on line " + line_number + ":\n\t" + line , exception )
+			: base( exception.Message + "\nCompile error" )
 		{
-			this.Line = line;
-			this.LineNumber = line_number;
-			this.BNAMessage = exception.BNAMessage;
+			this.LineString = "";
 		}
 
 		public CompiletimeException( string message )
 			: base( message + "\nCompile error" )
 		{
-			this.Line = string.Empty;
-			this.LineNumber = -1;
-			this.BNAMessage = message;
+			this.LineString = "";
 		}
 	}
 
-	public class MissingWhitespaceException : Exception
-	{ }
+	public class UnexpectedSymbolException : Exception
+	{
+		public UnexpectedSymbolException( char? symbol )
+			: base( $"Unexpected symbol: '{symbol?.ToString( ) ?? "null" }'" )
+		{
+		}
+	}
+
+	public class MissingTerminatorException : Exception
+	{
+		public MissingTerminatorException( string thing, char terminator )
+			: base( $"{thing} missing '{terminator}' terminator before end of line." )
+		{
+		}
+	}
+
+	public class IllegalTokenException : Exception
+	{
+		public IllegalTokenException( string message )
+			: base( message )
+		{
+		}
+	}
 
 	public class InvalidTokenException : Exception
-	{ }
-
-	public class IllegalSymbolException : Exception
-	{ }
-
-	public class UnmatchedTerminatorException : Exception
-	{ }
-
-	public class UnexpectedTokenException : Exception
-	{ }
+	{
+		public InvalidTokenException( string message )
+			: base( message )
+		{
+		}
+	}
 }

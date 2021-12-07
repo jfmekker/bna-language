@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BNA.Compile;
+using BNA.Common;
 
 namespace BNA.Values
 {

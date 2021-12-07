@@ -14,59 +14,30 @@ namespace BnaUnitTests
 	public class TokenizerTests
 	{
 		[TestMethod]
-		public void Parse_Keywords_Happy_Test( )
+		public void Parse_Keyword_Token_Test( )
 		{
 			foreach ( Keyword keyword in Enum.GetValues( typeof( Keyword ) ) )
 			{
-				Token token = new( keyword.ToString( ) );
-				Assert.AreEqual( TokenType.KEYWORD , token.Type , $"Failed value: {token.Value}" );
+				Token expected_token = new( keyword.ToString( ) , TokenType.KEYWORD );
+
+				Parser parser = new( keyword.ToString( ) );
+
+				Assert.AreEqual( expected_token , parser.NextToken( ) );
 			}
 		}
 
 		[TestMethod]
-		public void Parse_Keywords_Sad_Test( )
+		public void Parse_Symbol_Token_Test( )
 		{
-			foreach ( Keyword keyword in Enum.GetValues( typeof( Keyword ) ) )
+			foreach ( string symbol in new string[] { ">", "<", "=", "!" } )
 			{
-				Token token = new( "_" + keyword.ToString( ) );
-				Assert.AreNotEqual( TokenType.KEYWORD , token.Type , $"Failed value: {token.Value}" );
-
-				token = new( keyword.ToString( ) + "_" );
-				Assert.AreNotEqual( TokenType.KEYWORD , token.Type , $"Failed value: {token.Value}" );
-
-				token = new( keyword.ToString( ) + keyword.ToString( ) );
-				Assert.AreNotEqual( TokenType.KEYWORD , token.Type , $"Failed value: {token.Value}" );
+				Parser parser = new( symbol );
+				Assert.AreEqual( TokenType.SYMBOL , parser.NextToken()?.Type , $"Failed value: {parser.Line}" );
 			}
 		}
 
 		[TestMethod]
-		public void Parse_Symbols_Happy_Test( )
-		{
-			foreach ( Symbol symbol in Enum.GetValues( typeof( Symbol ) ) )
-			{
-				Token token = new( "" + (char)symbol );
-				Assert.AreEqual( TokenType.SYMBOL , token.Type , $"Failed value: {token.Value}" );
-			}
-		}
-
-		[TestMethod]
-		public void Parse_Symbols_Sad_Test( )
-		{
-			foreach ( Symbol symbol in Enum.GetValues( typeof( Symbol ) ) )
-			{
-				Token token = new( "_" + symbol.ToString( ) );
-				Assert.AreNotEqual( TokenType.SYMBOL , token.Type , $"Failed value: {token.Value}" );
-
-				token = new( symbol.ToString( ) + "_" );
-				Assert.AreNotEqual( TokenType.KEYWORD , token.Type , $"Failed value: {token.Value}" );
-
-				token = new( symbol.ToString( ) + symbol.ToString( ) );
-				Assert.AreNotEqual( TokenType.KEYWORD , token.Type , $"Failed value: {token.Value}" );
-			}
-		}
-
-		[TestMethod]
-		public void Parse_NumericLiterals_Happy_Test( )
+		public void Parse_Literal_Token_Test( )
 		{
 			foreach ( string str in new string[]
 				{
@@ -79,44 +50,45 @@ namespace BnaUnitTests
 				}
 			)
 			{
-				Token token = new( str );
-				Assert.AreEqual( TokenType.LITERAL , token.Type , $"Failed value: {str}" );
+				Token expected_token = new( str , TokenType.LITERAL );
+
+				Parser parser = new( str );
+				
+				Assert.AreEqual( expected_token , parser.NextToken( ) , $"Failed value: {str}" );
 			}
 		}
 
 		[TestMethod]
-		public void Parse_NumericLiterals_Sad_Test( )
+		public void Parse_Variable_Token_Test( )
 		{
 			foreach ( string str in new string[]
 				{
-					"zero", "_1", "1_2345", ",234,567", "0.0.0", "..333", "1 2", "1 2 3",
+					"variable", "_variable", "variable_", "___var_iable",
+					"_set", "SET_", "_1024", "some_var_1", "i",
+					"reeeeeeeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaalllllllllllyyyy_long_variable_name"
 				}
 			)
 			{
-				Token token = new( str );
-				Assert.AreNotEqual( TokenType.LITERAL , token.Type , $"Failed value: {str}" );
+				Token expected_token = new( str , TokenType.VARIABLE );
+
+				Parser parser = new( str );
+
+				Assert.AreEqual( expected_token , parser.NextToken( ) , $"Failed value: {str}" );
 			}
 		}
 
 		[TestMethod]
-		public void Parse_Null_Happy_Test( )
+		public void Parse_List_Token_Test( )
 		{
-			Token token = new( string.Empty );
-			Assert.AreNotEqual( TokenType.NULL , token.Type );
+			Parser parser = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" ))" );
+			Assert.AreEqual( TokenType.LIST , parser.NextToken( )?.Type );
 		}
 
 		[TestMethod]
-		public void Parse_Null_Sad_Test( )
+		public void Parse_Comment_Token_Test( )
 		{
-			foreach ( string str in new string[]
-				{
-					"zero", "_1", "1_2345", ",234,567", "0.0.0", "..333", "1 2", "1 2 3",
-				}
-			)
-			{
-				Token token = new( str );
-				Assert.AreNotEqual( TokenType.NULL , token.Type , $"Failed value: {str}" );
-			}
+			Parser parser = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" )) # a list comment )()\\,,stuff 123" );
+			Assert.AreEqual( TokenType.COMMENT , parser.ParseTokens()[^1].Type );
 		}
 	}
 }

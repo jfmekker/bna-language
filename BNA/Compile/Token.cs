@@ -53,7 +53,7 @@ namespace BNA.Compile
 		{
 			this.Value = value;
 			this.Type = type;
-			this.Type = this.IdentifyType( );
+			//this.Type = this.IdentifyType( );
 		}
 
 		/// <summary>
@@ -419,7 +419,7 @@ namespace BNA.Compile
 		/// <param name="left">Left hand operand.</param>
 		/// <param name="right">Right hand operand.</param>
 		/// <returns>True if the Tokens have the same type and value.</returns>
-		public static bool operator ==( Token left , Token right ) => ( left.Type == right.Type ) && ( left.Value == right.Value );
+		public static bool operator ==( Token left , Token right ) => ( left.Type == right.Type ) && ( left.Value.ToUpper( ) == right.Value.ToUpper( ) );
 
 		/// <summary>
 		/// Compare non-equality of two Token with the equality operator.
@@ -434,6 +434,8 @@ namespace BNA.Compile
 		/// </summary>
 		/// <param name="obj">Object to compare against.</param>
 		/// <returns>True if the object is an equal Token.</returns>
-		public override bool Equals( object? obj ) => obj is Token other && this == other;
+		public override bool Equals( object? obj ) =>
+			(obj is Token other && this == other) ||
+			(obj is Symbol symbol && ( this.Type == TokenType.SYMBOL ) && ( this.Value.ToUpper( ) == ( (char)symbol ).ToString( ).ToUpper( ) ));
 	}
 }
