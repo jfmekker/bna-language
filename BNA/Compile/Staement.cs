@@ -51,7 +51,6 @@ namespace BNA.Compile
 			if ( tokenList.Count == 0 )
 			{
 				var s = new Statement( );
-				s.tokens.Add( new Token( "" ) );
 				s.Type = Operation.NULL;
 				return s;
 			}
@@ -394,7 +393,7 @@ namespace BNA.Compile
 
 			}
 
-			return tokens.Count <= 0 || tokens.Peek( ).IdentifyType( ) is TokenType.COMMENT ? candidate : throw new CompiletimeException( "Line did not end with statement" );
+			return tokens.Count == 0 || tokens.Peek( ).Type is TokenType.COMMENT ? candidate : throw new CompiletimeException( "Line did not end with statement" );
 		}
 
 		/// <summary>

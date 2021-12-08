@@ -20,6 +20,19 @@ namespace BNA.Compile
 
 		private char ConsumeCurrent => this.Line[this.Index++];
 
+		public static Token ParseSingleToken( string value )
+		{
+			Parser parser = new( value );
+			List<Token> tokens = parser.ParseTokens( );
+
+			if (tokens.Count != 1)
+			{
+				throw new Exception( $"One token expected but {tokens.Count} were parsed." ); // TODO
+			}
+
+			return tokens[0];
+		}
+
 		public Parser( string line )
 		{
 			this.Line = line;
@@ -51,7 +64,7 @@ namespace BNA.Compile
 				else
 				{
 					return this.Current.IsDigit( ) || this.Current is '-' or '.' ? this.NextLiteral( )
-						: this.Current.IsLetter( ) || this.Current is '_' ? this.NextVariableOrKeyword( )
+						: this.Current.IsLetter( ) || this.Current is '_' or (char)Symbol.ACCESSOR ? this.NextVariableOrKeyword( )
 						: this.Current is (char)Symbol.STRING_MARKER ? this.NextString( )
 						: this.Current is (char)Symbol.LIST_START ? this.NextList( )
 						: this.Current is (char)Symbol.COMMENT ? this.NextComment( )
@@ -90,13 +103,15 @@ namespace BNA.Compile
 
 			while ( this.Current is not null )
 			{
-				if ( !this.Current.IsLetterOrDigit( ) && this.Current is not '_' )
+				if ( !this.Current.IsLetterOrDigit( ) && this.Current is not '_' and not (char)Symbol.ACCESSOR )
 				{
 					break;
 				}
 
 				_ = builder.Append( this.ConsumeCurrent );
 			}
+
+			// TODO validate that accessors have values on both sides
 
 			string str = builder.ToString( );
 			return new Token( str , Enum.TryParse( str , out Keyword _ ) ? TokenType.KEYWORD : TokenType.VARIABLE );

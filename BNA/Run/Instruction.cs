@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BNA.Common;
 using BNA.Compile;
 using BNA.Exceptions;
@@ -228,7 +229,7 @@ namespace BNA.Run
 						: throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue )
 					);
 
-					var token = new Token( Console.ReadLine( ) ?? string.Empty );
+					Token token = Parser.ParseSingleToken( Console.ReadLine( ) ?? string.Empty );
 					switch ( token.Type )
 					{
 						case TokenType.LITERAL:
@@ -242,9 +243,9 @@ namespace BNA.Run
 							this.Program.SetValue( this.PrimaryToken , new StringValue( token.Value ) , true );
 							break;
 
-						case TokenType.NULL:
-							this.Program.SetValue( this.PrimaryToken , Value.NULL , true );
-							break;
+						// case TokenType.NULL:
+						// 	this.Program.SetValue( this.PrimaryToken , Value.NULL , true );
+						// 	break;
 
 						default:
 							throw new Exception( "Unexpected data from INPUT return: " + token.ToString( ) );

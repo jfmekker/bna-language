@@ -173,7 +173,7 @@ namespace BNA.Run
 						}
 
 						// Get value of index part
-						Token indexTok = new( token.Value[( accessor + 1 )..] );
+						Token indexTok = Parser.ParseSingleToken( token.Value[( accessor + 1 )..] );
 						Value indexVal = this.GetValue( indexTok );
 						if ( indexVal is not IntegerValue index )
 						{
@@ -181,7 +181,7 @@ namespace BNA.Run
 						}
 
 						// Get the value
-						Token accessedTok = new( token.Value.Substring( 0 , accessor ) );
+						Token accessedTok = Parser.ParseSingleToken( token.Value.Substring( 0 , accessor ) );
 						Value accessedVal = this.GetValue( accessedTok );
 						return accessedVal is ListValue listVal
 								? index.Get >= 0 && index.Get < listVal.Get.Count ? listVal.Get[index.Get]
@@ -206,12 +206,13 @@ namespace BNA.Run
 				// Tokenize and evaluate the contents of a list literal
 				case TokenType.LIST:
 				{
-					List<Token> listTokens = Token.TokenizeLine( token.Value[1..^1] );
+					Parser parser = new( token.Value[1..^1] );
+					List<Token> listTokens = parser.ParseTokens( );
 					List<Value> listValues = new( );
 
 					foreach ( Token t in listTokens )
 					{
-						if ( t.Type != TokenType.SYMBOL || t.Value[0] != (char)Symbol.LIST_SEPERATOR )
+						if ( !t.Equals( Symbol.LIST_SEPERATOR ) )
 						{
 							listValues.Add( this.GetValue( t ) );
 						}
@@ -224,13 +225,6 @@ namespace BNA.Run
 				case TokenType.NULL:
 				{
 					return Value.NULL;
-				}
-
-				// Invalid token
-				case TokenType.INVALID:
-				case TokenType.UNKNOWN:
-				{
-					throw new Exception( "Can not get value from invalid or unknown token: " + token.ToString( ) );
 				}
 
 				default:
@@ -263,8 +257,7 @@ namespace BNA.Run
 				}
 
 				// Get value of index part
-				// Get value of index part
-				Token indexTok = new( token.Value[( accessor + 1 )..] );
+				Token indexTok = Parser.ParseSingleToken( token.Value[( accessor + 1 )..] );
 				Value indexVal = this.GetValue( indexTok );
 				if ( indexVal is not IntegerValue index )
 				{
@@ -272,9 +265,8 @@ namespace BNA.Run
 				}
 
 				// Set the value
-				string listPart = token.Value.Substring( 0 , accessor );
-				Token accessedTok = new( token.Value.Substring( 0 , accessor ) );
-				Value accessedVal = this.GetValue( new Token( listPart ) );
+				Token accessedTok = Parser.ParseSingleToken( token.Value.Substring( 0 , accessor ) );
+				Value accessedVal = this.GetValue( accessedTok );
 				if ( accessedVal is ListValue listVal )
 				{
 					if ( index.Get < 0 || index.Get >= listVal.Get.Count )
