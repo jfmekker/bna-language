@@ -1,6 +1,8 @@
 ﻿using BNA.Common;
 using BNA.Compile;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace BNA.Exceptions
 {
@@ -25,18 +27,6 @@ namespace BNA.Exceptions
 			this.Column = column;
 			this.LineString = lineString;
 		}
-
-		public CompiletimeException( CompiletimeException exception , int line_number , string line )
-			: base( exception.Message + "\nCompile error" )
-		{
-			this.LineString = "";
-		}
-
-		public CompiletimeException( string message )
-			: base( message + "\nCompile error" )
-		{
-			this.LineString = "";
-		}
 	}
 
 	public class UnexpectedSymbolException : Exception
@@ -49,7 +39,7 @@ namespace BNA.Exceptions
 
 	public class MissingTerminatorException : Exception
 	{
-		public MissingTerminatorException( string thing, char terminator )
+		public MissingTerminatorException( string thing , char terminator )
 			: base( $"{thing} missing '{terminator}' terminator before end of line." )
 		{
 		}
@@ -67,6 +57,19 @@ namespace BNA.Exceptions
 	{
 		public InvalidTokenException( string message )
 			: base( message )
+		{
+		}
+	}
+
+	public class MissingTokenException : Exception
+	{
+		public MissingTokenException( params TokenType[] types )
+			: base( $"Missing token, expected {types.PrintElements( )}" )
+		{
+		}
+
+		public MissingTokenException( )
+			: base( "Statement ended too early." )
 		{
 		}
 	}

@@ -1,7 +1,8 @@
-﻿using BNA.Common;
-using BNA.Exceptions;
-using BNA.Run;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using BNA.Common;
+using BNA.Exceptions;
 
 namespace BNA.Compile
 {
@@ -12,78 +13,107 @@ namespace BNA.Compile
 			get; private set;
 		}
 
-		public List<string> Lines
+		public IReadOnlyList<string> Lines
 		{
-			get; private set;
+			get; init;
 		}
 
-		public Compiler( List<string> lines )
+		private readonly List<List<Token>> tokenLines;
+
+		private readonly List<Statement> statements;
+
+		public Compiler( ICollection<string> lines )
 		{
+			// Start with empty line to one-index lines and avoid 0-line programs
 			this.Line = 0;
-			this.Lines = lines;
+			this.Lines = lines.Prepend( string.Empty ).ToList( );
+
+			this.tokenLines = new( );
+			this.statements = new( );
 		}
 
 		public Statement[] Compile( )
 		{
-			// Start with empty line to one-index lines and avoid 0-line programs
-			this.Lines.Insert( 0 , "" );
+			this.ParseTokens( );
 
-			// Convert lines to token stream
+			this.DebugPrintTokens( );
+
+			this.ParseStatements( );
+
+			this.DebugPrintStatements( );
+
+			return statements.ToArray( );
+		}
+
+		private void ParseTokens()
+		{
 			Debug.AddLine( "\nTokenizing..." );
-			var tokenLines = new List<List<Token>>( );
 			for ( int i = 0 ; i < this.Lines.Count ; i += 1 )
 			{
 				Parser parser = new( this.Lines[i] );
 				try
 				{
-					tokenLines.Add( parser.ParseTokens( ) );
+					this.tokenLines.Add( parser.ParseTokens( ) );
 				}
 				catch ( CompiletimeException e )
 				{
-					throw new CompiletimeException( i, parser.Index , this.Lines[i], e );
+					throw new CompiletimeException( i , parser.Index , this.Lines[i] , e );
 				}
 			}
+		}
 
-			// Print all Tokens for debugging
+		private void ParseStatements( )
+		{
+			Debug.AddLine( "\nParsing..." );
+			for ( int i = 0 ; i < tokenLines.Count ; i += 1 )
+			{
+				try
+				{
+					this.statements.Add( Statement.ParseStatement( tokenLines[i] ) );
+				}
+				catch ( Exception e )
+				{
+					if ( e is UnexpectedSymbolException
+						  or MissingTerminatorException
+						  or IllegalTokenException
+						  or InvalidTokenException
+						  or MissingTokenException )
+					{
+						throw new CompiletimeException( i , 0 , this.Lines[i] , e ); // TODO add column
+					}
+					else
+					{
+						throw;
+					}
+				}
+			}
+		}
+
+		private void DebugPrintTokens( )
+		{
 			Debug.AddLine( "\nTokens:" );
 			int total = 0;
-			for ( int i = 1 ; i < tokenLines.Count ; i += 1 )
+			for ( int i = 1 ; i < this.tokenLines.Count ; i += 1 )
 			{
 				Debug.Add( "  Line " + i + ": " );
-				foreach ( Token t in tokenLines[i] )
+				foreach ( Token t in this.tokenLines[i] )
 				{
 					total += 1;
 					Debug.Add( t.ToString( ) + " " );
 				}
 				Debug.AddLine( );
 			}
-			Debug.AddLine( "" + total + " total from " + ( tokenLines.Count - 1 ) + " lines" );
+			Debug.AddLine( "" + total + " total from " + ( this.tokenLines.Count - 1 ) + " lines" );
+		}
 
-			// Parse Statements from Token lines
-			Debug.AddLine( "\nParsing..." );
-			var statements = new List<Statement>( );
-			for ( int i = 0 ; i < tokenLines.Count ; i += 1 )
-			{
-				try
-				{
-					statements.Add( Statement.ParseStatement( tokenLines[i] ) );
-				}
-				catch ( CompiletimeException e )
-				{
-					throw new CompiletimeException( e , i , this.Lines[i] );
-				}
-			}
-
-			// Print all Statements for debugging
+		private void DebugPrintStatements( )
+		{
 			Debug.AddLine( "\nStatements:" );
-			for ( int i = 1 ; i < tokenLines.Count ; i += 1 )
+			for ( int i = 1 ; i < this.statements.Count ; i += 1 )
 			{
-				Debug.AddLine( "  Line " + i + ": " + statements[i] );
+				Debug.AddLine( "  Line " + i + ": " + this.statements[i] );
 			}
-			Debug.AddLine( "" + ( statements.Count - 1 ) + " lines" );
-
-			// Create Program object
-			return statements.ToArray();
+			Debug.AddLine( "" + ( this.statements.Count - 1 ) + " lines" );
 		}
 	}
 }

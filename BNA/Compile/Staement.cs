@@ -1,7 +1,8 @@
-﻿using BNA.Common;
-using BNA.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using BNA.Common;
+using BNA.Exceptions;
 
 namespace BNA.Compile
 {
@@ -69,7 +70,7 @@ namespace BNA.Compile
 				}
 				catch ( InvalidOperationException )
 				{
-					throw new CompiletimeException( "Statement ended too early" );
+					throw new MissingTokenException( );
 				}
 			}
 			else if ( tokenList[0].Type == TokenType.SYMBOL )
@@ -80,12 +81,12 @@ namespace BNA.Compile
 				}
 				catch ( InvalidOperationException )
 				{
-					throw new CompiletimeException( "Statement ended too early" );
+					throw new MissingTokenException( );
 				}
 			}
 			else
 			{
-				throw new CompiletimeException( "Invalid start of statement: " + tokenList[0].ToString( ) );
+				throw new IllegalTokenException( $"Invalid start of statement: {tokenList[0]}" );
 			}
 		}
 
@@ -250,7 +251,7 @@ namespace BNA.Compile
 					}
 					else
 					{
-						throw new CompiletimeException( "Unexpected symbol: " + next.ToString( ) );
+						throw new UnexpectedSymbolException( (char)symbol );
 					}
 
 					break;
@@ -389,22 +390,28 @@ namespace BNA.Compile
 				}
 
 				default:
-					throw new CompiletimeException( "Invalid start of statement: " + startToken.ToString( ) );
+					throw new IllegalTokenException( $"Invalid start of statement: {startToken}" );
 
 			}
 
-			return tokens.Count == 0 || tokens.Peek( ).Type is TokenType.COMMENT ? candidate : throw new CompiletimeException( "Line did not end with statement" );
+			return tokens.Count == 0 || tokens.Peek( ).Type is TokenType.COMMENT
+				? candidate
+				: throw new IllegalTokenException( $"Line did not end after statement was parsed, remaining tokens: {tokens.ToList( ).PrintElements( )}" );
 		}
 
 		/// <summary>
 		/// Add a Token if it is a specified type, else throw an exception.
 		/// </summary>
 		/// <param name="token">Token to add</param>
-		/// <param name="tokenTypes">List of valid types</param>
+		/// <param name="types">List of valid types</param>
 		/// <param name="operand">Which operand to set (defaults to none)</param>
-		public void AddTokenOfTypes( Token token , List<TokenType> tokenTypes , int operand = 0 )
+		public void AddTokenOfTypes( Token token , List<TokenType> types , int operand = 0 )
 		{
-			Token.ThrowIfNotTypes( token , tokenTypes );
+			if ( !types.Contains( token.Type ) )
+			{
+				throw new IllegalTokenException( $"Expected token of type {types.PrintElements( )}, got token: {token}" );
+			}
+
 			this.tokens.Add( token );
 			if ( operand == 1 )
 			{
@@ -423,8 +430,16 @@ namespace BNA.Compile
 		/// <param name="keywords">List of valid keywords</param>
 		public void AddTokenOfKeywords( Token token , List<Keyword> keywords )
 		{
-			token.ThrowIfNotKeywords( keywords );
-			this.tokens.Add( token );
+			foreach ( Keyword keyword in keywords )
+			{
+				if ( token.Equals( keyword ) )
+				{
+					this.tokens.Add( token );
+					return;
+				}
+			}
+
+			throw new IllegalTokenException( $"Expected keyword in {keywords.PrintElements( )}, got token: {token}" );
 		}
 
 		/// <summary>
@@ -434,8 +449,16 @@ namespace BNA.Compile
 		/// <param name="symbols">List of valid symbols</param>
 		public void AddTokenOfSymbols( Token token , List<Symbol> symbols )
 		{
-			token.ThrowIfNotSymbols( symbols );
-			this.tokens.Add( token );
+			foreach ( Symbol symbol in symbols )
+			{
+				if ( token.Equals( symbol ) )
+				{
+					this.tokens.Add( token );
+					return;
+				}
+			}
+
+			throw new IllegalTokenException( $"Expected symbol in {symbols.PrintElements( )}, got token: {token}" );
 		}
 
 		/// <summary>
@@ -472,6 +495,7 @@ namespace BNA.Compile
 		/// <returns>A tuple with the primary and secondary tokens in order.</returns>
 		public (Token, Token) GetPrimaryAndSecondaryTokens( )
 		{
+			// TODO remove this function
 			switch ( this.Type )
 			{
 				case Operation.NULL:

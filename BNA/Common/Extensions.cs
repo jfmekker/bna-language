@@ -27,12 +27,24 @@ namespace BNA.Common
 			return builder.ToString( );
 		}
 
-		public static void AddIfNotNull(this List<Token> collection, Token? obj)
+		public static void AddIfNotNull<T>( this ICollection<T> collection , T? obj )
 		{
-			if (obj is Token token)
+			if ( obj is T ojb_T )
 			{
-				collection.Add( token );
+				collection.Add( ojb_T );
 			}
+		}
+
+		public static string PrintElements<T>( this ICollection<T> collection )
+		{
+			StringBuilder builder = new( "[ " );
+
+			foreach (T obj in collection)
+			{
+				_ = builder.Append( obj ).Append( ' ' );
+			}
+
+			return builder.Append( ']' ).ToString( );
 		}
 	}
 }
