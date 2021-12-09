@@ -64,7 +64,12 @@ namespace BNA.Exceptions
 	public class MissingTokenException : Exception
 	{
 		public MissingTokenException( params TokenType[] types )
-			: base( $"Missing token, expected {types.PrintElements( )}" )
+			: base( $"Missing token, expected {types.PrintElements( )}." )
+		{
+		}
+
+		public MissingTokenException( string token )
+			: base( $"Missing token, expected '{token}'." )
 		{
 		}
 

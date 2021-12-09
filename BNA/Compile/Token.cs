@@ -54,10 +54,11 @@ namespace BNA.Compile
 			return str;
 		}
 
-		public override bool Equals( object? obj ) =>
-			( obj is Token other && ( this.Type == other.Type ) && ( this.Value.ToUpper( ) == other.Value.ToUpper( ) ) ) ||
-			( obj is Symbol symbol && ( this.Type == TokenType.SYMBOL ) && ( this.Value.ToUpper( ) == ( (char)symbol ).ToString( ).ToUpper( ) ) ) ||
-			( obj is Keyword keyword && ( this.Type == TokenType.KEYWORD ) && Enum.TryParse( this.Value , out Keyword word ) && word == keyword );
+		public Keyword? AsKeyword( ) => ( this.Type == TokenType.KEYWORD ) && Enum.TryParse( this.Value , out Keyword word ) ? word : null;
+
+		public Symbol? AsSymbol( ) => ( this.Type == TokenType.SYMBOL ) ? (Symbol)this.Value[0] : null;
+
+		public override bool Equals( object? obj ) => obj is Token other && ( this.Type == other.Type ) && ( this.Value.ToUpper( ) == other.Value.ToUpper( ) );
 
 		public static bool operator ==( Token left , Token right ) => left.Equals( right );
 

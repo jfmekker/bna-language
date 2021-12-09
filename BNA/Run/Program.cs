@@ -212,7 +212,7 @@ namespace BNA.Run
 
 					foreach ( Token t in listTokens )
 					{
-						if ( !t.Equals( Symbol.LIST_SEPERATOR ) )
+						if ( t.AsSymbol() is not Symbol.LIST_SEPERATOR  )
 						{
 							listValues.Add( this.GetValue( t ) );
 						}

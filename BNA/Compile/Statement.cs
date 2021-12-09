@@ -41,6 +41,13 @@ namespace BNA.Compile
 			get; private set;
 		}
 
+		public Statement( Operation type , Token? operand1 = null , Token? operand2 = null )
+		{
+			this.Type = type;
+			this.Operand1 = operand1 ?? default;
+			this.Operand2 = operand2 ?? default;
+		}
+
 		/// <summary>
 		/// Parse a valid statement from a <see cref="Token"/> list.
 		/// </summary>
@@ -432,7 +439,7 @@ namespace BNA.Compile
 		{
 			foreach ( Keyword keyword in keywords )
 			{
-				if ( token.Equals( keyword ) )
+				if ( token.AsKeyword( ) == keyword )
 				{
 					this.tokens.Add( token );
 					return;
@@ -451,7 +458,7 @@ namespace BNA.Compile
 		{
 			foreach ( Symbol symbol in symbols )
 			{
-				if ( token.Equals( symbol ) )
+				if ( token.AsSymbol( ) == symbol )
 				{
 					this.tokens.Add( token );
 					return;

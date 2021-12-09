@@ -25,7 +25,7 @@ namespace BNA.Compile
 			Lexer lexer = new( value );
 			List<Token> tokens = lexer.ReadTokens( );
 
-			if (tokens.Count != 1)
+			if ( tokens.Count != 1 )
 			{
 				throw new Exception( $"One token expected but {tokens.Count} were parsed." ); // TODO
 			}
@@ -147,18 +147,18 @@ namespace BNA.Compile
 			{
 				if ( this.NextToken( ) is Token token )
 				{
-					if ( token.Equals( Symbol.LIST_END ) )
+					if ( token.AsSymbol( ) is Symbol.LIST_END )
 					{
 						list.Add( token );
 						break;
 					}
-					else if ( token.Equals( Symbol.LIST_SEPERATOR ) )
+					else if ( token.AsSymbol( ) is Symbol.LIST_SEPERATOR )
 					{
 						list.Add( token );
 					}
 					else if ( token.Type is TokenType.LITERAL or TokenType.VARIABLE or TokenType.STRING or TokenType.LIST )
 					{
-						if ( list[^1].Equals( Symbol.LIST_SEPERATOR ) || list[^1].Equals( Symbol.LIST_START ) )
+						if ( list[^1].AsSymbol( ) is Symbol.LIST_SEPERATOR or Symbol.LIST_START )
 						{
 							list.Add( token );
 						}
