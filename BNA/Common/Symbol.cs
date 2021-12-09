@@ -1,15 +1,7 @@
-﻿using BNA.Compile;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BNA.Common
+﻿namespace BNA.Common
 {
 	public enum Symbol
 	{
-		// Default to 'null' value
 		NULL = '\0',
 		ESCAPE = '\\',
 		COMMENT = '#',
@@ -19,7 +11,6 @@ namespace BNA.Common
 		NOT = '!',
 		LABEL_START = '^',
 		LABEL_END = ':',
-		LINE_END = '\n',
 		STRING_MARKER = '"',
 		ACCESSOR = '@',
 		LIST_START = '(',

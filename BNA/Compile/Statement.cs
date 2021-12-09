@@ -546,7 +546,6 @@ namespace BNA.Compile
 				case Operation.BITWISE_NEGATE:
 					throw new NotImplementedException( );
 
-				case Operation.UNKNOWN:
 				default:
 					throw new Exception( $"Unexpected statement type in token sorting: {this.Type}" );
 			}

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using BNA.Common;
 using BNA.Compile;
 using BNA.Exceptions;
-using BNA.Run;
 using BNA.Values;
 
 namespace BNA.Run
@@ -344,7 +342,6 @@ namespace BNA.Run
 					break;
 				}
 
-				case Operation.UNKNOWN:
 				default:
 					throw new Exception( $"Unexpected statement type: {this.Type}" );
 			}

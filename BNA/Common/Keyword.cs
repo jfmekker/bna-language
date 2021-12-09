@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BNA.Common
+﻿namespace BNA.Common
 {
 	public enum Keyword
 	{
-		// Empty keyword to represent unknown
-		_ = 0,
-
 		// Operation start keywords
 		SET,
 		ADD,
