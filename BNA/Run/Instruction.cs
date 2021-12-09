@@ -227,7 +227,7 @@ namespace BNA.Run
 						: throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue )
 					);
 
-					Token token = Parser.ParseSingleToken( Console.ReadLine( ) ?? string.Empty );
+					Token token = Lexer.ReadSingleToken( Console.ReadLine( ) ?? string.Empty );
 					switch ( token.Type )
 					{
 						case TokenType.LITERAL:

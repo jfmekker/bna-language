@@ -20,7 +20,7 @@ namespace BnaUnitTests
 			{
 				Token expected_token = new( keyword.ToString( ) , TokenType.KEYWORD );
 
-				Parser parser = new( keyword.ToString( ) );
+				Lexer parser = new( keyword.ToString( ) );
 
 				Assert.AreEqual( expected_token , parser.NextToken( ) );
 			}
@@ -31,7 +31,7 @@ namespace BnaUnitTests
 		{
 			foreach ( string symbol in new string[] { ">", "<", "=", "!" } )
 			{
-				Parser parser = new( symbol );
+				Lexer parser = new( symbol );
 				Assert.AreEqual( TokenType.SYMBOL , parser.NextToken()?.Type , $"Failed value: {parser.Line}" );
 			}
 		}
@@ -52,7 +52,7 @@ namespace BnaUnitTests
 			{
 				Token expected_token = new( str , TokenType.LITERAL );
 
-				Parser parser = new( str );
+				Lexer parser = new( str );
 				
 				Assert.AreEqual( expected_token , parser.NextToken( ) , $"Failed value: {str}" );
 			}
@@ -71,7 +71,7 @@ namespace BnaUnitTests
 			{
 				Token expected_token = new( str , TokenType.VARIABLE );
 
-				Parser parser = new( str );
+				Lexer parser = new( str );
 
 				Assert.AreEqual( expected_token , parser.NextToken( ) , $"Failed value: {str}" );
 			}
@@ -80,15 +80,15 @@ namespace BnaUnitTests
 		[TestMethod]
 		public void Parse_List_Token_Test( )
 		{
-			Parser parser = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" ))" );
+			Lexer parser = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" ))" );
 			Assert.AreEqual( TokenType.LIST , parser.NextToken( )?.Type );
 		}
 
 		[TestMethod]
 		public void Parse_Comment_Token_Test( )
 		{
-			Parser parser = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" )) # a list comment )()\\,,stuff 123" );
-			Assert.AreEqual( TokenType.COMMENT , parser.ParseTokens()[^1].Type );
+			Lexer parser = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" )) # a list comment )()\\,,stuff 123" );
+			Assert.AreEqual( TokenType.COMMENT , parser.ReadTokens()[^1].Type );
 		}
 	}
 }

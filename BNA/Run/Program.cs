@@ -173,7 +173,7 @@ namespace BNA.Run
 						}
 
 						// Get value of index part
-						Token indexTok = Parser.ParseSingleToken( token.Value[( accessor + 1 )..] );
+						Token indexTok = Lexer.ReadSingleToken( token.Value[( accessor + 1 )..] );
 						Value indexVal = this.GetValue( indexTok );
 						if ( indexVal is not IntegerValue index )
 						{
@@ -181,7 +181,7 @@ namespace BNA.Run
 						}
 
 						// Get the value
-						Token accessedTok = Parser.ParseSingleToken( token.Value.Substring( 0 , accessor ) );
+						Token accessedTok = Lexer.ReadSingleToken( token.Value.Substring( 0 , accessor ) );
 						Value accessedVal = this.GetValue( accessedTok );
 						return accessedVal is ListValue listVal
 								? index.Get >= 0 && index.Get < listVal.Get.Count ? listVal.Get[index.Get]
@@ -206,8 +206,8 @@ namespace BNA.Run
 				// Tokenize and evaluate the contents of a list literal
 				case TokenType.LIST:
 				{
-					Parser parser = new( token.Value[1..^1] );
-					List<Token> listTokens = parser.ParseTokens( );
+					Lexer parser = new( token.Value[1..^1] );
+					List<Token> listTokens = parser.ReadTokens( );
 					List<Value> listValues = new( );
 
 					foreach ( Token t in listTokens )
@@ -257,7 +257,7 @@ namespace BNA.Run
 				}
 
 				// Get value of index part
-				Token indexTok = Parser.ParseSingleToken( token.Value[( accessor + 1 )..] );
+				Token indexTok = Lexer.ReadSingleToken( token.Value[( accessor + 1 )..] );
 				Value indexVal = this.GetValue( indexTok );
 				if ( indexVal is not IntegerValue index )
 				{
@@ -265,7 +265,7 @@ namespace BNA.Run
 				}
 
 				// Set the value
-				Token accessedTok = Parser.ParseSingleToken( token.Value.Substring( 0 , accessor ) );
+				Token accessedTok = Lexer.ReadSingleToken( token.Value.Substring( 0 , accessor ) );
 				Value accessedVal = this.GetValue( accessedTok );
 				if ( accessedVal is ListValue listVal )
 				{

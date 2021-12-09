@@ -6,7 +6,7 @@ using BNA.Exceptions;
 
 namespace BNA.Compile
 {
-	public class Parser
+	public class Lexer
 	{
 		public string Line { get; private init; }
 
@@ -20,10 +20,10 @@ namespace BNA.Compile
 
 		private char ConsumeCurrent => this.Line[this.Index++];
 
-		public static Token ParseSingleToken( string value )
+		public static Token ReadSingleToken( string value )
 		{
-			Parser parser = new( value );
-			List<Token> tokens = parser.ParseTokens( );
+			Lexer parser = new( value );
+			List<Token> tokens = parser.ReadTokens( );
 
 			if (tokens.Count != 1)
 			{
@@ -33,13 +33,13 @@ namespace BNA.Compile
 			return tokens[0];
 		}
 
-		public Parser( string line )
+		public Lexer( string line )
 		{
 			this.Line = line;
 			this.Index = 0;
 		}
 
-		public List<Token> ParseTokens( )
+		public List<Token> ReadTokens( )
 		{
 			List<Token> tokens = new( );
 			while ( this.Current is not null )

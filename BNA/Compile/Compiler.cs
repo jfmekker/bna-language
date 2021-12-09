@@ -50,10 +50,10 @@ namespace BNA.Compile
 			Debug.AddLine( "\nTokenizing..." );
 			for ( int i = 0 ; i < this.Lines.Count ; i += 1 )
 			{
-				Parser parser = new( this.Lines[i] );
+				Lexer parser = new( this.Lines[i] );
 				try
 				{
-					this.tokenLines.Add( parser.ParseTokens( ) );
+					this.tokenLines.Add( parser.ReadTokens( ) );
 				}
 				catch ( CompiletimeException e )
 				{
