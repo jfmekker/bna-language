@@ -206,8 +206,8 @@ namespace BNA.Run
 				// Tokenize and evaluate the contents of a list literal
 				case TokenType.LIST:
 				{
-					Lexer parser = new( token.Value[1..^1] );
-					List<Token> listTokens = parser.ReadTokens( );
+					Lexer lexer = new( token.Value[1..^1] );
+					List<Token> listTokens = lexer.ReadTokens( );
 					List<Value> listValues = new( );
 
 					foreach ( Token t in listTokens )

@@ -22,8 +22,8 @@ namespace BNA.Compile
 
 		public static Token ReadSingleToken( string value )
 		{
-			Lexer parser = new( value );
-			List<Token> tokens = parser.ReadTokens( );
+			Lexer lexer = new( value );
+			List<Token> tokens = lexer.ReadTokens( );
 
 			if (tokens.Count != 1)
 			{
