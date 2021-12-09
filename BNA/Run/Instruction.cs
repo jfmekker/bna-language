@@ -64,7 +64,6 @@ namespace BNA.Run
 			{
 				case Operation.NULL:
 				case Operation.LABEL:
-				case Operation.COMMENT:
 					break;
 
 				case Operation.SET:

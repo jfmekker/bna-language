@@ -48,6 +48,8 @@ namespace BNA.Compile
 			this.Operand2 = operand2 ?? default;
 		}
 
+		public Statement() { }
+
 		/// <summary>
 		/// Parse a valid statement from a <see cref="Token"/> list.
 		/// </summary>
@@ -66,7 +68,7 @@ namespace BNA.Compile
 			{
 				var s = new Statement( );
 				s.tokens.Add( tokenList[0] );
-				s.Type = Operation.COMMENT;
+				s.Type = Operation.NULL;
 				return s;
 			}
 			else if ( tokenList[0].Type == TokenType.KEYWORD )
@@ -506,7 +508,6 @@ namespace BNA.Compile
 			switch ( this.Type )
 			{
 				case Operation.NULL:
-				case Operation.COMMENT:
 				case Operation.LABEL:
 				case Operation.SCOPE_OPEN:
 				case Operation.SCOPE_CLOSE:

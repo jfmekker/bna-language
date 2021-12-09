@@ -4,7 +4,6 @@
 	{
 		// non-operations
 		NULL = 0,
-		COMMENT,
 		LABEL,
 
 		// numeric operations
