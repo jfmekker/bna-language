@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BNA.Compile;
 using BNA.Common;
+using BNA.Exceptions;
 
 namespace BnaUnitTests
 {
@@ -9,30 +10,38 @@ namespace BnaUnitTests
 	public class LexerTests
 	{
 		[TestMethod]
-		public void Parse_Keyword_Token_Test( )
+		public void Lexer_001_Keyword_Token_Test( )
 		{
 			foreach ( Keyword keyword in Enum.GetValues( typeof( Keyword ) ) )
 			{
 				Token expected_token = new( keyword.ToString( ) , TokenType.KEYWORD );
-
 				Lexer lexer = new( keyword.ToString( ) );
-
 				Assert.AreEqual( expected_token , lexer.NextToken( ) );
 			}
 		}
 
 		[TestMethod]
-		public void Parse_Symbol_Token_Test( )
+		public void Lexer_002_Symbol_Token_Test( )
 		{
-			foreach ( string symbol in new string[] { ">", "<", "=", "!" } )
+			foreach ( Symbol symbol in new Symbol[]
+				{
+					Symbol.GREATER_THAN,
+					Symbol.LESS_THAN,
+					Symbol.EQUAL,
+					Symbol.NOT,
+					Symbol.LABEL_START,
+					Symbol.LABEL_END,
+					Symbol.LIST_SEPERATOR,
+					Symbol.LIST_END
+				} )
 			{
-				Lexer lexer = new( symbol );
-				Assert.AreEqual( TokenType.SYMBOL , lexer.NextToken()?.Type , $"Failed value: {lexer.Line}" );
+				Lexer lexer = new( $"{(char)symbol}" );
+				Assert.AreEqual( symbol , lexer.NextToken( )?.AsSymbol( ) , $"Failed value: {symbol}" );
 			}
 		}
 
 		[TestMethod]
-		public void Parse_Literal_Token_Test( )
+		public void Lexer_003_Literal_Token_Test( )
 		{
 			foreach ( string str in new string[]
 				{
@@ -46,15 +55,13 @@ namespace BnaUnitTests
 			)
 			{
 				Token expected_token = new( str , TokenType.LITERAL );
-
 				Lexer lexer = new( str );
-				
 				Assert.AreEqual( expected_token , lexer.NextToken( ) , $"Failed value: {str}" );
 			}
 		}
 
 		[TestMethod]
-		public void Parse_Variable_Token_Test( )
+		public void Lexer_004_Variable_Token_Test( )
 		{
 			foreach ( string str in new string[]
 				{
@@ -65,25 +72,31 @@ namespace BnaUnitTests
 			)
 			{
 				Token expected_token = new( str , TokenType.VARIABLE );
-
 				Lexer lexer = new( str );
-
 				Assert.AreEqual( expected_token , lexer.NextToken( ) , $"Failed value: {str}" );
 			}
 		}
 
 		[TestMethod]
-		public void Parse_List_Token_Test( )
+		public void Lexer_005_List_Token_Test( )
 		{
 			Lexer lexer = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" ))" );
 			Assert.AreEqual( TokenType.LIST , lexer.NextToken( )?.Type );
 		}
 
 		[TestMethod]
-		public void Parse_Comment_Token_Test( )
+		public void Lexer_006_Comment_Token_Test( )
 		{
 			Lexer lexer = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" )) # a list comment )()\\,,stuff 123" );
-			Assert.AreEqual( TokenType.COMMENT , lexer.ReadTokens()[^1].Type );
+			Assert.AreEqual( TokenType.COMMENT , lexer.ReadTokens( )[^1].Type );
+		}
+
+		[TestMethod]
+		public void Lexer_007_ReadSingleToken_Test( )
+		{
+			Assert.AreEqual( TokenType.LIST , Lexer.ReadSingleToken( "(1,2,3, \"4\")" ).Type );
+
+			_ = Assert.ThrowsException<IllegalTokenException>( ( ) => Lexer.ReadSingleToken( "token1 token2" ) );
 		}
 	}
 }

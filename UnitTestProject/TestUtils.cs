@@ -1,17 +1,18 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BNA;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BnaUnitTests
 {
-	public static class TestFileRunner
+	public static class TestUtils
 	{
 		/// <summary>
 		/// Run a .bna test file in the Tests folder.
 		/// </summary>
 		/// <param name="filename">Name of the file to run (minus the extension)</param>
 		/// <param name="fails">True if a BNA_ERROR should be expected</param>
-		public static void Run( string filename , bool fails = false )
+		public static void RunTestFile( string filename , bool fails = false )
 		{
 			ReturnCode r = ReturnCode.UNEXPECTED_ERROR;
 

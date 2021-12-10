@@ -13,7 +13,7 @@ namespace BnaUnitTests
 	public class ParserTests
 	{
 		[TestMethod]
-		public void Parser_Test_001( )
+		public void Parser_001_Set_Statement_Test( )
 		{
 			List<Token> tokens = new( )
 			{
@@ -31,7 +31,7 @@ namespace BnaUnitTests
 		}
 
 		[TestMethod]
-		public void Parser_Test_002( )
+		public void Parser_002_Subtract_Statement_Test( )
 		{
 			List<Token> tokens = new( )
 			{
@@ -48,7 +48,7 @@ namespace BnaUnitTests
 		}
 
 		[TestMethod]
-		public void Parser_Test_003( )
+		public void Parser_003_Wait_Statement_Test( )
 		{
 			List<Token> tokens = new( )
 			{
@@ -63,7 +63,7 @@ namespace BnaUnitTests
 		}
 
 		[TestMethod]
-		public void Parser_Test_004( )
+		public void Parser_004_Comment_Statement_Test( )
 		{
 			List<Token> tokens = new( )
 			{
@@ -75,7 +75,7 @@ namespace BnaUnitTests
 		}
 
 		[TestMethod]
-		public void Parser_Test_005( )
+		public void Parser_005_Null_Statement_Test( )
 		{
 			List<Token> tokens = new( )
 			{

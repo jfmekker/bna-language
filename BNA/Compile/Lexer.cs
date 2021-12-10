@@ -25,12 +25,8 @@ namespace BNA.Compile
 			Lexer lexer = new( value );
 			List<Token> tokens = lexer.ReadTokens( );
 
-			if ( tokens.Count != 1 )
-			{
-				throw new Exception( $"One token expected but {tokens.Count} were parsed." ); // TODO
-			}
-
-			return tokens[0];
+			return tokens.Count == 1 ? tokens[0]
+				: throw new IllegalTokenException( $"One token expected but {tokens.Count} were parsed." );
 		}
 
 		public Lexer( string line )

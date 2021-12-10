@@ -9,92 +9,92 @@ namespace BnaUnitTests
 		[TestMethod]
 		public void SetTest( )
 		{
-			TestFileRunner.Run( "statement_test_set" );
+			TestUtils.RunTestFile( "statement_test_set" );
 		}
 
 		[TestMethod]
 		public void AddTest( )
 		{
-			TestFileRunner.Run( "statement_test_add" );
+			TestUtils.RunTestFile( "statement_test_add" );
 		}
 
 		[TestMethod]
 		public void SubtractTest( )
 		{
-			TestFileRunner.Run( "statement_test_subtract" );
+			TestUtils.RunTestFile( "statement_test_subtract" );
 		}
 
 		[TestMethod]
 		public void MultiplyTest( )
 		{
-			TestFileRunner.Run( "statement_test_multiply" );
+			TestUtils.RunTestFile( "statement_test_multiply" );
 		}
 
 		[TestMethod]
 		public void DivideTest( )
 		{
-			TestFileRunner.Run( "statement_test_divide" );
+			TestUtils.RunTestFile( "statement_test_divide" );
 		}
 
 		[TestMethod]
 		public void AndTest( )
 		{
-			TestFileRunner.Run( "statement_test_and" );
+			TestUtils.RunTestFile( "statement_test_and" );
 		}
 
 		[TestMethod]
 		public void OrTest( )
 		{
-			TestFileRunner.Run( "statement_test_or" );
+			TestUtils.RunTestFile( "statement_test_or" );
 		}
 
 		[TestMethod]
 		public void XorTest( )
 		{
-			TestFileRunner.Run( "statement_test_xor" );
+			TestUtils.RunTestFile( "statement_test_xor" );
 		}
 
 		[TestMethod]
 		public void ModTest( )
 		{
-			TestFileRunner.Run( "statement_test_mod" );
+			TestUtils.RunTestFile( "statement_test_mod" );
 		}
 
 		[TestMethod]
 		public void LogTest( )
 		{
-			TestFileRunner.Run( "statement_test_log" );
+			TestUtils.RunTestFile( "statement_test_log" );
 		}
 
 		[TestMethod]
 		public void RaiseTest( )
 		{
-			TestFileRunner.Run( "statement_test_raise" );
+			TestUtils.RunTestFile( "statement_test_raise" );
 		}
 
 		[TestMethod]
 		public void NegateTest( )
 		{
-			TestFileRunner.Run( "statement_test_negate" );
+			TestUtils.RunTestFile( "statement_test_negate" );
 		}
 
 		[TestMethod]
 		public void RoundTest( )
 		{
-			TestFileRunner.Run( "statement_test_round" );
+			TestUtils.RunTestFile( "statement_test_round" );
 		}
 
 		[TestMethod]
 		public void RandomTest( )
 		{
-			TestFileRunner.Run( "statement_test_random" );
+			TestUtils.RunTestFile( "statement_test_random" );
 		}
 
 		[TestMethod]
 		public void WaitTest( )
 		{
 			DateTime start = DateTime.Now;
-			TestFileRunner.Run( "statement_test_wait" );
+			TestUtils.RunTestFile( "statement_test_wait" );
 			DateTime end = DateTime.Now;
 
 			// Check that elapsed time is greater than required but not more than 0.1s off
@@ -107,85 +107,85 @@ namespace BnaUnitTests
 		[TestMethod]
 		public void TestTest( )
 		{
-			TestFileRunner.Run( "statement_test_test" );
+			TestUtils.RunTestFile( "statement_test_test" );
 		}
 
 		[TestMethod]
 		public void GotoTest( )
 		{
-			TestFileRunner.Run( "statement_test_goto" );
+			TestUtils.RunTestFile( "statement_test_goto" );
 		}
 
 		[TestMethod]
 		public void ListTest( )
 		{
-			TestFileRunner.Run( "statement_test_list" );
+			TestUtils.RunTestFile( "statement_test_list" );
 		}
 
 		[TestMethod]
 		public void AppendTest( )
 		{
-			TestFileRunner.Run( "statement_test_append" );
+			TestUtils.RunTestFile( "statement_test_append" );
 		}
 
 		[TestMethod]
 		public void SizeTest( )
 		{
-			TestFileRunner.Run( "statement_test_size" );
+			TestUtils.RunTestFile( "statement_test_size" );
 		}
 
 		[TestMethod]
 		public void InputTest( )
 		{
-			TestFileRunner.Run( "statement_test_input" );
+			TestUtils.RunTestFile( "statement_test_input" );
 		}
 
 		[TestMethod]
 		public void PrintTest( )
 		{
-			TestFileRunner.Run( "statement_test_print" );
+			TestUtils.RunTestFile( "statement_test_print" );
 		}
 
 		[TestMethod]
 		public void TypeTest( )
 		{
-			TestFileRunner.Run( "statement_test_type" );
+			TestUtils.RunTestFile( "statement_test_type" );
 		}
 
 		[TestMethod]
 		public void ExitTest( )
 		{
-			TestFileRunner.Run( "statement_test_exit" );
+			TestUtils.RunTestFile( "statement_test_exit" );
 		}
 
 		[TestMethod]
 		public void ErrorTest( )
 		{
-			TestFileRunner.Run( "statement_test_error" , true );
+			TestUtils.RunTestFile( "statement_test_error" , true );
 		}
 
 		[TestMethod]
 		public void ReadTest( )
 		{
-			TestFileRunner.Run( "statement_test_read" );
+			TestUtils.RunTestFile( "statement_test_read" );
 		}
 
 		[TestMethod]
 		public void WriteTest( )
 		{
-			TestFileRunner.Run( "statement_test_write" );
+			TestUtils.RunTestFile( "statement_test_write" );
 		}
 
 		[TestMethod]
 		public void OpenReadTest( )
 		{
-			TestFileRunner.Run( "statement_test_open_read" );
+			TestUtils.RunTestFile( "statement_test_open_read" );
 		}
 
 		[TestMethod]
 		public void OpenWriteTest( )
 		{
-			TestFileRunner.Run( "statement_test_open_write" );
+			TestUtils.RunTestFile( "statement_test_open_write" );
 		}
 	}
 }
