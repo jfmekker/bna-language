@@ -38,7 +38,7 @@ namespace BNA.Common
 		{
 			if ( times < 0 )
 			{
-				throw new ArgumentOutOfRangeException( "Repeat 'times' parameter cannot be negative." );
+				throw new ArgumentOutOfRangeException( times.ToString( ) , "Repeat 'times' parameter cannot be negative." );
 			}
 
 			StringBuilder builder = new( times );

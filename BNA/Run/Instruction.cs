@@ -112,7 +112,7 @@ namespace BNA.Run
 				case Operation.BITWISE_AND:
 				case Operation.BITWISE_XOR:
 				case Operation.BITWISE_NEGATE:
-					throw new NotImplementedException( );
+					throw new NotImplementedException( $"Execution not implemented for {this.Type}." );
 
 				case Operation.POWER:
 				{

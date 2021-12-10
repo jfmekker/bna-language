@@ -48,15 +48,9 @@ namespace BNA.Run
 		{
 			get
 			{
-				if ( this.IP < 0 || this.IP >= this.Statements.Length )
-				{
-					throw new Exception( "Bad instruction pointer value ( " + this.IP + " )" );
-				}
-				else if ( this.Statements[this.IP] is null )
-				{
-					throw new Exception( "No statement at instruction pointer ( " + this.IP + " )" );
-				}
-				return this.Statements[this.IP];
+				return this.IP >= 0 && this.IP < this.Statements.Length
+                    ? this.Statements[this.IP]
+					: throw new Exception( "Bad instruction pointer value ( " + this.IP + " )" );
 			}
 		}
 
@@ -279,7 +273,7 @@ namespace BNA.Run
 				}
 				else if ( accessedVal is StringValue )
 				{
-					throw new NotImplementedException( );
+					throw new NotImplementedException( $"Setting an indexed string is not implemented ( '{accessedVal}'@{indexVal} )." );
 				}
 				else
 				{

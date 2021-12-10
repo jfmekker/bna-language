@@ -16,7 +16,7 @@ namespace BNA.Exceptions
 		public readonly Statement Statement;
 
 		public RuntimeException( int line , Statement statement , Exception innerException )
-			: base( $"{innerException.Message}\nRuntime Error - line {line}: {statement.RawString( )}\n\t-> {statement}" , innerException )
+			: base( $"{innerException.Message}\nRuntime Error - line {line}: {statement.Line}\n\t-> {statement}" , innerException )
 		{
 			this.Line = line;
 			this.Statement = statement;

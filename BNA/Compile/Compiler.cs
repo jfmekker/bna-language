@@ -67,9 +67,11 @@ namespace BNA.Compile
 			Debug.AddLine( "\nParsing..." );
 			for ( int i = 0 ; i < tokenLines.Count ; i += 1 )
 			{
+				Parser parser = new( this.Lines[i] , this.tokenLines[i] );
 				try
 				{
-					this.statements.Add( Statement.ParseStatement( tokenLines[i] ) );
+					this.statements.Add( parser.ParseStatement( ) );
+					// this.statements.Add( Statement.ParseStatement( tokenLines[i] ) );
 				}
 				catch ( Exception e )
 				{
@@ -79,7 +81,7 @@ namespace BNA.Compile
 						  or InvalidTokenException
 						  or MissingTokenException )
 					{
-						throw new CompiletimeException( i , 0 , this.Lines[i] , e ); // TODO add column
+						throw new CompiletimeException( i , parser.RawIndex , parser.RawLine , e ); // TODO add column
 					}
 					else
 					{

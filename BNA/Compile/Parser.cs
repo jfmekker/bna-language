@@ -12,19 +12,19 @@ namespace BNA.Compile
 	{
 		public string RawLine { get; init; }
 
+		public int RawIndex { get; private set; }
+
 		public IReadOnlyList<Token> Tokens { get; init; }
 
 		public int Index { get; private set; }
 
-		public Token? Current => this.Index < this.Tokens.Count( ) ? this.Tokens[this.Index] : null;
+		public Token? Current => this.Index < this.Tokens.Count ? this.Tokens[this.Index] : null;
 
-		private Operation operation;
+		private Operation? operation;
 
 		private Token? operand1;
 
 		private Token? operand2;
-
-		private Statement? Statement { get; set; }
 
 		public Parser( string line , ICollection<Token> tokens )
 		{
@@ -37,12 +37,10 @@ namespace BNA.Compile
 		{
 			if ( this.Current?.AsKeyword( ) is Keyword keyword )
 			{
-				this.Index += 1;
 				this.ParseKeywordStatement( keyword );
 			}
 			else if ( this.Current?.AsSymbol( ) is Symbol symbol )
 			{
-				this.Index += 1;
 				this.ParseSymbolStatement( symbol );
 			}
 			else
@@ -50,7 +48,7 @@ namespace BNA.Compile
 				this.End( );
 			}
 
-			return new Statement( this.operation , this.operand1 , this.operand2 );
+			return new Statement( this.RawLine , this.operation ?? default , this.operand1 , this.operand2 );
 		}
 
 		private void ParseKeywordStatement( Keyword start )
@@ -61,7 +59,7 @@ namespace BNA.Compile
 				{ this.SetOperation( Operation.SET ).Operand1( ).Next( Keyword.TO ).Operand2( AllOperandTypes( ) ).End( ); break; }
 
 				case Keyword.ADD:
-				{ this.SetOperation( Operation.ADD ).Operand1( ).Next( Keyword.TO ).Operand2( NumericOperandTypes( ) ).End( ); break; }
+				{ this.SetOperation( Operation.ADD ).Operand2( NumericOperandTypes( ) ).Next( Keyword.TO ).Operand1( ).End( ); break; }
 
 				case Keyword.SUBTRACT:
 				{ this.SetOperation( Operation.SUBTRACT ).Operand2( NumericOperandTypes( ) ).Next( Keyword.FROM ).Operand1( ).End( ); break; }
@@ -91,7 +89,18 @@ namespace BNA.Compile
 				{ this.SetOperation( Operation.WAIT ).Operand2( NumericOperandTypes( ) ).End( ); break; }
 
 				case Keyword.TEST:
-				{ throw new NotImplementedException( ); }
+				{
+					this.IncrementIndex( );
+					this.Operand1( ).SetOperation(
+						this.Optional( Symbol.GREATER_THAN , allow_illegal: true ) is not null ? Operation.TEST_GTR
+						: this.Optional( Symbol.LESS_THAN , allow_illegal: true ) is not null ? Operation.TEST_LSS
+						: this.Optional( Symbol.NOT , allow_illegal: true ) is not null ? Operation.TEST_NEQ
+						: this.Next( Symbol.LESS_THAN ) is not null ? Operation.TEST_LSS
+						: throw new Exception( "Parser.Next returned null." ) ,
+						false
+					).Operand2( AllOperandTypes( ) ).End( );
+					break;
+				}
 
 				case Keyword.GOTO:
 				{ this.SetOperation( Operation.GOTO ).Operand1( ).Optional( Keyword.IF )?.Operand2( NumericOperandTypes( ) ).End( ); break; }
@@ -106,7 +115,16 @@ namespace BNA.Compile
 				{ this.SetOperation( Operation.SIZE ).Operand1( ).Next( Keyword.OF ).Operand2( AllOperandTypes( ) ).End( ); break; }
 
 				case Keyword.OPEN:
-				{ throw new NotImplementedException( ); }
+				{
+					this.IncrementIndex( );
+					this.Operand2( StringOperandTypes( ) ).SetOperation(
+						this.Optional( Keyword.READ , allow_illegal: true ) is not null ? Operation.OPEN_READ
+						: this.Next( Keyword.WRITE ) is not null ? Operation.OPEN_WRITE
+						: throw new Exception( "Parser.Next returned null." ) ,
+						false
+					).Operand1( ).End( );
+					break;
+				}
 
 				case Keyword.CLOSE:
 				{ this.SetOperation( Operation.CLOSE ).Operand1( ).End( ); break; }
@@ -127,7 +145,16 @@ namespace BNA.Compile
 				{ this.SetOperation( Operation.TYPE ).Operand1( ).Next( Keyword.OF ).Operand2( AllOperandTypes( ) ).End( ); break; }
 
 				case Keyword.SCOPE:
-				{ throw new NotImplementedException( ); }
+				{
+					this.IncrementIndex( );
+					this.SetOperation(
+						this.Optional( Keyword.OPEN , allow_illegal: true ) is not null ? Operation.SCOPE_OPEN
+						: this.Next( Keyword.CLOSE ) is not null ? Operation.SCOPE_CLOSE
+						: throw new Exception( "Parser.Next returned null." ) ,
+						false
+					).End( );
+					break;
+				}
 
 				case Keyword.EXIT:
 				{ this.SetOperation( Operation.EXIT ).End( ); break; }
@@ -135,10 +162,17 @@ namespace BNA.Compile
 				case Keyword.ERROR:
 				{ this.SetOperation( Operation.ERROR ).Operand2( StringOperandTypes( ) ).End( ); break; }
 
+				case Keyword.AND:
+				case Keyword.OR:
+				case Keyword.XOR:
+				case Keyword.NEGATE:
+				{
+					throw new NotImplementedException( $"Parsing of {start} statement not implented." );
+				}
+
 				default:
 				{
-					this.Index -= 1;
-					throw new IllegalTokenException( $"Illegal symbol to start statement: {this.Current}." );
+					throw new IllegalTokenException( $"Illegal keyword to start statement: {this.Current}." );
 				}
 			}
 		}
@@ -148,17 +182,25 @@ namespace BNA.Compile
 			switch ( start )
 			{
 				case Symbol.LABEL_START:
-				{ this.Operand1( ).Next( Symbol.LABEL_END ).End( ); break; }
+				{ this.SetOperation( Operation.LABEL ).Operand1( ).Next( Symbol.LABEL_END ).End( ); break; }
 
 				default:
-					this.Index -= 1;
 					throw new IllegalTokenException( $"Illegal symbol to start statement: {this.Current}." );
 			}
 		}
 
-		// TODO guard against setting operation twice
-		private Parser SetOperation( Operation operation )
+		private Parser SetOperation( Operation operation , bool increment = true )
 		{
+			if ( this.operation.HasValue )
+			{
+				throw new Exception( "Parser tried to set operation of statement more than once." );
+			}
+
+			if ( increment )
+			{
+				this.IncrementIndex( );
+			}
+
 			this.operation = operation;
 			return this;
 		}
@@ -169,7 +211,7 @@ namespace BNA.Compile
 			{
 				if ( token.AsKeyword( ) == keyword )
 				{
-					this.Index += 1;
+					this.IncrementIndex( );
 					return this;
 				}
 				else
@@ -189,7 +231,7 @@ namespace BNA.Compile
 			{
 				if ( token.AsSymbol( ) == symbol )
 				{
-					this.Index += 1;
+					this.IncrementIndex( );
 					return this;
 				}
 				else
@@ -211,7 +253,7 @@ namespace BNA.Compile
 				{
 					if ( token.Type == type )
 					{
-						this.Index += 1;
+						this.IncrementIndex( );
 						return this;
 					}
 				}
@@ -234,7 +276,7 @@ namespace BNA.Compile
 					if ( token.Type == type )
 					{
 						this.operand2 = token;
-						this.Index += 1;
+						this.IncrementIndex( );
 						return this;
 					}
 				}
@@ -254,7 +296,7 @@ namespace BNA.Compile
 				if ( token.Type == TokenType.VARIABLE )
 				{
 					this.operand1 = token;
-					this.Index += 1;
+					this.IncrementIndex( );
 					return this;
 				}
 
@@ -266,8 +308,7 @@ namespace BNA.Compile
 			}
 		}
 
-		// TODO allow optional to ignore comments
-		private Parser? Optional( Keyword keyword )
+		private Parser? Optional( Keyword keyword , bool allow_illegal = true )
 		{
 			try
 			{
@@ -277,9 +318,13 @@ namespace BNA.Compile
 			{
 				return null;
 			}
+			catch ( IllegalTokenException e )
+			{
+				return allow_illegal || this.Current?.Type is TokenType.COMMENT ? null : throw e;
+			}
 		}
 
-		private Parser? Optional( Symbol symbol )
+		private Parser? Optional( Symbol symbol , bool allow_illegal = true )
 		{
 			try
 			{
@@ -288,6 +333,10 @@ namespace BNA.Compile
 			catch ( MissingTokenException )
 			{
 				return null;
+			}
+			catch ( IllegalTokenException e )
+			{
+				return allow_illegal || this.Current?.Type is TokenType.COMMENT ? null : throw e;
 			}
 		}
 
@@ -301,13 +350,29 @@ namespace BNA.Compile
 			{
 				return null;
 			}
+			catch ( IllegalTokenException e )
+			{
+				return this.Current?.Type is TokenType.COMMENT ? null : throw e;
+			}
 		}
 
 		private void End( bool allow_comment = true )
 		{
-			if ( this.Current is not null && ( !allow_comment || this.Current.Value.Type != TokenType.COMMENT || ++this.Index != this.Tokens.Count ) )
+			if ( this.Current is not null )
 			{
-				throw new IllegalTokenException( $"Statement ended with token still remaining: {this.Current}." );
+				if ( allow_comment && this.Current.Value.Type == TokenType.COMMENT )
+				{
+					this.IncrementIndex( );
+
+					if ( this.Current is not null )
+					{
+						throw new Exception( "Parser found token after comment." );
+					}
+				}
+				else
+				{
+					throw new IllegalTokenException( $"Statement ended with token still remaining: {this.Current}." );
+				}
 			}
 		}
 
@@ -324,6 +389,19 @@ namespace BNA.Compile
 		private static TokenType[] NumericOperandTypes( )
 		{
 			return new TokenType[] { TokenType.VARIABLE , TokenType.LITERAL };
+		}
+
+		private void IncrementIndex( )
+		{
+			this.Index += 1;
+
+			int i = -1;
+			if ( this.Current is Token token )
+			{
+				i = this.RawLine.IndexOf( token.Value , this.RawIndex );
+				i = i >= 0 ? i : throw new Exception( "Could not get RawIndex of Token that should exist in Line." );
+			}
+			this.RawIndex = i >= 0 ? i : this.RawLine.Length - 1;
 		}
 	}
 }
