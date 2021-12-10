@@ -3,8 +3,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BNA.Compile;
 using BNA.Common;
 using BNA.Exceptions;
+using System.Collections.Generic;
 
-namespace UnitTests
+namespace CompiletimeTests
 {
 	[TestClass]
 	public class LexerTests
@@ -206,6 +207,33 @@ namespace UnitTests
 		{
 			_ = Assert.ThrowsException<InvalidTokenException>(
 				( ) => Lexer.ReadSingleToken( str ) );
+		}
+
+		[TestMethod]
+		[DataRow( "0" , 1 )]
+		[DataRow( "0 0" , 2 )]
+		[DataRow( "0 one \"2\" < (4,five,\"6\") #seven" , 6 )]
+		public void Lexer_ReadTokens_ReturnsMultipleTokens( string str , int num )
+		{
+			Lexer lexer = new( str );
+
+			List<Token> list = lexer.ReadTokens( );
+
+			Assert.AreEqual( num , list.Count );
+		}
+
+		[TestMethod]
+		[DataRow( "" )]
+		[DataRow( " " )]
+		[DataRow( "  " )]
+		[DataRow( "\t" )]
+		public void Lexer_ReadTokens_ReturnsZeroTokens( string str )
+		{
+			Lexer lexer = new( str );
+
+			List<Token> list = lexer.ReadTokens( );
+
+			Assert.AreEqual( 0 , list.Count );
 		}
 	}
 }
