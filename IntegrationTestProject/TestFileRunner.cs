@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Threading.Tasks;
-using BNA;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using BNA;
 
-namespace BnaUnitTests
+namespace IntegrationTests
 {
-	public static class TestUtils
+	public static class TestFileRunner
 	{
 		/// <summary>
 		/// Run a .bna test file in the Tests folder.
