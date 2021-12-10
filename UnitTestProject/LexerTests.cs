@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BNA.Compile;
 using BNA.Common;
 using BNA.Exceptions;
-using System.Collections.Generic;
 
 namespace CompiletimeTests
 {
@@ -11,11 +11,11 @@ namespace CompiletimeTests
 	public class LexerTests
 	{
 		[TestMethod]
-		[DataRow( 0 )]
-		[DataRow( 1 )]
-		[DataRow( -1 )]
-		[DataRow( long.MaxValue )]
-		[DataRow( long.MinValue )]
+		[DataRow( 0 , DisplayName = "Zero" )]
+		[DataRow( 1 , DisplayName = "One" )]
+		[DataRow( -1 , DisplayName = "Negative one" )]
+		[DataRow( long.MaxValue , DisplayName = "Max value" )]
+		[DataRow( long.MinValue , DisplayName = "Min value" )]
 		public void Lexer_ReadSingleToken_ReturnsLiteral_Long( long val )
 		{
 			Token token = Lexer.ReadSingleToken( val.ToString( ) );
@@ -26,11 +26,11 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( 0.0 )]
-		[DataRow( 1.0 )]
-		[DataRow( -1.0 )]
-		[DataRow( double.MaxValue )]
-		[DataRow( double.MinValue )]
+		[DataRow( 0.0 , DisplayName = "Zero" )]
+		[DataRow( 1.0 , DisplayName = "One" )]
+		[DataRow( -1.0 , DisplayName = "Negative one" )]
+		[DataRow( double.MaxValue , DisplayName = "Max value" )]
+		[DataRow( double.MinValue , DisplayName = "Min value" )]
 		public void Lexer_ReadSingleToken_ReturnsLiteral_Double( double val )
 		{
 			Token token = Lexer.ReadSingleToken( val.ToString( ) );
@@ -41,8 +41,8 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( ".01" )]
-		[DataRow( "-.01" )]
+		[DataRow( ".01" , DisplayName = "Start with decimal point" )]
+		[DataRow( "-.01" , DisplayName = "Start with negative sign then decimal point" )]
 		public void Lexer_ReadSingleToken_ReturnsLiteral_StartWithoutDigit( string str )
 		{
 			Token token = Lexer.ReadSingleToken( str );
@@ -67,13 +67,14 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "i" )]
-		[DataRow( "var" )]
-		[DataRow( "_i" )]
-		[DataRow( "VAR" )]
-		[DataRow( "i_0" )]
-		[DataRow( "var_" )]
-		[DataRow( "reeeeeeeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaalllllllllllyyyy_long_variable_name" )]
+		[DataRow( "i" , DisplayName = "Single letter" )]
+		[DataRow( "var" , DisplayName = "Multiple letters" )]
+		[DataRow( "VAR" , DisplayName = "Capital letters" )]
+		[DataRow( "i0" , DisplayName = "With number" )]
+		[DataRow( "_i" , DisplayName = "Underscore before" )]
+		[DataRow( "i_var" , DisplayName = "Underscore middle" )]
+		[DataRow( "var_" , DisplayName = "Underscore after" )]
+		[DataRow( "reeeeeeeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaalllllllllllyyyy_long_variable_name" , DisplayName = "Long name" )]
 		public void Lexer_ReadSingleToken_ReturnsVariable( string variable_string )
 		{
 			Token expected = new( variable_string , TokenType.VARIABLE );
@@ -84,10 +85,10 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( " " )]
-		[DataRow( "  " )]
-		[DataRow( "\t" )]
-		[DataRow( " \t" )]
+		[DataRow( " " , DisplayName = "One space" )]
+		[DataRow( "  " , DisplayName = "Two spaces" )]
+		[DataRow( "\t" , DisplayName = "Tab character" )]
+		[DataRow( " \t" , DisplayName = "Space and tab" )]
 		public void Lexer_ReadSingleToken_ReturnsVariable_IgnoreWhitespace( string whitespace )
 		{
 			string variable_string = "variable";
@@ -118,11 +119,11 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "\"\"" )]
-		[DataRow( "\" \"" )]
-		[DataRow( "\"string\"" )]
-		[DataRow( "\"0()-+_%$^&*@#!=><?'\"" )]
-		// [DataRow( "\"\\t\\n\\\"\"" )] // TODO uncomment when escaped characters in strings are fully implemented
+		[DataRow( "\"\"" , DisplayName = "Empty" )]
+		[DataRow( "\" \"" , DisplayName = "With space" )]
+		[DataRow( "\"string\"" , DisplayName = "Letters" )]
+		[DataRow( "\"0()-+_%$^&*@#!=><?'\"" , DisplayName = "Symbols" )]
+		// [DataRow( "\"\\t\\n\\\"\"" , DisplayName = "Escaped characters" )] // TODO uncomment when escaped characters in strings are fully implemented
 		public void Lexer_ReadSingleToken_ReturnsString( string list )
 		{
 			Token expected = new( list , TokenType.STRING );
@@ -133,11 +134,11 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "()" )]
-		[DataRow( "(0)" )]
-		[DataRow( "(0,0)" )]
-		[DataRow( "(\"a string\", \"(,)\")" )]
-		[DataRow( "((0,0),(0,0,0),())" )]
+		[DataRow( "()" , DisplayName = "Empty" )]
+		[DataRow( "(0)" , DisplayName = "Single element" )]
+		[DataRow( "(0,0)" , DisplayName = "Two literals" )]
+		[DataRow( "(\"a string\", \"(,)\")" , DisplayName = "Two strings" )]
+		[DataRow( "((0,0),(0,0,0),())" , DisplayName = "Sublists" )]
 		public void Lexer_ReadSingleToken_ReturnsList( string list )
 		{
 			Token expected = new( list , TokenType.LIST );
@@ -148,10 +149,10 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "#" )]
-		[DataRow( "##" )]
-		[DataRow( "# words" )]
-		[DataRow( "# \t\"(,)0" )]
+		[DataRow( "#" , DisplayName = "Empty" )]
+		[DataRow( "##" , DisplayName = "Multiple comment symbols" )]
+		[DataRow( "# words words" , DisplayName = "Words" )]
+		[DataRow( "# \t\"(,)0" , DisplayName = "Symbols" )]
 		public void Lexer_ReadSingleToken_ReturnsComment( string list )
 		{
 			Token expected = new( list , TokenType.COMMENT );
@@ -162,9 +163,9 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "0 0" )]
-		[DataRow( "( 0 0 )" )]
-		[DataRow( "( > )" )]
+		[DataRow( "0 0" , DisplayName = "Multiple tokens" )]
+		[DataRow( "( 0 0 )" , DisplayName = "List with no separator" )]
+		[DataRow( "( > )" , DisplayName = "Symbol in list" )]
 		public void Lexer_ReadSingleToken_ThrowsIllegalTokenException( string str )
 		{
 			_ = Assert.ThrowsException<IllegalTokenException>(
@@ -172,11 +173,11 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "(" )]
-		[DataRow( "(0," )]
-		[DataRow( "\"" )]
-		[DataRow( "\"string" )]
-		[DataRow( "\"string\\\"" )]
+		[DataRow( "(" , DisplayName = "Empty list" )]
+		[DataRow( "(0," , DisplayName = "One element list" )]
+		[DataRow( "\"" , DisplayName = "Empty string" )]
+		[DataRow( "\"string" , DisplayName = "String with word" )]
+		[DataRow( "\"string\\\"" , DisplayName = "String with escaped quote" )]
 		public void Lexer_ReadSingleToken_ThrowsMissingTerminatorException( string str )
 		{
 			_ = Assert.ThrowsException<MissingTerminatorException>(
@@ -198,11 +199,11 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "x@" )]
-		[DataRow( "x@@1" )]
-		[DataRow( "0.." )]
-		[DataRow( "0-" )]
-		[DataRow( "0+" )]
+		[DataRow( "x@" , DisplayName = "Accessor at end" )]
+		[DataRow( "x@@1" , DisplayName = "Double accessors" )]
+		[DataRow( "0.." , DisplayName = "Double decimal points" )]
+		[DataRow( "0-" , DisplayName = "Number then negative sign" )]
+		[DataRow( "0+" , DisplayName = "Number then positive sign" )]
 		public void Lexer_ReadSingleToken_ThrowsInvalidTokenException( string str )
 		{
 			_ = Assert.ThrowsException<InvalidTokenException>(
@@ -210,9 +211,9 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "0" , 1 )]
-		[DataRow( "0 0" , 2 )]
-		[DataRow( "0 one \"2\" < (4,five,\"6\") #seven" , 6 )]
+		[DataRow( "0" , 1 , DisplayName = "One literal" )]
+		[DataRow( "0 0" , 2 , DisplayName = "Two literals" )]
+		[DataRow( "0 one \"2\" < (4,five,\"6\") #seven" , 6 , DisplayName = "All token types" )]
 		public void Lexer_ReadTokens_ReturnsMultipleTokens( string str , int num )
 		{
 			Lexer lexer = new( str );
@@ -223,10 +224,10 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "" )]
-		[DataRow( " " )]
-		[DataRow( "  " )]
-		[DataRow( "\t" )]
+		[DataRow( "" , DisplayName = "Empty string" )]
+		[DataRow( " " , DisplayName = "One space" )]
+		[DataRow( "  " , DisplayName = "Two spaces" )]
+		[DataRow( "\t" , DisplayName = "Tab character" )]
 		public void Lexer_ReadTokens_ReturnsZeroTokens( string str )
 		{
 			Lexer lexer = new( str );

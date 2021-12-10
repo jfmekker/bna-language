@@ -91,14 +91,33 @@ namespace BNA.Compile
 				case Keyword.TEST:
 				{
 					this.IncrementIndex( );
-					this.Operand1( ).SetOperation(
-						this.Optional( Symbol.GREATER_THAN , allow_illegal: true ) is not null ? Operation.TEST_GTR
-						: this.Optional( Symbol.LESS_THAN , allow_illegal: true ) is not null ? Operation.TEST_LSS
-						: this.Optional( Symbol.NOT , allow_illegal: true ) is not null ? Operation.TEST_NEQ
-						: this.Next( Symbol.LESS_THAN ) is not null ? Operation.TEST_LSS
-						: throw new Exception( "Parser.Next returned null." ) ,
-						false
-					).Operand2( AllOperandTypes( ) ).End( );
+					_ = this.Operand1( );
+
+					Operation operation;
+					if ( this.Current is Token token )
+					{
+						if ( token.AsSymbol( ) is Symbol symbol )
+						{
+							operation = symbol switch
+							{
+								Symbol.GREATER_THAN => Operation.TEST_GTR,
+								Symbol.LESS_THAN => Operation.TEST_LSS,
+								Symbol.EQUAL => Operation.TEST_EQU,
+								Symbol.NOT => Operation.TEST_NEQ,
+								_ => throw new IllegalTokenException( $"Expected a comparison operator symbol, got {token}." )
+							};
+						}
+						else
+						{
+							throw new IllegalTokenException( $"Expected a symbol token, got {token}." );
+						}
+					}
+					else
+					{
+						throw new MissingTokenException( $"Expected a comparison operator symbol." );
+					}
+
+					this.SetOperation( operation ).Operand2( AllOperandTypes( ) ).End( );
 					break;
 				}
 
@@ -117,7 +136,7 @@ namespace BNA.Compile
 				case Keyword.OPEN:
 				{
 					this.IncrementIndex( );
-					this.Operand2( StringOperandTypes( ) ).SetOperation(
+					this.Operand2( StringOperandTypes( ) ).Next( Keyword.AS ).SetOperation(
 						this.Optional( Keyword.READ , allow_illegal: true ) is not null ? Operation.OPEN_READ
 						: this.Next( Keyword.WRITE ) is not null ? Operation.OPEN_WRITE
 						: throw new Exception( "Parser.Next returned null." ) ,

@@ -52,16 +52,18 @@ namespace BNA.Common
 		}
 
 		/// <summary>
-		/// Add a nullable object to a collection of the same type if the object is not null.
+		/// Add a nullable object to a collection of the same type if a condition is
+		/// met and the object is not null.
 		/// </summary>
 		/// <typeparam name="T">Type of the object and collection.</typeparam>
 		/// <param name="collection">Collection to add to.</param>
+		/// <param name="condition">Condition to add based on</param>
 		/// <param name="obj">Object to potentially add.</param>
-		public static void AddIfNotNull<T>( this ICollection<T> collection , T? obj )
+		public static void AddIf<T>( this ICollection<T> collection , bool condition , T? obj )
 		{
-			if ( obj is T ojb_T )
+			if ( condition && obj is not null )
 			{
-				collection.Add( ojb_T );
+				collection.Add( obj );
 			}
 		}
 

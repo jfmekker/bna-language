@@ -32,7 +32,7 @@ namespace BNA.Compile
 		/// </summary>
 		public string Line { get; init; }
 
-		public Statement( string line, Operation type , Token? operand1 = null , Token? operand2 = null )
+		public Statement( string line , Operation type , Token? operand1 = null , Token? operand2 = null )
 		{
 			this.Line = line;
 			this.Type = type;
@@ -53,11 +53,12 @@ namespace BNA.Compile
 			return str;
 		}
 
-		/// <summary>
-		/// Get the primary and secondary tokens of a statement.
-		/// This is determined by the statement sematics, not syntactic order.
-		/// </summary>
-		/// <returns>A tuple with the primary and secondary tokens in order.</returns>
+		public override bool Equals( object? obj ) => obj is Statement other
+													&& this.Type == other.Type
+													&& this.Operand1 == other.Operand1
+													&& this.Operand2 == other.Operand2
+													&& this.Line == other.Line;
+
 		public (Token, Token) GetPrimaryAndSecondaryTokens( )
 		{
 			// TODO remove this function
@@ -113,6 +114,11 @@ namespace BNA.Compile
 				default:
 					throw new Exception( $"Unexpected statement type in token sorting: {this.Type}." );
 			}
+		}
+
+		public override int GetHashCode( )
+		{
+			return System.HashCode.Combine( this.Type , this.Operand1 , this.Operand2 , this.Line );
 		}
 	}
 }

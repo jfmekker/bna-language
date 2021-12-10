@@ -33,6 +33,18 @@ namespace BNA.Compile
 			this.Type = type;
 		}
 
+		public Token( Keyword keyword )
+		{
+			this.Value = keyword.ToString( );
+			this.Type = TokenType.KEYWORD;
+		}
+
+		public Token( Symbol symbol )
+		{
+			this.Value = $"{(char)symbol}";
+			this.Type = TokenType.SYMBOL;
+		}
+
 		public override int GetHashCode( )
 		{
 			return HashCode.Combine( this.Type , this.Value );
@@ -58,7 +70,10 @@ namespace BNA.Compile
 
 		public Symbol? AsSymbol( ) => ( this.Type == TokenType.SYMBOL ) ? (Symbol)this.Value[0] : null;
 
-		public override bool Equals( object? obj ) => obj is Token other && ( this.Type == other.Type ) && ( this.Value.ToUpper( ) == other.Value.ToUpper( ) );
+		public override bool Equals( object? obj ) => obj is Token other
+													&& ( this.Type == other.Type )
+													&& ( ( this.Type == TokenType.NULL )
+														|| ( this.Value.ToUpper( ) == other.Value.ToUpper( ) ) );
 
 		public static bool operator ==( Token left , Token right ) => left.Equals( right );
 
