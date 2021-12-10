@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BNA.Compile;
 using BNA.Common;
 
-namespace BnaUnitTests
+namespace UnitTests
 {
 	[TestClass]
 	public class ParserTests

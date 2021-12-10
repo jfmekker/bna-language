@@ -4,99 +4,208 @@ using BNA.Compile;
 using BNA.Common;
 using BNA.Exceptions;
 
-namespace BnaUnitTests
+namespace UnitTests
 {
 	[TestClass]
 	public class LexerTests
 	{
 		[TestMethod]
-		public void Lexer_001_Keyword_Token_Test( )
+		[DataRow( 0 )]
+		[DataRow( 1 )]
+		[DataRow( -1 )]
+		[DataRow( long.MaxValue )]
+		[DataRow( long.MinValue )]
+		public void Lexer_ReadSingleToken_ReturnsLiteral_Long( long val )
+		{
+			Token token = Lexer.ReadSingleToken( val.ToString( ) );
+
+			long token_val = long.Parse( token.Value );
+			Assert.AreEqual( TokenType.LITERAL , token.Type );
+			Assert.AreEqual( val , token_val );
+		}
+
+		[TestMethod]
+		[DataRow( 0.0 )]
+		[DataRow( 1.0 )]
+		[DataRow( -1.0 )]
+		[DataRow( double.MaxValue )]
+		[DataRow( double.MinValue )]
+		public void Lexer_ReadSingleToken_ReturnsLiteral_Double( double val )
+		{
+			Token token = Lexer.ReadSingleToken( val.ToString( ) );
+
+			double token_val = double.Parse( token.Value );
+			Assert.AreEqual( TokenType.LITERAL , token.Type );
+			Assert.AreEqual( val , token_val );
+		}
+
+		[TestMethod]
+		[DataRow( ".01" )]
+		[DataRow( "-.01" )]
+		public void Lexer_ReadSingleToken_ReturnsLiteral_StartWithoutDigit( string str )
+		{
+			Token token = Lexer.ReadSingleToken( str );
+
+			double token_val = double.Parse( token.Value );
+			double expected_val = double.Parse( str );
+			Assert.AreEqual( TokenType.LITERAL , token.Type );
+			Assert.AreEqual( expected_val , token_val );
+		}
+
+		[TestMethod]
+		public void Lexer_ReadSingleToken_ReturnsKeyword( )
 		{
 			foreach ( Keyword keyword in Enum.GetValues( typeof( Keyword ) ) )
 			{
-				Token expected_token = new( keyword.ToString( ) , TokenType.KEYWORD );
-				Lexer lexer = new( keyword.ToString( ) );
-				Assert.AreEqual( expected_token , lexer.NextToken( ) );
+				Token expected = new( keyword.ToString( ) , TokenType.KEYWORD );
+
+				Token actual = Lexer.ReadSingleToken( keyword.ToString( ) );
+
+				Assert.AreEqual( expected , actual );
 			}
 		}
 
 		[TestMethod]
-		public void Lexer_002_Symbol_Token_Test( )
+		[DataRow( "i" )]
+		[DataRow( "var" )]
+		[DataRow( "_i" )]
+		[DataRow( "VAR" )]
+		[DataRow( "i_0" )]
+		[DataRow( "var_" )]
+		[DataRow( "reeeeeeeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaalllllllllllyyyy_long_variable_name" )]
+		public void Lexer_ReadSingleToken_ReturnsVariable( string variable_string )
 		{
-			foreach ( Symbol symbol in new Symbol[]
-				{
-					Symbol.GREATER_THAN,
-					Symbol.LESS_THAN,
-					Symbol.EQUAL,
-					Symbol.NOT,
-					Symbol.LABEL_START,
-					Symbol.LABEL_END,
-					Symbol.LIST_SEPERATOR,
-					Symbol.LIST_END
-				} )
-			{
-				Lexer lexer = new( $"{(char)symbol}" );
-				Assert.AreEqual( symbol , lexer.NextToken( )?.AsSymbol( ) , $"Failed value: {symbol}" );
-			}
+			Token expected = new( variable_string , TokenType.VARIABLE );
+
+			Token actual = Lexer.ReadSingleToken( variable_string );
+
+			Assert.AreEqual( expected , actual );
 		}
 
 		[TestMethod]
-		public void Lexer_003_Literal_Token_Test( )
+		[DataRow( " " )]
+		[DataRow( "  " )]
+		[DataRow( "\t" )]
+		[DataRow( " \t" )]
+		public void Lexer_ReadSingleToken_ReturnsVariable_IgnoreWhitespace( string whitespace )
 		{
-			foreach ( string str in new string[]
-				{
-					"0", "1", "12345", "0.0", ".333", $"{Math.PI}",
-					"-0", "-1", "-12345", "-0.0", "-.333", $"-{Math.PI}",
-					$"{long.MaxValue - 1}", $"{long.MaxValue}",
-					$"{double.MaxValue - 1}", $"{double.MaxValue}",
-					$"{long.MinValue + 1}", $"{long.MinValue}",
-					$"{double.MinValue + 1}", $"{double.MinValue}",
-				}
-			)
-			{
-				Token expected_token = new( str , TokenType.LITERAL );
-				Lexer lexer = new( str );
-				Assert.AreEqual( expected_token , lexer.NextToken( ) , $"Failed value: {str}" );
-			}
+			string variable_string = "variable";
+			Token expected = new( variable_string , TokenType.VARIABLE );
+
+			Token actual = Lexer.ReadSingleToken( whitespace + variable_string + whitespace );
+
+			Assert.AreEqual( expected , actual );
 		}
 
 		[TestMethod]
-		public void Lexer_004_Variable_Token_Test( )
+		[DataRow( Symbol.EQUAL )]
+		[DataRow( Symbol.NOT )]
+		[DataRow( Symbol.GREATER_THAN )]
+		[DataRow( Symbol.LESS_THAN )]
+		[DataRow( Symbol.LABEL_START )]
+		[DataRow( Symbol.LABEL_END )]
+		[DataRow( Symbol.LIST_SEPERATOR )]
+		[DataRow( Symbol.LIST_END )]
+		public void Lexer_ReadSingleToken_ReturnsSymbol_StandAloneSymbols( Symbol symbol )
 		{
-			foreach ( string str in new string[]
-				{
-					"variable", "_variable", "variable_", "___var_iable",
-					"_set", "SET_", "_1024", "some_var_1", "i",
-					"reeeeeeeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaalllllllllllyyyy_long_variable_name"
-				}
-			)
-			{
-				Token expected_token = new( str , TokenType.VARIABLE );
-				Lexer lexer = new( str );
-				Assert.AreEqual( expected_token , lexer.NextToken( ) , $"Failed value: {str}" );
-			}
+			string symbol_string = $"{(char)symbol}";
+			Token expected = new( symbol_string , TokenType.SYMBOL );
+
+			Token actual = Lexer.ReadSingleToken( symbol_string );
+
+			Assert.AreEqual( expected , actual );
 		}
 
 		[TestMethod]
-		public void Lexer_005_List_Token_Test( )
+		[DataRow( "\"\"" )]
+		[DataRow( "\" \"" )]
+		[DataRow( "\"string\"" )]
+		[DataRow( "\"0()-+_%$^&*@#!=><?'\"" )]
+		// [DataRow( "\"\\t\\n\\\"\"" )] // TODO uncomment when escaped characters in strings are fully implemented
+		public void Lexer_ReadSingleToken_ReturnsString( string list )
 		{
-			Lexer lexer = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" ))" );
-			Assert.AreEqual( TokenType.LIST , lexer.NextToken( )?.Type );
+			Token expected = new( list , TokenType.STRING );
+
+			Token actual = Lexer.ReadSingleToken( list );
+
+			Assert.AreEqual( expected , actual );
 		}
 
 		[TestMethod]
-		public void Lexer_006_Comment_Token_Test( )
+		[DataRow( "()" )]
+		[DataRow( "(0)" )]
+		[DataRow( "(0,0)" )]
+		[DataRow( "(\"a string\", \"(,)\")" )]
+		[DataRow( "((0,0),(0,0,0),())" )]
+		public void Lexer_ReadSingleToken_ReturnsList( string list )
 		{
-			Lexer lexer = new( "( x, y, z ,w , ( 1, 2, 3.0, \"string\" )) # a list comment )()\\,,stuff 123" );
-			Assert.AreEqual( TokenType.COMMENT , lexer.ReadTokens( )[^1].Type );
+			Token expected = new( list , TokenType.LIST );
+
+			Token actual = Lexer.ReadSingleToken( list );
+
+			Assert.AreEqual( expected , actual );
 		}
 
 		[TestMethod]
-		public void Lexer_007_ReadSingleToken_Test( )
+		[DataRow( "#" )]
+		[DataRow( "##" )]
+		[DataRow( "# words" )]
+		[DataRow( "# \t\"(,)0" )]
+		public void Lexer_ReadSingleToken_ReturnsComment( string list )
 		{
-			Assert.AreEqual( TokenType.LIST , Lexer.ReadSingleToken( "(1,2,3, \"4\")" ).Type );
+			Token expected = new( list , TokenType.COMMENT );
 
-			_ = Assert.ThrowsException<IllegalTokenException>( ( ) => Lexer.ReadSingleToken( "token1 token2" ) );
+			Token actual = Lexer.ReadSingleToken( list );
+
+			Assert.AreEqual( expected , actual );
+		}
+
+		[TestMethod]
+		[DataRow( "0 0" )]
+		[DataRow( "( 0 0 )" )]
+		[DataRow( "( > )" )]
+		public void Lexer_ReadSingleToken_ThrowsIllegalTokenException( string str )
+		{
+			_ = Assert.ThrowsException<IllegalTokenException>(
+				( ) => Lexer.ReadSingleToken( str ) );
+		}
+
+		[TestMethod]
+		[DataRow( "(" )]
+		[DataRow( "(0," )]
+		[DataRow( "\"" )]
+		[DataRow( "\"string" )]
+		[DataRow( "\"string\\\"" )]
+		public void Lexer_ReadSingleToken_ThrowsMissingTerminatorException( string str )
+		{
+			_ = Assert.ThrowsException<MissingTerminatorException>(
+				( ) => Lexer.ReadSingleToken( str ) );
+		}
+
+		[TestMethod]
+		[DataRow( "*" )]
+		[DataRow( "/" )]
+		[DataRow( "\\" )]
+		[DataRow( "@" )]
+		[DataRow( "$" )]
+		[DataRow( "%" )]
+		[DataRow( "&" )]
+		public void Lexer_ReadSingleToken_ThrowsUnexpectedSymbolException( string str )
+		{
+			_ = Assert.ThrowsException<UnexpectedSymbolException>(
+				( ) => Lexer.ReadSingleToken( str ) );
+		}
+
+		[TestMethod]
+		[DataRow( "x@" )]
+		[DataRow( "x@@1" )]
+		[DataRow( "0.." )]
+		[DataRow( "0-" )]
+		[DataRow( "0+" )]
+		public void Lexer_ReadSingleToken_ThrowsInvalidTokenException( string str )
+		{
+			_ = Assert.ThrowsException<InvalidTokenException>(
+				( ) => Lexer.ReadSingleToken( str ) );
 		}
 	}
 }

@@ -60,7 +60,7 @@ namespace BNA.Compile
 				else
 				{
 					return this.Current.IsDigit( ) || this.Current is '-' or '.' ? this.NextLiteral( )
-						: this.Current.IsLetter( ) || this.Current is '_' or (char)Symbol.ACCESSOR ? this.NextVariableOrKeyword( )
+						: this.Current.IsLetter( ) || this.Current is '_' ? this.NextVariableOrKeyword( )
 						: this.Current is (char)Symbol.STRING_MARKER ? this.NextString( )
 						: this.Current is (char)Symbol.LIST_START ? this.NextList( )
 						: this.Current is (char)Symbol.COMMENT ? this.NextComment( )
@@ -107,9 +107,18 @@ namespace BNA.Compile
 				_ = builder.Append( this.ConsumeCurrent );
 			}
 
-			// TODO validate that accessors have values on both sides
-
 			string str = builder.ToString( );
+			for ( int i = 0 ; i < str.Length ; i += 1 )
+			{
+				if ( str[i] == (char)Symbol.ACCESSOR &&
+					( i + 1 >= str.Length || i - 1 < 0
+					|| !( char.IsLetterOrDigit( str[i + 1] ) || str[i + 1] == '_' )
+					|| !( char.IsLetterOrDigit( str[i - 1] ) || str[i - 1] == '_' ) ) )
+				{
+					throw new InvalidTokenException( $"Accessors must have a letter, digit, or underscore on either side." );
+				}
+			}
+
 			return new Token( str , Enum.TryParse( str , out Keyword _ ) ? TokenType.KEYWORD : TokenType.VARIABLE );
 		}
 
@@ -168,13 +177,11 @@ namespace BNA.Compile
 						throw new IllegalTokenException( $"Tokens of type '{token.Type}' not allowed in lists." );
 					}
 				}
-				else
-				{
-					throw new MissingTerminatorException( "List" , (char)Symbol.LIST_END );
-				}
 			}
 
-			return new Token( this.Line[start_index..this.Index] , TokenType.LIST );
+			return this.Line[this.Index - 1] == (char)Symbol.LIST_END
+				? new Token( this.Line[start_index..this.Index] , TokenType.LIST )
+				: throw new MissingTerminatorException( "List" , (char)Symbol.LIST_END );
 		}
 
 		private Token NextComment( )
