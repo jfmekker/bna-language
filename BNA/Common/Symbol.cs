@@ -1,5 +1,13 @@
 ﻿namespace BNA.Common
 {
+	/// <summary>
+	/// A BNA language reserved keyword.
+	/// </summary>
+	/// <remarks>
+	/// The backing values (as <see langword="char"/>) are the literal symbols.
+	/// In other words "#" == <see cref="COMMENT"/>.
+	/// These values face the "user" and should be modified very carefully.
+	/// </remarks>
 	public enum Symbol
 	{
 		NULL = '\0',

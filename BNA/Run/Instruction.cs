@@ -287,16 +287,16 @@ namespace BNA.Run
 					break;
 				}
 
-				case Operation.TEST_EQU:
-				case Operation.TEST_NEQ:
-				case Operation.TEST_GTR:
-				case Operation.TEST_LSS:
+				case Operation.TEST_EQUAL:
+				case Operation.TEST_NOT_EQUAL:
+				case Operation.TEST_GREATER_THAN:
+				case Operation.TEST_LESS_THAN:
 				{
 					Value result
-						= this.Type == Operation.TEST_EQU ? this.PrimaryValue == this.SecondaryValue ? Value.TRUE : Value.FALSE
-						: this.Type == Operation.TEST_NEQ ? this.PrimaryValue != this.SecondaryValue ? Value.TRUE : Value.FALSE
-						: this.Type == Operation.TEST_GTR ? this.PrimaryValue.GreaterThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
-						: this.Type == Operation.TEST_LSS ? this.PrimaryValue.LessThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
+						= this.Type == Operation.TEST_EQUAL ? this.PrimaryValue == this.SecondaryValue ? Value.TRUE : Value.FALSE
+						: this.Type == Operation.TEST_NOT_EQUAL ? this.PrimaryValue != this.SecondaryValue ? Value.TRUE : Value.FALSE
+						: this.Type == Operation.TEST_GREATER_THAN ? this.PrimaryValue.GreaterThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
+						: this.Type == Operation.TEST_LESS_THAN ? this.PrimaryValue.LessThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
 						: throw new Exception( $"Unexpted TEST statement type: {this.Type}" );
 					this.Program.SetValue( SpecialVariables.TEST_RESULT , result );
 					break;

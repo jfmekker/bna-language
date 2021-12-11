@@ -115,7 +115,7 @@ namespace BNA.Compile
 					|| !( char.IsLetterOrDigit( str[i + 1] ) || str[i + 1] == '_' )
 					|| !( char.IsLetterOrDigit( str[i - 1] ) || str[i - 1] == '_' ) ) )
 				{
-					throw new InvalidTokenException( $"Accessors must have a letter, digit, or underscore on either side." );
+					throw new InvalidTokenException( $"Accessors must have a letter, digit, or underscore on either side: {str}" );
 				}
 			}
 

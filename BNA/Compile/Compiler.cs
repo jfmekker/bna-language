@@ -81,7 +81,7 @@ namespace BNA.Compile
 						  or InvalidTokenException
 						  or MissingTokenException )
 					{
-						throw new CompiletimeException( i , parser.RawIndex , parser.RawLine , e ); // TODO add column
+						throw new CompiletimeException( i , parser.RawIndex , parser.RawLine , e );
 					}
 					else
 					{

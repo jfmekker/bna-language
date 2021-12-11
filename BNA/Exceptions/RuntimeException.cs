@@ -1,7 +1,6 @@
 ﻿using System;
 using BNA.Common;
 using BNA.Compile;
-using BNA.Run;
 using BNA.Values;
 
 namespace BNA.Exceptions
@@ -11,10 +10,23 @@ namespace BNA.Exceptions
 	/// </summary>
 	public class RuntimeException : Exception
 	{
+		/// <summary>
+		/// Line number of the line that caused the <see cref="Exception"/>.
+		/// </summary>
 		public readonly int Line;
 
+		/// <summary>
+		/// The <see cref="Statement"/> that was compiled for the line.
+		/// </summary>
 		public readonly Statement Statement;
 
+		/// <summary>
+		/// Create a new <see cref="RuntimeException"/> instance by wrapping
+		/// the thrown <see cref="Exception"/>.
+		/// </summary>
+		/// <param name="line">Line number.</param>
+		/// <param name="statement">Compiled statement.</param>
+		/// <param name="innerException">Exception that was thrown.</param>
 		public RuntimeException( int line , Statement statement , Exception innerException )
 			: base( $"{innerException.Message}\nRuntime Error - line {line}: {statement.Line}\n\t-> {statement}" , innerException )
 		{
@@ -23,6 +35,14 @@ namespace BNA.Exceptions
 		}
 	}
 
+	/// <summary>
+	/// Exception thrown when an undefined operation is attempted.
+	/// </summary>
+	/// <remarks>
+	/// Example:
+	/// <c>APPEND 1 TO y</c>
+	/// where y is a numeric type value.
+	/// </remarks>
 	public class UndefinedOperationException : Exception
 	{
 		public readonly string Operation;
@@ -40,6 +60,9 @@ namespace BNA.Exceptions
 		}
 	}
 
+	/// <summary>
+	/// Exception thrown when an operation is given an incorrect type operand.
+	/// </summary>
 	public class IncorrectOperandTypeException : Exception
 	{
 		public readonly Token Token;
@@ -57,6 +80,10 @@ namespace BNA.Exceptions
 		}
 	}
 
+	/// <summary>
+	/// Exception thrown when the index to an accesed variable is not
+	/// an integer value.
+	/// </summary>
 	public class InvalidIndexValueException : Exception
 	{
 		public readonly Token Token;
@@ -71,6 +98,9 @@ namespace BNA.Exceptions
 		}
 	}
 
+	/// <summary>
+	/// Exception thrown when a value is out of range for a certain context.
+	/// </summary>
 	public class ValueOutOfRangeException : Exception
 	{
 		public readonly Value Index;
@@ -85,6 +115,9 @@ namespace BNA.Exceptions
 		}
 	}
 
+	/// <summary>
+	/// Exception thrown when a value is accesed that is not a string or list.
+	/// </summary>
 	public class NonIndexableValueException : Exception
 	{
 		public readonly Token Token;
@@ -99,6 +132,10 @@ namespace BNA.Exceptions
 		}
 	}
 
+	/// <summary>
+	/// Exception thrown when a variables value is retrieved when it does not
+	/// exist in the current scope.
+	/// </summary>
 	public class NonExistantVariableException : Exception
 	{
 		public readonly Token Token;
@@ -110,11 +147,17 @@ namespace BNA.Exceptions
 		}
 	}
 
-	public class CloseFinalScopeException : Exception
+	/// <summary>
+	/// Exception thrown when the final / root scope is attempted to be closed.
+	/// </summary>
+	public class CannnotCloseFinalScopeException : Exception
 	{
-		public CloseFinalScopeException( ) : base( "Cannot close the final scope." ) { }
+		public CannnotCloseFinalScopeException( ) : base( "Cannot close the final scope." ) { }
 	}
 
+	/// <summary>
+	/// Exception thrown by the BNA <see cref="Operation.ERROR"/> statement.
+	/// </summary>
 	public class ErrorStatementException : Exception
 	{
 		public string StatementMessage;

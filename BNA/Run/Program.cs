@@ -314,7 +314,7 @@ namespace BNA.Run
 			Value return_val = this.GetValue( SpecialVariables.RETURN );
 			if ( this.Scopes.Count < 2 )
 			{
-				throw new CloseFinalScopeException( );
+				throw new CannnotCloseFinalScopeException( );
 			}
 			_ = this.Scopes.Pop( );
 			this.SetValue( SpecialVariables.RETURN , return_val );

@@ -98,10 +98,10 @@ namespace BNA.Compile
 						{
 							operation = symbol switch
 							{
-								Symbol.GREATER_THAN => Operation.TEST_GTR,
-								Symbol.LESS_THAN => Operation.TEST_LSS,
-								Symbol.EQUAL => Operation.TEST_EQU,
-								Symbol.NOT => Operation.TEST_NEQ,
+								Symbol.GREATER_THAN => Operation.TEST_GREATER_THAN,
+								Symbol.LESS_THAN => Operation.TEST_LESS_THAN,
+								Symbol.EQUAL => Operation.TEST_EQUAL,
+								Symbol.NOT => Operation.TEST_NOT_EQUAL,
 								_ => throw new IllegalTokenException( $"Expected a comparison operator symbol, got {token}." )
 							};
 						}

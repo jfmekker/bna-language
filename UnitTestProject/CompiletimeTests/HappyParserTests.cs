@@ -165,10 +165,10 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( Operation.TEST_GTR , Symbol.GREATER_THAN )]
-		[DataRow( Operation.TEST_LSS , Symbol.LESS_THAN )]
-		[DataRow( Operation.TEST_EQU , Symbol.EQUAL )]
-		[DataRow( Operation.TEST_NEQ , Symbol.NOT )]
+		[DataRow( Operation.TEST_GREATER_THAN , Symbol.GREATER_THAN )]
+		[DataRow( Operation.TEST_LESS_THAN , Symbol.LESS_THAN )]
+		[DataRow( Operation.TEST_EQUAL , Symbol.EQUAL )]
+		[DataRow( Operation.TEST_NOT_EQUAL , Symbol.NOT )]
 		public void Parser_ParseStatement_TestStatement( Operation operation , Symbol symbol )
 		{
 			Keyword first = Keyword.TEST;

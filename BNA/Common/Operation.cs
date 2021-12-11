@@ -1,5 +1,11 @@
 ﻿namespace BNA.Common
 {
+	/// <summary>
+	/// The type of an operation for <see cref="Compile.Statement"/> or <see cref="Run.Instruction"/>
+	/// </summary>
+	/// <remarks>
+	/// This is not "user" facing, so values can be renamed without too much issue.
+	/// </remarks>
 	public enum Operation
 	{
 		// non-operations
@@ -37,10 +43,10 @@
 		PRINT,
 
 		// test operations
-		TEST_GTR,
-		TEST_LSS,
-		TEST_EQU,
-		TEST_NEQ,
+		TEST_GREATER_THAN,
+		TEST_LESS_THAN,
+		TEST_EQUAL,
+		TEST_NOT_EQUAL,
 
 		// scope operations
 		SCOPE_OPEN,

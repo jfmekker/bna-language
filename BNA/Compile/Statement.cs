@@ -87,10 +87,10 @@ namespace BNA.Compile
 				case Operation.POWER:
 				case Operation.LIST:
 				case Operation.SIZE:
-				case Operation.TEST_GTR:
-				case Operation.TEST_LSS:
-				case Operation.TEST_EQU:
-				case Operation.TEST_NEQ:
+				case Operation.TEST_GREATER_THAN:
+				case Operation.TEST_LESS_THAN:
+				case Operation.TEST_EQUAL:
+				case Operation.TEST_NOT_EQUAL:
 				case Operation.GOTO:
 				case Operation.TYPE:
 					return (this.Operand1, this.Operand2);
