@@ -6,7 +6,7 @@ using BNA.Common;
 namespace CompiletimeTests
 {
 	[TestClass]
-	public class ParserTests
+	public class HappyParserTests
 	{
 		public enum OperandType { ANY, NUMERIC, STRING, VARIABLE }
 
@@ -14,7 +14,7 @@ namespace CompiletimeTests
 
 		public readonly Token Operand1;
 
-		public ParserTests( )
+		public HappyParserTests( )
 		{
 			Token tokenVariable = new( "var" , TokenType.VARIABLE );
 			Token tokenLiteral = new( "1.0" , TokenType.LITERAL );
@@ -38,8 +38,8 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( false )]
-		[DataRow( true )]
+		[DataRow( false , DisplayName = "Empty line" )]
+		[DataRow( true , DisplayName = "Comment" )]
 		public void Parser_ParseStatement_NullStatements( bool comment )
 		{
 			Token token = new( "# a comment" , TokenType.COMMENT );
@@ -104,6 +104,24 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
+		[DataRow( Operation.ROUND , Keyword.ROUND , OperandType.VARIABLE )]
+		[DataRow( Operation.CLOSE , Keyword.CLOSE , OperandType.VARIABLE )]
+		public void Parser_ParseStatement_Operand1Only( Operation operation , Keyword first , OperandType operandType )
+		{
+			foreach ( Token operand in this.OperandsByType[operandType] )
+			{
+				string line = $"{first} {operand.Value}";
+				Statement expected = new( line , operation , operand );
+				List<Token> tokens = new( ) { new( first ) , operand };
+				Parser parser = new( line , tokens );
+
+				Statement actual = parser.ParseStatement( );
+
+				Assert.AreEqual( expected , actual );
+			}
+		}
+
+		[TestMethod]
 		[DataRow( Operation.PRINT , Keyword.PRINT , OperandType.ANY )]
 		[DataRow( Operation.WAIT , Keyword.WAIT , OperandType.NUMERIC )]
 		[DataRow( Operation.ERROR , Keyword.ERROR , OperandType.STRING )]
@@ -124,13 +142,14 @@ namespace CompiletimeTests
 
 		[TestMethod]
 		[DataRow( Operation.OPEN_READ , OperandType.STRING )]
+		[DataRow( Operation.OPEN_WRITE , OperandType.STRING )]
 		public void Parser_ParseStatement_OpenReadWrite( Operation operation , OperandType operandType )
 		{
 			Keyword first = Keyword.OPEN;
 			Keyword mid1 = Keyword.AS;
 			Keyword mid2 = operation == Operation.OPEN_READ ? Keyword.READ
 						 : operation == Operation.OPEN_WRITE ? Keyword.WRITE
-						 : throw new System.Exception( "Test give incompatible or unexpected input." );
+						 : throw new System.Exception( "Test given incompatible or unexpected input." );
 
 			foreach ( Token operand2 in this.OperandsByType[operandType] )
 			{
@@ -147,6 +166,9 @@ namespace CompiletimeTests
 
 		[TestMethod]
 		[DataRow( Operation.TEST_GTR , Symbol.GREATER_THAN )]
+		[DataRow( Operation.TEST_LSS , Symbol.LESS_THAN )]
+		[DataRow( Operation.TEST_EQU , Symbol.EQUAL )]
+		[DataRow( Operation.TEST_NEQ , Symbol.NOT )]
 		public void Parser_ParseStatement_TestStatement( Operation operation , Symbol symbol )
 		{
 			Keyword first = Keyword.TEST;
@@ -176,6 +198,23 @@ namespace CompiletimeTests
 			List<Token> tokens = new( ) { new( first ) };
 			Token second_token = second is Keyword second_keyword ? new( second_keyword ) : default;
 			tokens.AddIf( second is not null , second_token );
+			Parser parser = new( line , tokens );
+
+			Statement actual = parser.ParseStatement( );
+
+			Assert.AreEqual( expected , actual );
+		}
+
+		[TestMethod]
+		public void Parser_ParseStatement_Label( )
+		{
+			Token start = new( Symbol.LABEL_START );
+			Token middle = new( "label" , TokenType.VARIABLE );
+			Token end = new( Symbol.LABEL_END );
+
+			string line = $"{start.Value} {middle.Value} {end.Value}";
+			Statement expected = new( line , Operation.LABEL , middle );
+			List<Token> tokens = new( ) { start , middle , end };
 			Parser parser = new( line , tokens );
 
 			Statement actual = parser.ParseStatement( );
