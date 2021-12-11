@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using BNA.Common;
+using BNA.Compile;
 using BNA.Exceptions;
 using BNA.Values;
 
-namespace BNA
+namespace BNA.Run
 {
 	/// <summary>
 	/// Object class representing a BNA program.
@@ -46,15 +48,9 @@ namespace BNA
 		{
 			get
 			{
-				if ( this.IP < 0 || this.IP >= this.Statements.Length )
-				{
-					throw new Exception( "Bad instruction pointer value ( " + this.IP + " )" );
-				}
-				else if ( this.Statements[this.IP] is null )
-				{
-					throw new Exception( "No statement at instruction pointer ( " + this.IP + " )" );
-				}
-				return this.Statements[this.IP];
+				return this.IP >= 0 && this.IP < this.Statements.Length
+                    ? this.Statements[this.IP]
+					: throw new Exception( "Bad instruction pointer value ( " + this.IP + " )" );
 			}
 		}
 
@@ -166,12 +162,12 @@ namespace BNA
 						int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
 						if ( accessor == 0 || accessor == token.Value.Length )
 						{
-							// compiletime error?
-							throw new CompiletimeException( this.IP , this.Statements[this.IP].ToString( ) , "Accessor at start or end of token: " + token );
+							// Should have been detected at compiletime
+							throw new Exception( $"Accessor at start or end of token: {token}" );
 						}
 
 						// Get value of index part
-						Token indexTok = new( token.Value[( accessor + 1 )..] );
+						Token indexTok = Lexer.ReadSingleToken( token.Value[( accessor + 1 )..] );
 						Value indexVal = this.GetValue( indexTok );
 						if ( indexVal is not IntegerValue index )
 						{
@@ -179,7 +175,7 @@ namespace BNA
 						}
 
 						// Get the value
-						Token accessedTok = new( token.Value.Substring( 0 , accessor ) );
+						Token accessedTok = Lexer.ReadSingleToken( token.Value.Substring( 0 , accessor ) );
 						Value accessedVal = this.GetValue( accessedTok );
 						return accessedVal is ListValue listVal
 								? index.Get >= 0 && index.Get < listVal.Get.Count ? listVal.Get[index.Get]
@@ -204,12 +200,13 @@ namespace BNA
 				// Tokenize and evaluate the contents of a list literal
 				case TokenType.LIST:
 				{
-					List<Token> listTokens = Token.TokenizeLine( token.Value[1..^1] );
+					Lexer lexer = new( token.Value[1..^1] );
+					List<Token> listTokens = lexer.ReadTokens( );
 					List<Value> listValues = new( );
 
 					foreach ( Token t in listTokens )
 					{
-						if ( t.Type != TokenType.SYMBOL || t.Value[0] != (char)Symbol.LIST_SEPERATOR )
+						if ( t.AsSymbol() is not Symbol.LIST_SEPERATOR  )
 						{
 							listValues.Add( this.GetValue( t ) );
 						}
@@ -222,13 +219,6 @@ namespace BNA
 				case TokenType.NULL:
 				{
 					return Value.NULL;
-				}
-
-				// Invalid token
-				case TokenType.INVALID:
-				case TokenType.UNKNOWN:
-				{
-					throw new Exception( "Can not get value from invalid or unknown token: " + token.ToString( ) );
 				}
 
 				default:
@@ -261,8 +251,7 @@ namespace BNA
 				}
 
 				// Get value of index part
-				// Get value of index part
-				Token indexTok = new( token.Value[( accessor + 1 )..] );
+				Token indexTok = Lexer.ReadSingleToken( token.Value[( accessor + 1 )..] );
 				Value indexVal = this.GetValue( indexTok );
 				if ( indexVal is not IntegerValue index )
 				{
@@ -270,9 +259,8 @@ namespace BNA
 				}
 
 				// Set the value
-				string listPart = token.Value.Substring( 0 , accessor );
-				Token accessedTok = new( token.Value.Substring( 0 , accessor ) );
-				Value accessedVal = this.GetValue( new Token( listPart ) );
+				Token accessedTok = Lexer.ReadSingleToken( token.Value.Substring( 0 , accessor ) );
+				Value accessedVal = this.GetValue( accessedTok );
 				if ( accessedVal is ListValue listVal )
 				{
 					if ( index.Get < 0 || index.Get >= listVal.Get.Count )
@@ -285,7 +273,7 @@ namespace BNA
 				}
 				else if ( accessedVal is StringValue )
 				{
-					throw new NotImplementedException( );
+					throw new NotImplementedException( $"Setting an indexed string is not implemented ( '{accessedVal}'@{indexVal} )." );
 				}
 				else
 				{
@@ -358,7 +346,7 @@ namespace BNA
 		{
 			for ( int i = 0 ; i < this.Statements.Length ; i += 1 )
 			{
-				if ( this.Statements[i].Type == StatementType.LABEL )
+				if ( this.Statements[i].Type == Operation.LABEL )
 				{
 					this.SetValue( this.Statements[i].Operand1 , new IntegerValue( i ) , true );
 				}

@@ -1,4 +1,7 @@
 ﻿using System;
+using BNA.Common;
+using BNA.Compile;
+using BNA.Run;
 using BNA.Values;
 
 namespace BNA.Exceptions
@@ -13,7 +16,7 @@ namespace BNA.Exceptions
 		public readonly Statement Statement;
 
 		public RuntimeException( int line , Statement statement , Exception innerException )
-			: base( $"t{innerException.Message}\nRuntime Error - line {line}: {statement}" , innerException )
+			: base( $"{innerException.Message}\nRuntime Error - line {line}: {statement.Line}\n\t-> {statement}" , innerException )
 		{
 			this.Line = line;
 			this.Statement = statement;
@@ -43,9 +46,9 @@ namespace BNA.Exceptions
 
 		public readonly Value Value;
 
-		public readonly StatementType Statement;
+		public readonly Operation Statement;
 
-		public IncorrectOperandTypeException( StatementType statement , Token token , Value value )
+		public IncorrectOperandTypeException( Operation statement , Token token , Value value )
 			: base( $"Incorrect operand type for {statement} statement: {token} = {value.TypeString( )} '({value})'" )
 		{
 			this.Statement = statement;

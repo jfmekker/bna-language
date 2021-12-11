@@ -1,6 +1,7 @@
-﻿using BNA.Values;
+﻿using BNA.Compile;
+using BNA.Values;
 
-namespace BNA
+namespace BNA.Run
 {
 	/// <summary>
 	/// The coupling of a <see cref="Value"/> and an identifying <see cref="Token"/>.

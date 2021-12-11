@@ -1,10 +1,10 @@
 ﻿using System;
-using BNA;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using BNA;
 
-namespace UnitTestProject
+namespace IntegrationTests
 {
-	public static class TestRunner
+	public static class TestFileRunner
 	{
 		/// <summary>
 		/// Run a .bna test file in the Tests folder.

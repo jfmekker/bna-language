@@ -1,4 +1,8 @@
-﻿using System;
+﻿using BNA.Common;
+using BNA.Compile;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace BNA.Exceptions
 {
@@ -7,43 +11,71 @@ namespace BNA.Exceptions
 	/// </summary>
 	public class CompiletimeException : Exception
 	{
-		/// <summary>
-		/// The line that threw the error.
-		/// </summary>
-		public readonly string Line;
+		public readonly int Line;
 
-		/// <summary>
-		/// The line number of the bad line.
-		/// </summary>
-		public readonly int LineNumber;
+		public readonly int Column;
 
-		/// <summary>
-		/// Specific BNA info message.
-		/// </summary>
-		public readonly string BNAMessage;
+		public readonly string LineString;
 
-		public CompiletimeException( int line_number , string line , string message )
-			: base( message + "\nCompile error on line " + line_number + ":\n\t" + line )
+		public CompiletimeException( int line , int column , string lineString , Exception innerException )
+			: base( $"{innerException.Message}\n" +
+					$"Compiletime Error - line {line}: {lineString}\n" +
+					$"                         {" ".Repeat( line.ToString( ).Length )}  {" ".Repeat( column )}" ,
+				  innerException )
 		{
 			this.Line = line;
-			this.LineNumber = line_number;
-			this.BNAMessage = message;
+			this.Column = column;
+			this.LineString = lineString;
+		}
+	}
+
+	public class UnexpectedSymbolException : Exception
+	{
+		public UnexpectedSymbolException( char? symbol )
+			: base( $"Unexpected symbol: '{symbol?.ToString( ) ?? "null" }'" )
+		{
+		}
+	}
+
+	public class MissingTerminatorException : Exception
+	{
+		public MissingTerminatorException( string thing , char terminator )
+			: base( $"{thing} missing '{terminator}' terminator before end of line." )
+		{
+		}
+	}
+
+	public class IllegalTokenException : Exception
+	{
+		public IllegalTokenException( string message )
+			: base( message )
+		{
+		}
+	}
+
+	public class InvalidTokenException : Exception
+	{
+		public InvalidTokenException( string message )
+			: base( message )
+		{
+		}
+	}
+
+	public class MissingTokenException : Exception
+	{
+		public MissingTokenException( params TokenType[] types )
+			: base( $"Missing token, expected {types.PrintElements( )}." )
+		{
 		}
 
-		public CompiletimeException( CompiletimeException exception , int line_number , string line )
-			: base( exception.BNAMessage + "\nCompile error on line " + line_number + ":\n\t" + line , exception )
+		public MissingTokenException( string token )
+			: base( $"Missing token, expected '{token}'." )
 		{
-			this.Line = line;
-			this.LineNumber = line_number;
-			this.BNAMessage = exception.BNAMessage;
 		}
 
-		public CompiletimeException( string message )
-			: base( message + "\nCompile error" )
+		public MissingTokenException( )
+			: base( "Statement ended too early." )
 		{
-			this.Line = string.Empty;
-			this.LineNumber = -1;
-			this.BNAMessage = message;
 		}
 	}
 }

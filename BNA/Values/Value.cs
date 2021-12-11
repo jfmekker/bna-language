@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using BNA.Exceptions;
 
 namespace BNA.Values
@@ -66,8 +64,6 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>String.</returns>
 		public override string ToString( ) => this.Get.ToString( ) ?? string.Empty;
-
-		#region REGION Operator Stubs
 
 		/// <summary>
 		/// Compare equality of two <see cref="Value"/> instances.
@@ -180,7 +176,5 @@ namespace BNA.Values
 		/// <returns>Size stored in a <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
 		public virtual Value Size( ) => throw new UndefinedOperationException( this , "SIZE" );
-
-		#endregion
 	}
 }
