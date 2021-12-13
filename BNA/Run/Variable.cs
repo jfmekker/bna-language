@@ -34,5 +34,11 @@ namespace BNA.Run
 			this.Identifier = token;
 			this.Value = value ?? Value.NULL;
 		}
+
+		public void Deconstruct(out Token token, out Value value)
+		{
+			token = this.Identifier;
+			value = this.Value;
+		}
 	}
 }

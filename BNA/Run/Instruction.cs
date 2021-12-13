@@ -24,7 +24,7 @@ namespace BNA.Run
 
 		public IMemory Memory { get; init; }
 
-		public Instruction( Operation operation, Token? operand1, Token? operand2 , IProgram program, IMemory memory )
+		public Instruction( Operation operation , Token? operand1 , Token? operand2 , IProgram program , IMemory memory )
 		{
 			this.Program = program;
 			this.Memory = memory;
@@ -241,9 +241,9 @@ namespace BNA.Run
 				case Operation.WAIT:
 				{
 					int ms = (int)( 1000 *
-						( this.PrimaryValue is IntegerValue intVal ? intVal.Get
-						: this.PrimaryValue is FloatValue floatVal ? floatVal.Get
-						: throw new IncorrectOperandTypeException( this.Type , this.PrimaryToken , this.PrimaryValue ) ) );
+						( this.SecondaryValue is IntegerValue intVal ? intVal.Get
+						: this.SecondaryValue is FloatValue floatVal ? floatVal.Get
+						: throw new IncorrectOperandTypeException( this.Type , this.SecondaryToken , this.SecondaryValue ) ) );
 
 					try
 					{
@@ -260,7 +260,7 @@ namespace BNA.Run
 
 				case Operation.ERROR:
 				{
-					throw new ErrorStatementException( this.PrimaryValue );
+					throw new ErrorStatementException( this.SecondaryValue );
 				}
 
 				case Operation.EXIT:

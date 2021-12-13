@@ -19,7 +19,6 @@ namespace BNA.Run
 			private set
 			{
 				this.Scopes.Push( value );
-				// this.CompileLabels( ); TODO maybe just make this a list in Program?
 				this.SetValue( SpecialVariables.TEST_RESULT , SpecialVariables.TEST_RESULT_DEFAULT , true );
 				this.SetValue( SpecialVariables.ARGUMENT , SpecialVariables.ARGUMENT_DEFAULT , true );
 				this.SetValue( SpecialVariables.RETURN , SpecialVariables.RETURN_DEFAULT , true );
