@@ -20,7 +20,7 @@ namespace CompiletimeTests
 			Token token = Lexer.ReadSingleToken( val.ToString( ) );
 
 			long token_val = long.Parse( token.Value );
-			Assert.AreEqual( TokenType.LITERAL , token.Type );
+			Assert.AreEqual( TokenType.NUMBER , token.Type );
 			Assert.AreEqual( val , token_val );
 		}
 
@@ -35,7 +35,7 @@ namespace CompiletimeTests
 			Token token = Lexer.ReadSingleToken( val.ToString( ) );
 
 			double token_val = double.Parse( token.Value );
-			Assert.AreEqual( TokenType.LITERAL , token.Type );
+			Assert.AreEqual( TokenType.NUMBER , token.Type );
 			Assert.AreEqual( val , token_val );
 		}
 
@@ -48,7 +48,7 @@ namespace CompiletimeTests
 
 			double token_val = double.Parse( token.Value );
 			double expected_val = double.Parse( str );
-			Assert.AreEqual( TokenType.LITERAL , token.Type );
+			Assert.AreEqual( TokenType.NUMBER , token.Type );
 			Assert.AreEqual( expected_val , token_val );
 		}
 

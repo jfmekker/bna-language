@@ -17,7 +17,7 @@ namespace CompiletimeTests
 		public HappyParserTests( )
 		{
 			Token tokenVariable = new( "var" , TokenType.VARIABLE );
-			Token tokenLiteral = new( "1.0" , TokenType.LITERAL );
+			Token tokenLiteral = new( "1.0" , TokenType.NUMBER );
 			Token tokenString = new( "\"my string\"" , TokenType.STRING );
 			Token tokenList = new( "(0, 0)" , TokenType.LIST );
 

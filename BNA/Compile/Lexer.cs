@@ -89,7 +89,7 @@ namespace BNA.Compile
 
 			string str = builder.ToString( );
 			return long.TryParse( str , out long _ ) || double.TryParse( str , out double _ )
-				? new Token( str , TokenType.LITERAL )
+				? new Token( str , TokenType.NUMBER )
 				: throw new InvalidTokenException( "Literal is not parsable as number." );
 		}
 
@@ -161,7 +161,7 @@ namespace BNA.Compile
 					{
 						list.Add( token );
 					}
-					else if ( token.Type is TokenType.LITERAL or TokenType.VARIABLE or TokenType.STRING or TokenType.LIST )
+					else if ( token.Type is TokenType.NUMBER or TokenType.VARIABLE or TokenType.STRING or TokenType.LIST )
 					{
 						if ( list[^1].AsSymbol( ) is Symbol.LIST_SEPERATOR or Symbol.LIST_START )
 						{

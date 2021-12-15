@@ -55,7 +55,7 @@ namespace BNA.Run
 			switch ( token.Type )
 			{
 				// Parse the literal value from the token
-				case TokenType.LITERAL:
+				case TokenType.NUMBER:
 				{
 					if ( long.TryParse( token.Value , out long lval ) )
 					{

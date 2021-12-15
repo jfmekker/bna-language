@@ -5,7 +5,7 @@ namespace BNA.Common
 	public enum TokenType
 	{
 		NULL = 0,
-		LITERAL,
+		NUMBER,
 		VARIABLE,
 		STRING,
 		LIST,

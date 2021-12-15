@@ -50,8 +50,8 @@ namespace RuntimeTests
 		{
 			foreach ( (Token operand2, Value value) in new Variable[]
 				{
-					new( new Token( "0" , TokenType.LITERAL ) , new IntegerValue( 0 ) ),
-					new( new Token( "0.1" , TokenType.LITERAL ) , new IntegerValue( 0 ) ),
+					new( new Token( "0" , TokenType.NUMBER ) , new IntegerValue( 0 ) ),
+					new( new Token( "0.1" , TokenType.NUMBER ) , new FloatValue( 0 ) ),
 					new( new Token( "\"\"" , TokenType.STRING ) , new StringValue( "" ) ),
 					new( new Token( "()" , TokenType.LIST ) , new ListValue( 0 ) ),
 				} )

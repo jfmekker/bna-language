@@ -211,7 +211,7 @@ namespace BNA.Run
 					Token token = new( $"\"{input}\"" , TokenType.STRING );
 					switch ( token.Type )
 					{
-						case TokenType.LITERAL:
+						case TokenType.NUMBER:
 						case TokenType.LIST:
 							this.Memory.SetValue( this.PrimaryToken , this.Memory.GetValue( token ) , true );
 							break;
