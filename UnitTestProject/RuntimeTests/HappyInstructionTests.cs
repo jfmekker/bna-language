@@ -2,6 +2,7 @@
 using BNA.Run;
 using BNA.Common;
 using BNA.Values;
+using BNA.Exceptions;
 
 namespace RuntimeTests
 {
@@ -79,6 +80,16 @@ namespace RuntimeTests
 
 			Assert.AreEqual( test_method , ( (MockValue)operand1.Value ).LastCalledFunction );
 			Assert.AreEqual( new IntegerValue( test_op != Operation.TEST_NOT_EQUAL ? 1 : 0 ) , this.Memory.SetValue_TokenValue?.value );
+		}
+
+		[TestMethod]
+		public void Instruction_Execute_ErrorOperation( )
+		{
+			Variable operand2 = new( new Token( "var2" , TokenType.VARIABLE ) , new MockValue( ) );
+			this.Memory.GetValue_TokenValues = new( ) { (operand2.Token, operand2.Value) };
+			Instruction inst = new( Operation.ERROR , null , operand2.Token , this.Program , this.Memory );
+
+			_ = Assert.ThrowsException<ErrorStatementException>( ( ) => inst.Execute( ) );
 		}
 	}
 }
