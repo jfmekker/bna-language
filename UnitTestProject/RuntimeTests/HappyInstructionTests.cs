@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BNA.Run;
 using BNA.Common;
 using BNA.Values;
@@ -24,46 +19,66 @@ namespace RuntimeTests
 		}
 
 		[TestMethod]
-		public void Instruction_Execute_SetOperation_SetToVariable( )
+		[DataRow( "Integer" , TokenType.NUMBER )]
+		[DataRow( "Float" , TokenType.NUMBER )]
+		[DataRow( "String" , TokenType.STRING )]
+		[DataRow( "List" , TokenType.LIST )]
+		[DataRow( "Integer" , TokenType.VARIABLE )]
+		[DataRow( "Float" , TokenType.VARIABLE )]
+		[DataRow( "String" , TokenType.VARIABLE )]
+		[DataRow( "List" , TokenType.VARIABLE )]
+		public void Instruction_Execute_SetOperation( string val_type , TokenType tok_type )
 		{
-			foreach ( Value value in new Value[]
-				{
-					new IntegerValue(0),
-					new FloatValue(0),
-					new StringValue(""),
-					new ListValue(0),
-				} )
-			{
-				Token operand1 = new( "var1" , TokenType.VARIABLE );
-				Token operand2 = new( "var2" , TokenType.VARIABLE );
-				this.Memory.GetValue_TokenValues = new( ) { (operand2, value) };
-				Instruction inst = new( Operation.SET , operand1 , operand2 , this.Program , this.Memory );
+			Token operand2_token = MockValue.GetTokenOfType( tok_type );
+			Value operand2_value = MockValue.GetValueOfType( val_type );
+			Token operand1_token = new( "var1" , TokenType.VARIABLE );
+			this.Memory.GetValue_TokenValues = new( ) { (operand2_token, operand2_value) };
+			Instruction inst = new( Operation.SET , operand1_token , operand2_token , this.Program , this.Memory );
 
-				inst.Execute( );
+			inst.Execute( );
 
-				Assert.AreEqual( value , this.Memory.SetValue_TokenValue?.value );
-			}
+			Assert.AreEqual( operand2_value , this.Memory.SetValue_TokenValue?.value );
 		}
 
 		[TestMethod]
-		public void Instruction_Execute_SetOperation_SetToLiteralListOrString( )
+		[DataRow( Operation.ADD , "Add" )]
+		[DataRow( Operation.SUBTRACT , "Subtract" )]
+		[DataRow( Operation.MULTIPLY , "Multiply" )]
+		[DataRow( Operation.DIVIDE , "Divide" )]
+		[DataRow( Operation.MODULUS , "Modulus" )]
+		[DataRow( Operation.LOGARITHM , "Log" )]
+		[DataRow( Operation.POWER , "RaiseTo" )]
+		[DataRow( Operation.APPEND , "Append" )]
+		[DataRow( Operation.ROUND , "Round" )]
+		[DataRow( Operation.SIZE , "Size" )]
+		public void Instruction_Execute_OperationCallsValueFunction( Operation operation , string function )
 		{
-			foreach ( (Token operand2, Value value) in new Variable[]
-				{
-					new( new Token( "0" , TokenType.NUMBER ) , new IntegerValue( 0 ) ),
-					new( new Token( "0.1" , TokenType.NUMBER ) , new FloatValue( 0 ) ),
-					new( new Token( "\"\"" , TokenType.STRING ) , new StringValue( "" ) ),
-					new( new Token( "()" , TokenType.LIST ) , new ListValue( 0 ) ),
-				} )
-			{
-				Token operand1 = new( "var1" , TokenType.VARIABLE );
-				this.Memory.GetValue_TokenValues = new( ) { (operand2, value) };
-				Instruction inst = new( Operation.SET , operand1 , operand2 , this.Program , this.Memory );
+			Variable operand1 = new( new Token( "var1" , TokenType.VARIABLE ) , new MockValue( ) );
+			Variable operand2 = new( new Token( "var2" , TokenType.VARIABLE ) , new MockValue( ) );
+			this.Memory.GetValue_TokenValues = new( ) { (operand1.Token, operand1.Value) , (operand2.Token, operand2.Value) };
+			Instruction inst = new( operation , operand1.Token , operand2.Token , this.Program , this.Memory );
 
-				inst.Execute( );
+			inst.Execute( );
 
-				Assert.AreEqual( value , this.Memory.SetValue_TokenValue?.value );
-			}
+			Assert.AreEqual( function , ( (MockValue?)this.Memory.SetValue_TokenValue?.value )?.LastCalledFunction );
+		}
+
+		[TestMethod]
+		[DataRow( Operation.TEST_LESS_THAN , "LessThan" )]
+		[DataRow( Operation.TEST_GREATER_THAN , "GreaterThan" )]
+		[DataRow( Operation.TEST_EQUAL , "Equals" )]
+		[DataRow( Operation.TEST_NOT_EQUAL , "Equals" )]
+		public void Instruction_Execute_TestOperation( Operation test_op , string test_method )
+		{
+			Variable operand1 = new( new Token( "var1" , TokenType.VARIABLE ) , new MockValue( ) );
+			Variable operand2 = new( new Token( "var2" , TokenType.VARIABLE ) , new MockValue( ) );
+			this.Memory.GetValue_TokenValues = new( ) { (operand1.Token, operand1.Value) , (operand2.Token, operand2.Value) };
+			Instruction inst = new( test_op , operand1.Token , operand2.Token , this.Program , this.Memory );
+
+			inst.Execute( );
+
+			Assert.AreEqual( test_method , ( (MockValue)operand1.Value ).LastCalledFunction );
+			Assert.AreEqual( new IntegerValue( test_op != Operation.TEST_NOT_EQUAL ? 1 : 0 ) , this.Memory.SetValue_TokenValue?.value );
 		}
 	}
 }
