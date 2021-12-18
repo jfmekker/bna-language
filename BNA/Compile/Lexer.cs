@@ -157,19 +157,19 @@ namespace BNA.Compile
 						list.Add( token );
 						break;
 					}
-					else if ( token.AsSymbol( ) is Symbol.LIST_SEPERATOR )
+					else if ( token.AsSymbol( ) is Symbol.LIST_SEPARATOR )
 					{
 						list.Add( token );
 					}
 					else if ( token.Type is TokenType.NUMBER or TokenType.VARIABLE or TokenType.STRING or TokenType.LIST )
 					{
-						if ( list[^1].AsSymbol( ) is Symbol.LIST_SEPERATOR or Symbol.LIST_START )
+						if ( list[^1].AsSymbol( ) is Symbol.LIST_SEPARATOR or Symbol.LIST_START )
 						{
 							list.Add( token );
 						}
 						else
 						{
-							throw new IllegalTokenException( $"Tokens in lists must be separated by '{Symbol.LIST_SEPERATOR}'." );
+							throw new IllegalTokenException( $"Tokens in lists must be separated by '{Symbol.LIST_SEPARATOR}'." );
 						}
 					}
 					else
@@ -202,7 +202,7 @@ namespace BNA.Compile
 								or (char)Symbol.GREATER_THAN
 								or (char)Symbol.EQUAL
 								or (char)Symbol.NOT
-								or (char)Symbol.LIST_SEPERATOR
+								or (char)Symbol.LIST_SEPARATOR
 								or (char)Symbol.LIST_END
 								or (char)Symbol.LABEL_START
 								or (char)Symbol.LABEL_END

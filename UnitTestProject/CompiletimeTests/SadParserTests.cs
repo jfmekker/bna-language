@@ -37,17 +37,17 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( Operation.SET , Keyword.SET , Keyword.TO )]
-		[DataRow( Operation.MULTIPLY , Keyword.MULTIPLY , Keyword.BY )]
-		[DataRow( Operation.DIVIDE , Keyword.DIVIDE , Keyword.BY )]
-		[DataRow( Operation.POWER , Keyword.RAISE , Keyword.TO )]
-		[DataRow( Operation.RANDOM , Keyword.RANDOM , Keyword.MAX )]
-		[DataRow( Operation.GOTO , Keyword.GOTO , Keyword.IF )]
-		[DataRow( Operation.LIST , Keyword.LIST , Keyword.SIZE )]
-		[DataRow( Operation.SIZE , Keyword.SIZE , Keyword.OF )]
-		[DataRow( Operation.INPUT , Keyword.INPUT , Keyword.WITH )]
-		[DataRow( Operation.TYPE , Keyword.TYPE , Keyword.OF )]
-		public void Parser_ParseStatement_Operand1First_Operand1IsNonVariable_ThrowsIllegalTokenException( Operation operation , Keyword first , Keyword mid )
+		[DataRow( Keyword.SET , Keyword.TO , DisplayName = "Set statement" )]
+		[DataRow( Keyword.MULTIPLY , Keyword.BY , DisplayName = "Multiply statement" )]
+		[DataRow( Keyword.DIVIDE , Keyword.BY , DisplayName = "Divide statement" )]
+		[DataRow( Keyword.RAISE , Keyword.TO , DisplayName = "Raise statement" )]
+		[DataRow( Keyword.RANDOM , Keyword.MAX , DisplayName = "Random statement" )]
+		[DataRow( Keyword.GOTO , Keyword.IF , DisplayName = "Goto statement" )]
+		[DataRow( Keyword.LIST , Keyword.SIZE , DisplayName = "List statement" )]
+		[DataRow( Keyword.SIZE , Keyword.OF , DisplayName = "Size statement" )]
+		[DataRow( Keyword.INPUT , Keyword.WITH , DisplayName = "Input statement" )]
+		[DataRow( Keyword.TYPE , Keyword.OF , DisplayName = "Type statement" )]
+		public void Parser_ParseStatement_Operand1First_Operand1IsNonVariable_ThrowsIllegalTokenException( Keyword first , Keyword mid )
 		{
 			foreach ( Token operand1 in this.OperandsByType[OperandType.NON_VARIABLE] )
 			{
@@ -60,14 +60,14 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( Operation.ADD , Keyword.ADD , Keyword.TO )]
-		[DataRow( Operation.SUBTRACT , Keyword.SUBTRACT , Keyword.FROM )]
-		[DataRow( Operation.MODULUS , Keyword.MOD , Keyword.OF )]
-		[DataRow( Operation.LOGARITHM , Keyword.LOG , Keyword.OF )]
-		[DataRow( Operation.APPEND , Keyword.APPEND , Keyword.TO )]
-		[DataRow( Operation.WRITE , Keyword.WRITE , Keyword.TO )]
-		[DataRow( Operation.READ , Keyword.READ , Keyword.FROM )]
-		public void Parser_ParseStatement_Operand2First_Operand1IsNonVariable_ThrowsIllegalTokenException( Operation operation , Keyword first , Keyword mid )
+		[DataRow( Keyword.ADD , Keyword.TO , DisplayName = "Add statement" )]
+		[DataRow( Keyword.SUBTRACT , Keyword.FROM , DisplayName = "Subtract statement" )]
+		[DataRow( Keyword.MOD , Keyword.OF , DisplayName = "Modulus statement" )]
+		[DataRow( Keyword.LOG , Keyword.OF , DisplayName = "Logartithm statement" )]
+		[DataRow( Keyword.APPEND , Keyword.TO , DisplayName = "Append statement" )]
+		[DataRow( Keyword.WRITE , Keyword.TO , DisplayName = "Write statement" )]
+		[DataRow( Keyword.READ , Keyword.FROM , DisplayName = "Read statement" )]
+		public void Parser_ParseStatement_Operand2First_Operand1IsNonVariable_ThrowsIllegalTokenException( Keyword first , Keyword mid )
 		{
 			foreach ( Token operand1 in this.OperandsByType[OperandType.NON_VARIABLE] )
 			{
@@ -80,14 +80,14 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( Keyword.TO )]
-		[DataRow( Keyword.BY )]
-		[DataRow( Keyword.FROM )]
-		[DataRow( Keyword.MAX )]
-		[DataRow( Keyword.IF )]
-		[DataRow( Keyword.WITH )]
-		[DataRow( Keyword.OF )]
-		[DataRow( Keyword.AS )]
+		[DataRow( Keyword.TO , DisplayName = "TO" )]
+		[DataRow( Keyword.BY , DisplayName = "BY" )]
+		[DataRow( Keyword.FROM , DisplayName = "FROM" )]
+		[DataRow( Keyword.MAX , DisplayName = "MAX" )]
+		[DataRow( Keyword.IF , DisplayName = "IF" )]
+		[DataRow( Keyword.WITH , DisplayName = "WITH" )]
+		[DataRow( Keyword.OF , DisplayName = "OF" )]
+		[DataRow( Keyword.AS , DisplayName = "AS" )]
 		public void Parser_ParseStatement_IllegalKeywordAtStatementStart_ThrowsIllegalTokenException( Keyword word )
 		{
 			List<Token> tokens = new( ) { new( word ) };
@@ -97,18 +97,18 @@ namespace CompiletimeTests
 		}
 
 		[TestMethod]
-		[DataRow( Symbol.NULL )]
-		[DataRow( Symbol.ESCAPE )]
-		[DataRow( Symbol.GREATER_THAN )]
-		[DataRow( Symbol.LESS_THAN )]
-		[DataRow( Symbol.EQUAL )]
-		[DataRow( Symbol.NOT )]
-		[DataRow( Symbol.LABEL_END )]
-		[DataRow( Symbol.STRING_MARKER )]
-		[DataRow( Symbol.ACCESSOR )]
-		[DataRow( Symbol.LIST_START )]
-		[DataRow( Symbol.LIST_END )]
-		[DataRow( Symbol.LIST_SEPERATOR )]
+		[DataRow( Symbol.NULL , DisplayName = "NULL" )]
+		[DataRow( Symbol.ESCAPE , DisplayName = "ESCAPE" )]
+		[DataRow( Symbol.GREATER_THAN , DisplayName = "GREATER_THAN" )]
+		[DataRow( Symbol.LESS_THAN , DisplayName = "LESS_THAN" )]
+		[DataRow( Symbol.EQUAL , DisplayName = "EQUAL" )]
+		[DataRow( Symbol.NOT , DisplayName = "NOT" )]
+		[DataRow( Symbol.LABEL_END , DisplayName = "LABEL_END" )]
+		[DataRow( Symbol.STRING_MARKER , DisplayName = "STRING_MARKER" )]
+		[DataRow( Symbol.ACCESSOR , DisplayName = "ACCESSOR" )]
+		[DataRow( Symbol.LIST_START , DisplayName = "LIST_START" )]
+		[DataRow( Symbol.LIST_END , DisplayName = "LIST_END" )]
+		[DataRow( Symbol.LIST_SEPARATOR , DisplayName = "LIST_SEPATOR" )]
 		public void Parser_ParseStatement_IllegalSymbolAtStatementStart_ThrowsIllegalTokenException( Symbol symbol )
 		{
 			List<Token> tokens = new( ) { new( symbol ) };

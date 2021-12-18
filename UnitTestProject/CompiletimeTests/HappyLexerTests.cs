@@ -105,7 +105,7 @@ namespace CompiletimeTests
 		[DataRow( Symbol.LESS_THAN )]
 		[DataRow( Symbol.LABEL_START )]
 		[DataRow( Symbol.LABEL_END )]
-		[DataRow( Symbol.LIST_SEPERATOR )]
+		[DataRow( Symbol.LIST_SEPARATOR )]
 		[DataRow( Symbol.LIST_END )]
 		public void Lexer_ReadSingleToken_ReturnsSymbol_StandAloneSymbols( Symbol symbol )
 		{
