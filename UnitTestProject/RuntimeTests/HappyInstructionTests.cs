@@ -20,14 +20,14 @@ namespace RuntimeTests
 		}
 
 		[TestMethod]
-		[DataRow( "Integer" , TokenType.NUMBER )]
-		[DataRow( "Float" , TokenType.NUMBER )]
-		[DataRow( "String" , TokenType.STRING )]
-		[DataRow( "List" , TokenType.LIST )]
-		[DataRow( "Integer" , TokenType.VARIABLE )]
-		[DataRow( "Float" , TokenType.VARIABLE )]
-		[DataRow( "String" , TokenType.VARIABLE )]
-		[DataRow( "List" , TokenType.VARIABLE )]
+		[DataRow( "Integer" , TokenType.NUMBER , DisplayName = "Integer literal" )]
+		[DataRow( "Float" , TokenType.NUMBER , DisplayName = "Float literal" )]
+		[DataRow( "String" , TokenType.STRING , DisplayName = "String literal" )]
+		[DataRow( "List" , TokenType.LIST , DisplayName = "List literal" )]
+		[DataRow( "Integer" , TokenType.VARIABLE , DisplayName = "Integer variable" )]
+		[DataRow( "Float" , TokenType.VARIABLE , DisplayName = "Float variable" )]
+		[DataRow( "String" , TokenType.VARIABLE , DisplayName = "String variable" )]
+		[DataRow( "List" , TokenType.VARIABLE , DisplayName = "List variable" )]
 		public void Instruction_Execute_SetOperation( string val_type , TokenType tok_type )
 		{
 			Token operand2_token = MockValue.GetTokenOfType( tok_type );
@@ -42,16 +42,16 @@ namespace RuntimeTests
 		}
 
 		[TestMethod]
-		[DataRow( Operation.ADD , "Add" )]
-		[DataRow( Operation.SUBTRACT , "Subtract" )]
-		[DataRow( Operation.MULTIPLY , "Multiply" )]
-		[DataRow( Operation.DIVIDE , "Divide" )]
-		[DataRow( Operation.MODULUS , "Modulus" )]
-		[DataRow( Operation.LOGARITHM , "Log" )]
-		[DataRow( Operation.POWER , "RaiseTo" )]
-		[DataRow( Operation.APPEND , "Append" )]
-		[DataRow( Operation.ROUND , "Round" )]
-		[DataRow( Operation.SIZE , "Size" )]
+		[DataRow( Operation.ADD , "Add", DisplayName ="Add" )]
+		[DataRow( Operation.SUBTRACT , "Subtract" , DisplayName = "Subtract" )]
+		[DataRow( Operation.MULTIPLY , "Multiply" , DisplayName = "Multiply" )]
+		[DataRow( Operation.DIVIDE , "Divide" , DisplayName = "Divide" )]
+		[DataRow( Operation.MODULUS , "Modulus" , DisplayName = "Modulus" )]
+		[DataRow( Operation.LOGARITHM , "Log" , DisplayName = "Log" )]
+		[DataRow( Operation.POWER , "RaiseTo" , DisplayName = "RaiseTo" )]
+		[DataRow( Operation.APPEND , "Append" , DisplayName = "Append" )]
+		[DataRow( Operation.ROUND , "Round" , DisplayName = "Round" )]
+		[DataRow( Operation.SIZE , "Size" , DisplayName = "Size" )]
 		public void Instruction_Execute_OperationCallsValueFunction( Operation operation , string function )
 		{
 			Variable operand1 = new( new Token( "var1" , TokenType.VARIABLE ) , new MockValue( ) );
