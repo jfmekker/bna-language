@@ -23,6 +23,6 @@
 		ACCESSOR = '@',
 		LIST_START = '(',
 		LIST_END = ')',
-		LIST_SEPERATOR = ',',
+		LIST_SEPARATOR = ',',
 	}
 }

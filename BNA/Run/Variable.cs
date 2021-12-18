@@ -1,17 +1,17 @@
-﻿using BNA.Compile;
+﻿using BNA.Common;
 using BNA.Values;
 
 namespace BNA.Run
 {
 	/// <summary>
-	/// The coupling of a <see cref="Value"/> and an identifying <see cref="Token"/>.
+	/// The coupling of a <see cref="Value"/> and an identifying <see cref="Common.Token"/>.
 	/// </summary>
 	public class Variable
 	{
 		/// <summary>
 		/// Token identifying a variable. Must be <see cref="TokenType.VARIABLE"/> type.
 		/// </summary>
-		public Token Identifier
+		public Token Token
 		{
 			get; private set;
 		}
@@ -31,8 +31,14 @@ namespace BNA.Run
 		/// <param name="value">Initial value</param>
 		public Variable( Token token , Value? value = null )
 		{
-			this.Identifier = token;
+			this.Token = token;
 			this.Value = value ?? Value.NULL;
+		}
+
+		public void Deconstruct(out Token token, out Value value)
+		{
+			token = this.Token;
+			value = this.Value;
 		}
 	}
 }

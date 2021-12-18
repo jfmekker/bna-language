@@ -395,7 +395,7 @@ namespace BNA.Compile
 
 		private static TokenType[] AllOperandTypes( )
 		{
-			return new TokenType[] { TokenType.VARIABLE , TokenType.LITERAL , TokenType.STRING , TokenType.LIST };
+			return new TokenType[] { TokenType.VARIABLE , TokenType.NUMBER , TokenType.STRING , TokenType.LIST };
 		}
 
 		private static TokenType[] StringOperandTypes( )
@@ -405,7 +405,7 @@ namespace BNA.Compile
 
 		private static TokenType[] NumericOperandTypes( )
 		{
-			return new TokenType[] { TokenType.VARIABLE , TokenType.LITERAL };
+			return new TokenType[] { TokenType.VARIABLE , TokenType.NUMBER };
 		}
 
 		private void IncrementIndex( )
