@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BNA.Common;
 using BNA.Compile;
 using BNA.Exceptions;
@@ -39,7 +37,7 @@ namespace BNA.Run
 					return Value.NULL;
 
 				default:
-					throw new Exception( "Unexpected token type in GetValue: " + token.ToString( ) );
+					throw new Exception( "Unexpected token type in given to Evaluator: " + token.ToString( ) );
 			}
 		}
 
@@ -59,8 +57,37 @@ namespace BNA.Run
 
 		private Value EvaluateString( string str )
 		{
-			return str.Length >= 2 ? new StringValue( str[1..^1] )
-				: throw new Exception( $"String token too short to be valid: '{str}'" );
+			if ( str.Length < 2 )
+				throw new Exception( $"String token too short to be valid: '{str}'" );
+
+			StringBuilder sb = new( );
+			for ( int i = 1 ; i < str.Length - 1 ; i += 1 )
+			{
+				if ( str[i] is (char)Symbol.ESCAPE )
+				{
+					if ( i + 1 == str.Length )
+						throw new Exception( "Escape character at end of string, should have been caught by compiler." );
+
+					char escaped_char = str[i + 1] switch
+					{
+						'a' => '\a', // Alert/beep/bell - TODO does this work?
+						'b' => '\b', // Backspace - TODO does this work?
+						'n' => '\n', // New line
+						't' => '\t', // Tab
+						(char)Symbol.STRING_MARKER => (char)Symbol.STRING_MARKER,
+						(char)Symbol.ESCAPE => (char)Symbol.ESCAPE,
+						_ => str[i + 1], // By default add just the escaped character
+					};
+
+					_ = sb.Append( escaped_char );
+				}
+				else
+				{
+					_ = sb.Append( str[i] );
+				}
+			}
+
+			return new StringValue( sb.ToString( ) );
 		}
 
 		private Value EvaluateList( string str )
@@ -73,7 +100,7 @@ namespace BNA.Run
 			{
 				if ( t.AsSymbol( ) is not Symbol.LIST_SEPARATOR )
 				{
-					listValues.Add( this.Memory.GetValue( t ) );
+					listValues.Add( this.Evaluate( t ) );
 				}
 			}
 
