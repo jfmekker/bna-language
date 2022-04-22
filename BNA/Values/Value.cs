@@ -71,7 +71,7 @@ namespace BNA.Values
 		/// <param name="first">First value.</param>
 		/// <param name="second">Second value.</param>
 		/// <returns>True if the two values are equal.</returns>
-		public static bool operator ==( Value first , Value second ) => first.Equals( second );
+		public static bool operator ==( Value first , Value second ) => (first is not null && first.Equals( second )) || second is null;
 
 		/// <summary>
 		/// Compare non-equality of two <see cref="Value"/> instances.
@@ -79,7 +79,7 @@ namespace BNA.Values
 		/// <param name="first">First value.</param>
 		/// <param name="second">Second value.</param>
 		/// <returns>True if the two values are not equal.</returns>
-		public static bool operator !=( Value first , Value second ) => !first.Equals( second );
+		public static bool operator !=( Value first , Value second ) => !(first == second);
 
 		/// <summary>
 		/// Compare inequality against another <see cref="Value"/>.
@@ -135,7 +135,7 @@ namespace BNA.Values
 		/// </summary>
 		/// <returns>Raised <see cref="Value>"/>.</returns>
 		/// <exception cref="RuntimeException"/>
-		public virtual Value RaiseTo( Value value ) => throw new UndefinedOperationException( this , "POW" , value );
+		public virtual Value Exponentiate( Value value ) => throw new UndefinedOperationException( this , "POW" , value );
 
 		/// <summary>
 		/// Take the logarithm with a base of a <see cref="Value"/>.

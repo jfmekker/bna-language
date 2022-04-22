@@ -7,11 +7,8 @@ namespace BNA.Values
 	/// </summary>
 	public class NaNValue : Value
 	{
-		public override object Get
-		{
-			get => throw new Exception( "Cannot get value of a NaNValue." );
-		}
-		
+		public override object Get => throw new InvalidOperationException( "Cannot get value of a NaNValue." );
+
 		public override string TypeString( ) => "NaNValue";
 
 		public override bool Equals( Value? other ) => false;

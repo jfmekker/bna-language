@@ -67,8 +67,10 @@ namespace BNA.Values
 		}
 
 		public override Value Append( Value value )
-			=> this.Get.Append( value ) is not null
-			 ? this : throw new Exception("Error occured while appending to list.");
+		{
+			_ = this.Get.Append( value );
+			return this;
+		}
 
 		public override Value Size( ) => new IntegerValue(this.Get.Count);
 	}

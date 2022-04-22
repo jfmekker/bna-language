@@ -27,9 +27,9 @@ namespace BNA.Values
 		public void Write( string str )
 		{
 			if ( !this.Opened )
-				throw new Exception( $"Cannot write to non-opened file: '{this.Filename}'" );
+				throw new InvalidOperationException( $"Cannot write to non-opened file: '{this.Filename}'" );
 			else if ( this.writer is null )
-				throw new Exception( $"Tried to write to null writer ({this.Filename})" );
+				throw new InvalidOperationException( $"Tried to write to null writer ({this.Filename})" );
 
 			this.writer.Write( str );
 		}
@@ -41,9 +41,9 @@ namespace BNA.Values
 		public void WriteLine( string str )
 		{
 			if ( !this.Opened )
-				throw new Exception( $"Cannot write to non-opened file: '{this.Filename}'" );
+				throw new InvalidOperationException( $"Cannot write to non-opened file: '{this.Filename}'" );
 			else if ( this.writer is null )
-				throw new Exception( $"Tried to write to null writer ({this.Filename})" );
+				throw new InvalidOperationException( $"Tried to write to null writer ({this.Filename})" );
 
 			this.writer.WriteLine( str );
 		}
@@ -67,7 +67,7 @@ namespace BNA.Values
 			if ( !this.Opened )
 				return;
 			else if ( this.writer is null )
-				throw new Exception( $"Tried to close null writer ({this.Filename})" );
+				throw new InvalidOperationException( $"Tried to close null writer ({this.Filename})" );
 			
 			this.writer.Close( );
 			this.writer = null;

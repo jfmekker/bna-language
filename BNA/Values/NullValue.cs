@@ -7,10 +7,7 @@ namespace BNA.Values
 	/// </summary>
 	public class NullValue : Value
 	{
-		public override object Get
-		{
-			get => throw new Exception( "Cannot get value of a NullValue." );
-		}
+		public override object Get => throw new InvalidOperationException( "Cannot get value of a NullValue." );
 
 		public override string TypeString( ) => "NullValue";
 

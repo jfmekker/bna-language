@@ -12,7 +12,7 @@ namespace BNA.Values
 		/// Create a new <see cref="FileValue"/> instance.
 		/// </summary>
 		/// <param name="filename">Path to the file.</param>
-		public FileValue(string filename)
+		protected FileValue(string filename)
 		{
 			this.Filename = filename;
 		}
@@ -20,7 +20,7 @@ namespace BNA.Values
 		/// <summary>
 		/// Throw an exception as FileValue's Get property should never be directly accessed.
 		/// </summary>
-		public sealed override object Get => throw new Exception( "FileValues should not use Get property directly." );
+		public sealed override object Get => throw new InvalidOperationException( "FileValues should not use Get property directly." );
 
 		/// <summary>
 		/// Name of the file.
@@ -52,8 +52,8 @@ namespace BNA.Values
 
 		public override string TypeString( ) => "FileValue";
 
-		public override bool Equals( Value? obj )
-			=> (obj is FileValue fileVal && this.Filename == fileVal.Filename)
-			|| (obj is StringValue strVal && this.Filename == strVal.Get);
+		public override bool Equals( Value? other )
+			=> (other is FileValue fileVal && this.Filename == fileVal.Filename)
+			|| (other is StringValue strVal && this.Filename == strVal.Get);
 	}
 }

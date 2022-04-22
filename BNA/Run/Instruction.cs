@@ -94,7 +94,7 @@ namespace BNA.Run
 
 				case Operation.POWER:
 				{
-					this.Memory.SetValue( this.PrimaryToken , this.PrimaryValue.RaiseTo( this.SecondaryValue ) );
+					this.Memory.SetValue( this.PrimaryToken , this.PrimaryValue.Exponentiate( this.SecondaryValue ) );
 					break;
 				}
 

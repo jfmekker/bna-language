@@ -22,15 +22,9 @@ namespace BNA.Run
 		/// <summary>
 		/// Shortcut to the statement pointed to by <see cref="IP"/>.
 		/// </summary>
-		public Statement Current
-		{
-			get
-			{
-				return this.IP >= 0 && this.IP < this.Statements.Length
-					? this.Statements[this.IP]
-					: throw new Exception( "Bad instruction pointer value ( " + this.IP + " )" );
-			}
-		}
+		public Statement Current => this.IP >= 0 && this.IP < this.Statements.Length
+									? this.Statements[this.IP]
+									: throw new InvalidOperationException( "Bad instruction pointer value ( " + this.IP + " )" );
 
 		/// <summary>
 		/// Instruction pointer; what statement is the program currently on.

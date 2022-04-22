@@ -10,7 +10,7 @@ namespace BNA.Common
 		/// <summary>
 		/// Color used by debug prints to visually distinguish them.
 		/// </summary>
-		public const ConsoleColor DEBUG_CONSOLE_COLOR = ConsoleColor.DarkGray;
+		private static ConsoleColor DebugConsoleColor => ConsoleColor.DarkGray;
 
 		/// <summary>
 		/// Add a string to the debug output.
@@ -19,7 +19,7 @@ namespace BNA.Common
 		public static void Add( string message )
 		{
 #if DEBUG
-			Console.ForegroundColor = DEBUG_CONSOLE_COLOR;
+			Console.ForegroundColor = DebugConsoleColor;
 			Console.Write( message );
 			Console.ResetColor( );
 #endif
@@ -32,7 +32,7 @@ namespace BNA.Common
 		public static void AddLine( string message = "" )
 		{
 #if DEBUG
-			Console.ForegroundColor = DEBUG_CONSOLE_COLOR;
+			Console.ForegroundColor = DebugConsoleColor;
 			Console.WriteLine( message );
 			Console.ResetColor( );
 #endif

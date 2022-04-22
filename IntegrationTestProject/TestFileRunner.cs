@@ -13,23 +13,14 @@ namespace IntegrationTests
 		/// <param name="fails">True if a BNA_ERROR should be expected</param>
 		public static void RunTestFile( string filename , bool fails = false )
 		{
-			ReturnCode r = ReturnCode.UNEXPECTED_ERROR;
+			ReturnCode r = BNA.BNA.RunFromFiles( new string[] { "../../../../Tests/" + filename + ".bna" } );
 
-			try
-			{
-				r = BNA.BNA.RunFromFiles( new string[] { "../../../../Tests/" + filename + ".bna" } );
-			}
-			catch ( Exception e )
-			{
-				Assert.Inconclusive( $"Exception caught while running test: {e.Message}" );
-			}
-
-			if ( r == ReturnCode.FILE_ERROR )
+			if ( r == ReturnCode.FileError )
 			{
 				Assert.Inconclusive( "File error: could not run test .bna file." );
 			}
 
-			ReturnCode expected = !fails ? ReturnCode.SUCCESS : ReturnCode.BNA_ERROR;
+			ReturnCode expected = !fails ? ReturnCode.Success : ReturnCode.BnaError;
 			Assert.AreEqual(  expected, r , $"Return is {r} when {expected} was expected.");
 		}
 	}

@@ -14,7 +14,8 @@ namespace BNA.Common
 		COMMENT
 	}
 
-	public struct Token
+	// TODO make this a record struct
+	public struct Token : IEquatable<Token>
 	{
 		public TokenType Type
 		{
@@ -54,28 +55,27 @@ namespace BNA.Common
 			string str = "<(" + this.Type;
 			if ( this.Type == TokenType.KEYWORD )
 			{
-				str += ":" + ( (Keyword)Enum.Parse( typeof( Keyword ) , this.Value , true ) ).ToString( );
+				str += ":" + ((Keyword)Enum.Parse( typeof( Keyword ) , this.Value , true )).ToString( );
 			}
 			else if ( this.Type == TokenType.SYMBOL && Enum.IsDefined( typeof( Symbol ) , (int)this.Value[0] ) )
 			{
 				str += ":" + Enum.GetName( typeof( Symbol ) , (int)this.Value[0] );
 			}
-			str += ( this.Type == TokenType.NULL ) ? ")>" : ( ") " + this.Value + ">" );
+			str += (this.Type == TokenType.NULL) ? ")>" : (") " + this.Value + ">");
 
 			return str;
 		}
 
-		public Keyword? AsKeyword( ) => ( this.Type == TokenType.KEYWORD ) && Enum.TryParse( this.Value , out Keyword word ) ? word : null;
+		public Keyword? AsKeyword( ) => (this.Type == TokenType.KEYWORD) && Enum.TryParse( this.Value , out Keyword word ) ? word : null;
 
-		public Symbol? AsSymbol( ) => ( this.Type == TokenType.SYMBOL ) ? (Symbol)this.Value[0] : null;
+		public Symbol? AsSymbol( ) => (this.Type == TokenType.SYMBOL) ? (Symbol)this.Value[0] : null;
 
-		public override bool Equals( object? obj ) => obj is Token other
-													&& ( this.Type == other.Type )
-													&& ( ( this.Type == TokenType.NULL )
-														|| ( this.Value.ToUpper( ) == other.Value.ToUpper( ) ) );
+		public override bool Equals( object? obj ) => obj is Token token && this.Equals( token );
+
+		public bool Equals( Token other ) => (this.Type == other.Type) && ((this.Type == TokenType.NULL) || this.Value.Equals( other.Value , StringComparison.OrdinalIgnoreCase ));
 
 		public static bool operator ==( Token left , Token right ) => left.Equals( right );
 
-		public static bool operator !=( Token left , Token right ) => !( left == right );
+		public static bool operator !=( Token left , Token right ) => !(left == right);
 	}
 }

@@ -15,8 +15,7 @@ namespace BNA.Run
 
 		public Dictionary<Token , Value> Variables
 		{
-			get => this.Scopes is not null && this.Scopes.Count > 0
-				? this.Scopes.Peek( ) : throw new Exception( "No scopes found." );
+			get => this.Scopes is not null && this.Scopes.Count > 0 ? this.Scopes.Peek( ) : throw new InvalidOperationException( "No scopes found." );
 
 			private set
 			{
@@ -55,14 +54,9 @@ namespace BNA.Run
 
 		public Value GetValue( Token token )
 		{
-			if (token.Type == TokenType.VARIABLE)
-			{
-				return this.Variables.TryGetValue( token , out Value? v ) ? v : Value.NULL;
-			}
-			else
-			{
-				return this.Evaluator.Evaluate( token );
-			}
+			return token.Type == TokenType.VARIABLE
+				? this.Variables.TryGetValue( token , out Value? v ) ? v : Value.NULL
+				: this.Evaluator.Evaluate( token );
 		}
 
 		/// <summary>
@@ -76,21 +70,21 @@ namespace BNA.Run
 			// Unexpected token type
 			if ( token.Type != TokenType.VARIABLE )
 			{
-				throw new Exception( "Unexpected token type in SetValue: " + token );
+				throw new ArgumentException( "Unexpected token type in SetValue: " + token , nameof( token ) );
 			}
 
 			// Handle list element
-			if ( token.Value.Contains( "" + (char)Symbol.ACCESSOR ) )
+			if ( token.Value.Contains( (char)Symbol.ACCESSOR, StringComparison.OrdinalIgnoreCase ) )
 			{
 				// Get last accessor first (so multi-lists are properly chained)
 				int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
 				if ( accessor == 0 || accessor == token.Value.Length )
 				{
-					throw new Exception( $"Accessor at start or end of token: {token}" );
+					throw new ArgumentException( $"Accessor at start or end of token: {token}" , nameof( token ) );
 				}
 
 				// Get value of index part
-				Token indexTok = Lexer.ReadSingleToken( token.Value[( accessor + 1 )..] );
+				Token indexTok = Lexer.ReadSingleToken( token.Value[(accessor + 1)..] );
 				Value indexVal = this.GetValue( indexTok );
 				if ( indexVal is not IntegerValue index )
 				{
@@ -98,7 +92,7 @@ namespace BNA.Run
 				}
 
 				// Set the value
-				Token accessedTok = Lexer.ReadSingleToken( token.Value.Substring( 0 , accessor ) );
+				Token accessedTok = Lexer.ReadSingleToken( token.Value[..accessor] );
 				Value accessedVal = this.GetValue( accessedTok );
 				if ( accessedVal is ListValue listVal )
 				{

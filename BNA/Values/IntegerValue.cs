@@ -76,10 +76,10 @@ namespace BNA.Values
 			 : value is FloatValue floatVal ? new FloatValue( this.Get / floatVal.Get )
 			 : base.Divide( value );
 
-		public override Value RaiseTo( Value value )
+		public override Value Exponentiate( Value value )
 			=> value is IntegerValue intVal ? new IntegerValue( (long)Math.Pow( this.Get , intVal.Get ) )
 			 : value is FloatValue floatVal ? new FloatValue( Math.Pow( this.Get , floatVal.Get ) )
-			 : base.RaiseTo( value );
+			 : base.Exponentiate( value );
 
 		public override Value Log( Value value )
 			=> value is IntegerValue intVal ? new IntegerValue( (long)Math.Log( this.Get , intVal.Get ) )

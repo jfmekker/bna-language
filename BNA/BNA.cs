@@ -3,24 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using BNA.Exceptions;
 using BNA.Compile;
+using BNA.Resources;
 using BNA.Run;
 
 namespace BNA
 {
-	public enum ReturnCode : byte
+	public enum ReturnCode
 	{
-		SUCCESS = 0,
-		BNA_ERROR = 1,
-		COMPILE_ERROR = 1 << 1,
-		RUNTIME_ERROR = 1 << 2,
-		NOT_IMPLEMENTED_ERROR = 1 << 3,
-		// UNUSED = 1 << 4,
-		// UNUSED = 1 << 5,
-		FILE_ERROR = 1 << 6,
-		UNEXPECTED_ERROR = 1 << 7
+		Success,
+		BnaError,
+		CompileError,
+		RuntimeError,
+		NotImplementedError,
+		FileError,
+		UnexpectedError
 	}
 
-	public class BNA
+	public static class BNA
 	{
 		/// <summary>
 		/// Static random number generator.
@@ -28,19 +27,19 @@ namespace BNA
 		public static readonly Random RNG = new( DateTime.Now.Millisecond );
 
 		/// <summary>
-		/// Compile a function to Python, or take input from the terminal
+		/// Compile and run BNA code from the terminal or files.
 		/// </summary>
-		/// <param name="args">Names of files to compile to Python, can be none.</param>
-		public static int Main( string[] args )
+		/// <param name="args">Names of BNA files to run, can be none.</param>
+		public static int Main( string[]? args )
 		{
-			Console.WriteLine( "================================================================================" );
-			Console.WriteLine( "Welcome to the BNA's Not Assembly Interpreter!" );
-			Console.WriteLine( "================================================================================" );
+			Console.WriteLine( ConsoleMessages.CLI_SEPARATOR_LINE );
+			Console.WriteLine( ConsoleMessages.CLI_WELCOME_MESSAGE );
+			Console.WriteLine( ConsoleMessages.CLI_SEPARATOR_LINE );
 
 			// If no arguments, take input from command line
-			if ( args.Length == 0 )
+			if ( args is null || args.Length == 0 )
 			{
-				ReturnCode r = RunFromInput( );
+				ReturnCode r = RunFromConsoleInput( );
 				return (int)r;
 			}
 			// else, take in files
@@ -49,35 +48,37 @@ namespace BNA
 				ReturnCode r = RunFromFiles( args );
 #if DEBUG
 				// Wait to close so user can read output
-				Console.WriteLine( "Finished, press enter to exit..." );
+				Console.WriteLine( ConsoleMessages.CLI_FINISHED_FILES );
 				Console.ReadLine( );
 #endif
 				return (int)r;
 			}
 		}
 
+		/// <summary>
+		/// Run one or more BNA code files.
+		/// </summary>
+		/// <param name="files">Paths to .bna files.</param>
+		/// <returns>The last <see cref="ReturnCode"/> from running the files.</returns>
 		public static ReturnCode RunFromFiles( string[] files )
 		{
-			ReturnCode return_val = 0;
-			foreach ( string file in files )
+			ReturnCode return_val = ReturnCode.Success;
+			foreach ( string file in files ?? throw new ArgumentNullException( nameof( files ) ) )
 			{
 				// Output the BNA filename
 				Console.WriteLine( file + ":" );
 
 				// Check the file extension
-				int lastDirIndex = file.LastIndexOfAny( new char[] { '/' , '\\' } );
-				string[] split_filename = file[( lastDirIndex + 1 )..].Split( new char[] { '.' } );
-				string filename = split_filename[0];
-				string extension = split_filename[1];
-				if ( !extension.Equals( "bna" ) )
+				string ext = Path.GetExtension( file );
+				if ( ext is not ".bna" )
 				{
 					ConsolePrintError( "Wrong extension, expected '.bna' file: " + file );
-					return ReturnCode.FILE_ERROR;
+					return ReturnCode.FileError;
 				}
 
 				// Output file contents
-				Console.WriteLine( "Reading file..." );
-				var lines = new List<string>( );
+				Console.WriteLine( ConsoleMessages.CLI_READING_FILE );
+				List<string> lines = new( );
 				try
 				{
 					using StreamReader sr = File.OpenText( ".\\" + file );
@@ -89,9 +90,9 @@ namespace BNA
 				}
 				catch ( FileNotFoundException e )
 				{
-					ConsolePrintError( "Failed to find file: " + file );
+					ConsolePrintError( ConsoleMessages.CLI_FILE_NOT_FOUND + file );
 					ConsolePrintError( e.Message );
-					return ReturnCode.FILE_ERROR;
+					return ReturnCode.FileError;
 				}
 
 				// Compile to program and run
@@ -100,22 +101,22 @@ namespace BNA
 					return_val |= CompileAndRun( lines );
 				}
 
-				Console.WriteLine( "Done with file.\n" );
+				Console.WriteLine( ConsoleMessages.CLI_FINISHED_FILE );
 			}
 			return return_val;
 		}
 
-		public static ReturnCode RunFromInput( )
+		private static ReturnCode RunFromConsoleInput( )
 		{
-			ReturnCode return_val = ReturnCode.SUCCESS;
+			ReturnCode return_val = ReturnCode.Success;
 
 			while ( true )
 			{
 				// Usage
-				Console.WriteLine( "\nInsert BNA code to do stuff or type '$filename.bna' to run a file (use '~' to end):" );
+				Console.WriteLine( ConsoleMessages.CLI_RUN_INPUT_START );
 
 				// Read and queue lines
-				var lines = new List<string>( );
+				List<string> lines = new( );
 				bool run = true;
 				while ( true )
 				{
@@ -133,7 +134,7 @@ namespace BNA
 					{
 						if ( lines.Count > 0 )
 						{
-							Console.WriteLine( "Input only BNA code or only a filename." );
+							Console.WriteLine( ConsoleMessages.CLI_INPUT_ONE_ONLY );
 						}
 						else
 						{
@@ -153,7 +154,7 @@ namespace BNA
 					return_val = CompileAndRun( lines );
 				}
 
-				Console.WriteLine( "Press enter to continue (use '~' to exit)." );
+				Console.WriteLine( ConsoleMessages.CLI_RUN_INPUT_DONE );
 
 				// Wait to continue, check for exit
 				if ( Console.ReadLine( ) is "~" )
@@ -165,36 +166,38 @@ namespace BNA
 			return return_val;
 		}
 
-		public static ReturnCode CompileAndRun( List<string> lines )
+		private static ReturnCode CompileAndRun( IList<string> lines )
 		{
+			if ( lines is null ) throw new ArgumentNullException( nameof( lines ) );
+
 			// Compile to program and run
 			try
 			{
-				Console.WriteLine( "Compiling Program..." );
+				Console.WriteLine( ConsoleMessages.CLI_COMPILING );
 				Compiler comp = new( lines );
 				Program prog = new( comp.Compile( ) );
-				Console.WriteLine( "\nRunning Program...\n" );
+				Console.WriteLine( ConsoleMessages.CLI_RUNNING );
 				prog.Run( );
 				Console.WriteLine( );
-				return ReturnCode.SUCCESS;
+				return ReturnCode.Success;
 			}
 			catch ( CompiletimeException e )
 			{
 				ConsolePrintError( "Compiletime Exception caught:" );
 				ConsolePrintError( e.Message );
-				return ReturnCode.COMPILE_ERROR;
+				return ReturnCode.CompileError;
 			}
 			catch ( RuntimeException e )
 			{
 				ConsolePrintError( "Runtime Exception caught:" );
 				ConsolePrintError( e.Message );
-				return e.InnerException is ErrorStatementException ? ReturnCode.BNA_ERROR : ReturnCode.RUNTIME_ERROR;
+				return e.InnerException is ErrorStatementException ? ReturnCode.BnaError : ReturnCode.RuntimeError;
 			}
 			catch ( NotImplementedException e )
 			{
 				ConsolePrintError( "Not Implemented Exception caught:" );
 				ConsolePrintError( e.Message );
-				return ReturnCode.NOT_IMPLEMENTED_ERROR;
+				return ReturnCode.NotImplementedError;
 			}
 #if DEBUG
 #else

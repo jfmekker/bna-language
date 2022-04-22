@@ -10,7 +10,7 @@ namespace BNA.Compile
 	/// A collection of tokens that make up a whole valid statement or instruction.
 	/// Each statement maps to a "line of code".
 	/// </summary>
-	public struct Statement
+	public record struct Statement
 	{
 		/// <summary>
 		/// The StatementType of this Statement
@@ -51,74 +51,6 @@ namespace BNA.Compile
 			str += $"op1={this.Operand1,-24} op2={this.Operand2,-24}";
 
 			return str;
-		}
-
-		public override bool Equals( object? obj ) => obj is Statement other
-													&& this.Type == other.Type
-													&& this.Operand1 == other.Operand1
-													&& this.Operand2 == other.Operand2
-													&& this.Line == other.Line;
-
-		public (Token, Token) GetPrimaryAndSecondaryTokens( )
-		{
-			// TODO remove this function
-			switch ( this.Type )
-			{
-				case Operation.NULL:
-				case Operation.LABEL:
-				case Operation.SCOPE_OPEN:
-				case Operation.SCOPE_CLOSE:
-				case Operation.EXIT:
-					return (default, default);
-
-				case Operation.ADD:
-				case Operation.SUBTRACT:
-				case Operation.MODULUS:
-				case Operation.LOGARITHM:
-				case Operation.APPEND:
-				case Operation.OPEN_READ:
-				case Operation.OPEN_WRITE:
-				case Operation.READ:
-				case Operation.WRITE:
-				case Operation.SET:
-				case Operation.MULTIPLY:
-				case Operation.DIVIDE:
-				case Operation.RANDOM:
-				case Operation.POWER:
-				case Operation.LIST:
-				case Operation.SIZE:
-				case Operation.TEST_GREATER_THAN:
-				case Operation.TEST_LESS_THAN:
-				case Operation.TEST_EQUAL:
-				case Operation.TEST_NOT_EQUAL:
-				case Operation.GOTO:
-				case Operation.TYPE:
-					return (this.Operand1, this.Operand2);
-
-				case Operation.ROUND:
-				case Operation.CLOSE:
-				case Operation.INPUT:
-					return (this.Operand1, default);
-
-				case Operation.PRINT:
-				case Operation.WAIT:
-				case Operation.ERROR:
-					return (this.Operand2, default);
-
-				case Operation.BITWISE_OR:
-				case Operation.BITWISE_AND:
-				case Operation.BITWISE_XOR:
-				case Operation.BITWISE_NEGATE:
-					throw new NotImplementedException( $"Token sorting not implemented for {this.Type}." );
-
-				default:
-					throw new Exception( $"Unexpected statement type in token sorting: {this.Type}." );
-			}
-		}
-
-		public override int GetHashCode( )
-		{
-			return System.HashCode.Combine( this.Type , this.Operand1 , this.Operand2 , this.Line );
 		}
 	}
 }

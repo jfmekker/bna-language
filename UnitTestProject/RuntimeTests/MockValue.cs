@@ -23,7 +23,7 @@ namespace RuntimeTests
 		public override Value Divide( Value value ) { this.LastCalledFunction = "Divide"; return this; }
 		public override Value Modulus( Value value ) { this.LastCalledFunction = "Modulus"; return this; }
 		public override Value Log( Value value ) { this.LastCalledFunction = "Log"; return this; }
-		public override Value RaiseTo( Value value ) { this.LastCalledFunction = "RaiseTo"; return this; }
+		public override Value Exponentiate( Value value ) { this.LastCalledFunction = "RaiseTo"; return this; }
 		public override Value Append( Value value ) { this.LastCalledFunction = "Append"; return this; }
 		public override Value Round( ) { this.LastCalledFunction = "Round"; return this; }
 		public override Value Size( ) { this.LastCalledFunction = "Size"; return this; }

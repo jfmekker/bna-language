@@ -30,7 +30,7 @@ namespace BNA.Values
 
 		public override bool Equals( Value? other ) => other is StringValue strVal && strVal.Get == this.Get;
 
-		public override Value Append( Value value ) => new StringValue( this.Get + value.ToString( ) );
+		public override Value Append( Value value ) => new StringValue( this.Get + value?.ToString( ) ?? throw new ArgumentNullException( nameof( value ) ) );
 
 		public override Value Size( ) => new IntegerValue( this.Get.Length );
 	}

@@ -94,21 +94,16 @@ namespace BNA.Compile
 					Operation operation;
 					if ( this.Current is Token token )
 					{
-						if ( token.AsSymbol( ) is Symbol symbol )
+						Symbol symbol = token.AsSymbol( ) ?? throw new IllegalTokenException( $"Expected a symbol token, got {token}." );
+
+						operation = symbol switch
 						{
-							operation = symbol switch
-							{
-								Symbol.GREATER_THAN => Operation.TEST_GREATER_THAN,
-								Symbol.LESS_THAN => Operation.TEST_LESS_THAN,
-								Symbol.EQUAL => Operation.TEST_EQUAL,
-								Symbol.NOT => Operation.TEST_NOT_EQUAL,
-								_ => throw new IllegalTokenException( $"Expected a comparison operator symbol, got {token}." )
-							};
-						}
-						else
-						{
-							throw new IllegalTokenException( $"Expected a symbol token, got {token}." );
-						}
+							Symbol.GREATER_THAN => Operation.TEST_GREATER_THAN,
+							Symbol.LESS_THAN => Operation.TEST_LESS_THAN,
+							Symbol.EQUAL => Operation.TEST_EQUAL,
+							Symbol.NOT => Operation.TEST_NOT_EQUAL,
+							_ => throw new IllegalTokenException( $"Expected a comparison operator symbol, got {token}." )
+						};
 					}
 					else
 					{

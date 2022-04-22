@@ -42,7 +42,7 @@ namespace BNA.Common
 		{
 			if ( times < 0 )
 			{
-				throw new ArgumentOutOfRangeException( times.ToString( ) , "Repeat 'times' parameter cannot be negative." );
+				throw new ArgumentOutOfRangeException( nameof( times ) , "Repeat 'times' parameter cannot be negative." );
 			}
 
 			StringBuilder builder = new( times );
@@ -65,7 +65,7 @@ namespace BNA.Common
 		/// <param name="obj">Object to potentially add.</param>
 		public static void AddIf<T>( this ICollection<T> collection , bool condition , T? obj )
 		{
-			if ( condition && obj is not null )
+			if ( collection is not null && condition && obj is not null )
 			{
 				collection.Add( obj );
 			}
@@ -83,6 +83,7 @@ namespace BNA.Common
 		public static string PrintElements<T>( this ICollection<T> collection , string? start = "[ " , string? separator = ", " , string? end = " ]" )
 		{
 			StringBuilder builder = new( start );
+			collection ??= Array.Empty<T>( );
 
 			foreach ( T obj in collection )
 			{

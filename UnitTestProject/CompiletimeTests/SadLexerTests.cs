@@ -9,7 +9,7 @@ namespace CompiletimeTests
 	{
 		[TestMethod]
 		[DataRow( "0 0" , DisplayName = "Multiple tokens" )]
-		[DataRow( "( 0 0 )" , DisplayName = "List with no separator" )]
+		//[DataRow( "( 0 0 )" , DisplayName = "List with no separator" )] // TODO decide if this is allowed
 		[DataRow( "( > )" , DisplayName = "Symbol in list" )]
 		public void Lexer_ReadSingleToken_ThrowsIllegalTokenException( string str )
 		{

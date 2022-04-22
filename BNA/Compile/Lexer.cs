@@ -163,14 +163,15 @@ namespace BNA.Compile
 					}
 					else if ( token.Type is TokenType.NUMBER or TokenType.VARIABLE or TokenType.STRING or TokenType.LIST )
 					{
-						if ( list[^1].AsSymbol( ) is Symbol.LIST_SEPARATOR or Symbol.LIST_START )
-						{
-							list.Add( token );
-						}
-						else
-						{
-							throw new IllegalTokenException( $"Tokens in lists must be separated by '{Symbol.LIST_SEPARATOR}'." );
-						}
+						list.Add( token ); // TODO
+						//if ( list[^1].AsSymbol( ) is Symbol.LIST_SEPARATOR or Symbol.LIST_START )
+						//{
+						//	list.Add( token );
+						//}
+						//else
+						//{
+						//	throw new IllegalTokenException( $"Tokens in lists must be separated by '{Symbol.LIST_SEPARATOR}'." );
+						//}
 					}
 					else
 					{

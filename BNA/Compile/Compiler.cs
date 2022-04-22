@@ -1,4 +1,4 @@
-﻿using System;
+﻿//using System;
 using System.Collections.Generic;
 using System.Linq;
 using BNA.Common;
@@ -42,7 +42,7 @@ namespace BNA.Compile
 
 			this.DebugPrintStatements( );
 
-			return statements.ToArray( );
+			return this.statements.ToArray( );
 		}
 
 		private void ParseTokens()
@@ -65,7 +65,7 @@ namespace BNA.Compile
 		private void ParseStatements( )
 		{
 			Debug.AddLine( "\nParsing..." );
-			for ( int i = 0 ; i < tokenLines.Count ; i += 1 )
+			for ( int i = 0 ; i < this.tokenLines.Count ; i += 1 )
 			{
 				Parser parser = new( this.Lines[i] , this.tokenLines[i] );
 				try
@@ -73,20 +73,14 @@ namespace BNA.Compile
 					this.statements.Add( parser.ParseStatement( ) );
 					// this.statements.Add( Statement.ParseStatement( tokenLines[i] ) );
 				}
-				catch ( Exception e )
+				catch ( System.Exception e )
+				when (e is UnexpectedSymbolException
+						or MissingTerminatorException
+						or IllegalTokenException
+						or InvalidTokenException
+						or MissingTokenException)
 				{
-					if ( e is UnexpectedSymbolException
-						  or MissingTerminatorException
-						  or IllegalTokenException
-						  or InvalidTokenException
-						  or MissingTokenException )
-					{
-						throw new CompiletimeException( i , parser.RawIndex , parser.RawLine , e );
-					}
-					else
-					{
-						throw;
-					}
+					throw new CompiletimeException( i , parser.RawIndex , parser.RawLine , e );
 				}
 			}
 		}
