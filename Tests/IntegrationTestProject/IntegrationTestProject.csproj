@@ -13,12 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BNA\BNA.csproj" />
+    <ProjectReference Include="..\..\BNA\BNA.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\Tests\**\*.bna">
-      <Link>Tests\%(RecursiveDir)%(FileName).bna</Link>
+    <Content Include="TestFiles\**\*.bna">
+      <!--<Link>Tests\%(RecursiveDir)%(FileName).bna</Link>-->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
