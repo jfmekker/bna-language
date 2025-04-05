@@ -1,59 +1,59 @@
-﻿using System;
-using BNA.Exceptions;
+﻿using BNA.Exceptions;
+using System;
 
 namespace BNA.Values
 {
-	/// <summary>
-	/// File type value.
-	/// </summary>
-	public abstract class FileValue : Value
-	{
-		/// <summary>
-		/// Create a new <see cref="FileValue"/> instance.
-		/// </summary>
-		/// <param name="filename">Path to the file.</param>
-		public FileValue(string filename)
-		{
-			this.Filename = filename;
-		}
+    /// <summary>
+    /// File type value.
+    /// </summary>
+    public abstract class FileValue : Value
+    {
+        /// <summary>
+        /// Create a new <see cref="FileValue"/> instance.
+        /// </summary>
+        /// <param name="filename">Path to the file.</param>
+        public FileValue( string filename )
+        {
+            this.Filename = filename;
+        }
 
-		/// <summary>
-		/// Throw an exception as FileValue's Get property should never be directly accessed.
-		/// </summary>
-		public sealed override object Get => throw new Exception( "FileValues should not use Get property directly." );
+        /// <summary>
+        /// Throw an exception as FileValue's Get property should never be directly accessed.
+        /// </summary>
+        public sealed override object Get => throw new Exception( "FileValues should not use Get property directly." );
 
-		/// <summary>
-		/// Name of the file.
-		/// </summary>
-		public string Filename
-		{
-			get; init;
-		}
+        /// <summary>
+        /// Name of the file.
+        /// </summary>
+        public string Filename
+        {
+            get; init;
+        }
 
-		/// <summary>
-		/// Whether the file is opened.
-		/// </summary>
-		public bool Opened
-		{
-			get; protected set;
-		}
+        /// <summary>
+        /// Whether the file is opened.
+        /// </summary>
+        public bool Opened
+        {
+            get; protected set;
+        }
 
-		/// <summary>
-		/// Open the file.
-		/// </summary>
-		/// <exception cref="RuntimeException">The file could not be opened.</exception>
-		public abstract void Open( );
+        /// <summary>
+        /// Open the file.
+        /// </summary>
+        /// <exception cref="RuntimeException">The file could not be opened.</exception>
+        public abstract void Open( );
 
-		/// <summary>
-		/// Open the file.
-		/// </summary>
-		/// <exception cref="RuntimeException">The file could not be closed.</exception>
-		public abstract void Close( );
+        /// <summary>
+        /// Open the file.
+        /// </summary>
+        /// <exception cref="RuntimeException">The file could not be closed.</exception>
+        public abstract void Close( );
 
-		public override string TypeString( ) => "FileValue";
+        public override string TypeString( ) => "FileValue";
 
-		public override bool Equals( Value? obj )
-			=> (obj is FileValue fileVal && this.Filename == fileVal.Filename)
-			|| (obj is StringValue strVal && this.Filename == strVal.Get);
-	}
+        public override bool Equals( Value? obj )
+            => (obj is FileValue fileVal && this.Filename == fileVal.Filename)
+            || (obj is StringValue strVal && this.Filename == strVal.Get);
+    }
 }

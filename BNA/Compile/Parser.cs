@@ -1,8 +1,8 @@
-﻿using System;
+﻿using BNA.Common;
+using BNA.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using BNA.Common;
-using BNA.Exceptions;
 
 namespace BNA.Compile
 {
