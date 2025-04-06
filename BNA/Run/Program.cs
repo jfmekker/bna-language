@@ -122,7 +122,7 @@ namespace BNA.Run
         {
             for ( int i = 0 ; i < this.Statements.Length ; i += 1 )
             {
-                if ( this.Statements[i].Type == Operation.LABEL )
+                if ( this.Statements[i].Type == Operation.Label )
                 {
                     this.Labels.Add( this.Statements[i].Operand1, i );
                 }

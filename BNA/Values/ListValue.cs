@@ -40,7 +40,7 @@ namespace BNA.Values
         /// Generate a print out of all list elements. Uses the proper symbols from the <see cref="Symbol"/> enum.
         /// </summary>
         /// <returns>String.</returns>
-        public override string ToString( ) => $"{Symbol.LIST_START} {string.Join( $"{Symbol.LIST_SEPARATOR} ", this.Get )} {Symbol.LIST_END}";
+        public override string ToString( ) => $"{Symbol.ListStart} {string.Join( $"{Symbol.ListSeparator} ", this.Get )} {Symbol.ListEnd}";
 
         /// <summary>
         /// Create a deep copy of this <see cref="ListValue"/>. Recusively copies all elements in the list.

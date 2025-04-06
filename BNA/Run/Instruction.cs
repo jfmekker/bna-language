@@ -40,11 +40,11 @@ namespace BNA.Run
 
             switch ( this.Type )
             {
-                case Operation.NULL:
-                case Operation.LABEL:
+                case Operation.None:
+                case Operation.Label:
                     break;
 
-                case Operation.SET:
+                case Operation.Set:
                 {
                     this.Memory.SetValue( this.PrimaryToken,
                         this.SecondaryValue is ListValue list ? list.DeepCopy( ) : this.SecondaryValue,
@@ -52,31 +52,31 @@ namespace BNA.Run
                     break;
                 }
 
-                case Operation.ADD:
+                case Operation.Add:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.Add( this.SecondaryValue ) );
                     break;
                 }
 
-                case Operation.SUBTRACT:
+                case Operation.Subtract:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.Subtract( this.SecondaryValue ) );
                     break;
                 }
 
-                case Operation.MULTIPLY:
+                case Operation.Multiply:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.Multiply( this.SecondaryValue ) );
                     break;
                 }
 
-                case Operation.DIVIDE:
+                case Operation.Divide:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.Divide( this.SecondaryValue ) );
                     break;
                 }
 
-                case Operation.RANDOM:
+                case Operation.Random:
                 {
                     Value randVal
                         = this.SecondaryValue is IntegerValue intVal ? new IntegerValue( BNA.RNG.Next( intVal.Get ) )
@@ -86,65 +86,65 @@ namespace BNA.Run
                     break;
                 }
 
-                case Operation.BITWISE_OR:
-                case Operation.BITWISE_AND:
-                case Operation.BITWISE_XOR:
-                case Operation.BITWISE_NEGATE:
+                case Operation.BitwiseOR:
+                case Operation.BitwiseAND:
+                case Operation.BitwiseXOR:
+                case Operation.BitwiseNOT:
                     throw new NotImplementedException( $"Execution not implemented for {this.Type}." );
 
-                case Operation.POWER:
+                case Operation.Power:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.RaiseTo( this.SecondaryValue ) );
                     break;
                 }
 
-                case Operation.MODULUS:
+                case Operation.Modulus:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.Modulus( this.SecondaryValue ) );
                     break;
                 }
 
-                case Operation.LOGARITHM:
+                case Operation.Logarithm:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.Log( this.SecondaryValue ) );
                     break;
                 }
 
-                case Operation.ROUND:
+                case Operation.Round:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.Round( ) );
                     break;
                 }
 
-                case Operation.APPEND:
+                case Operation.Append:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.PrimaryValue.Append( this.SecondaryValue ) );
                     break;
                 }
 
-                case Operation.LIST:
+                case Operation.List:
                 {
                     int size = this.SecondaryValue is IntegerValue intVal ? intVal.Get : throw new IncorrectOperandTypeException( this.Type, this.SecondaryToken, this.SecondaryValue );
                     this.Memory.SetValue( this.PrimaryToken, new ListValue( size ), true );
                     break;
                 }
 
-                case Operation.SIZE:
+                case Operation.Size:
                 {
                     this.Memory.SetValue( this.PrimaryToken, this.SecondaryValue.Size( ), true );
                     break;
                 }
 
-                case Operation.OPEN_WRITE:
-                case Operation.OPEN_READ:
+                case Operation.OpenWrite:
+                case Operation.OpenRead:
                 {
-                    bool read = this.Type == Operation.READ;
+                    bool read = this.Type == Operation.Read;
                     string filename = this.SecondaryValue is StringValue strVal ? strVal.Get : throw new IncorrectOperandTypeException( this.Type, this.SecondaryToken, this.SecondaryValue );
                     this.Memory.SetValue( this.PrimaryToken, read ? new ReadFileValue( filename ) : new WriteFileValue( filename ), true );
                     break;
                 }
 
-                case Operation.CLOSE:
+                case Operation.Close:
                 {
                     if ( this.PrimaryValue is FileValue fileVal )
                     {
@@ -158,7 +158,7 @@ namespace BNA.Run
                     }
                 }
 
-                case Operation.READ:
+                case Operation.Read:
                 {
                     if ( this.PrimaryValue is ReadFileValue readFileVal )
                     {
@@ -184,7 +184,7 @@ namespace BNA.Run
                     }
                 }
 
-                case Operation.WRITE:
+                case Operation.Write:
                 {
                     if ( this.PrimaryValue is WriteFileValue writeFileVal )
                     {
@@ -197,7 +197,7 @@ namespace BNA.Run
                     }
                 }
 
-                case Operation.INPUT:
+                case Operation.Input:
                 {
                     Console.Write(
                         this.SecondaryValue is StringValue strVal ? strVal.Get
@@ -208,17 +208,17 @@ namespace BNA.Run
                     // Token token = Lexer.ReadSingleToken( Console.ReadLine( ) ?? string.Empty );
                     // TODO actually parse it or something (just a number vs string?)
                     string input = Console.ReadLine( ) ?? string.Empty;
-                    Token token = new( $"\"{input}\"", TokenType.STRING );
+                    Token token = new( $"\"{input}\"", TokenType.LiteralString );
                     switch ( token.Type )
                     {
-                        case TokenType.NUMBER:
-                        case TokenType.LIST:
+                        case TokenType.LiteralNumber:
+                        case TokenType.List:
                             this.Memory.SetValue( this.PrimaryToken, this.Memory.GetValue( token ), true );
                             break;
 
-                        case TokenType.STRING:
-                        case TokenType.SYMBOL:
-                        case TokenType.VARIABLE:
+                        case TokenType.LiteralString:
+                        case TokenType.Symbol:
+                        case TokenType.Variable:
                             this.Memory.SetValue( this.PrimaryToken, new StringValue( token.Value ), true );
                             break;
 
@@ -232,13 +232,13 @@ namespace BNA.Run
                     break;
                 }
 
-                case Operation.PRINT:
+                case Operation.Print:
                 {
                     Console.WriteLine( this.PrimaryValue.ToString( ) );
                     break;
                 }
 
-                case Operation.WAIT:
+                case Operation.Wait:
                 {
                     int ms = (int)(1000 *
                         (this.SecondaryValue is IntegerValue intVal ? intVal.Get
@@ -258,52 +258,52 @@ namespace BNA.Run
                     break;
                 }
 
-                case Operation.ERROR:
+                case Operation.Error:
                 {
                     throw new ErrorStatementException( this.SecondaryValue );
                 }
 
-                case Operation.EXIT:
+                case Operation.Exit:
                 {
                     this.Program.Running = false;
                     break;
                 }
 
-                case Operation.TEST_EQUAL:
-                case Operation.TEST_NOT_EQUAL:
-                case Operation.TEST_GREATER_THAN:
-                case Operation.TEST_LESS_THAN:
+                case Operation.TestEqualTo:
+                case Operation.TestNotEqualTo:
+                case Operation.TestGreaterThan:
+                case Operation.TestLessThan:
                 {
                     Value result
-                        = this.Type == Operation.TEST_EQUAL ? this.PrimaryValue == this.SecondaryValue ? Value.TRUE : Value.FALSE
-                        : this.Type == Operation.TEST_NOT_EQUAL ? this.PrimaryValue != this.SecondaryValue ? Value.TRUE : Value.FALSE
-                        : this.Type == Operation.TEST_GREATER_THAN ? this.PrimaryValue.GreaterThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
-                        : this.Type == Operation.TEST_LESS_THAN ? this.PrimaryValue.LessThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
+                        = this.Type == Operation.TestEqualTo ? this.PrimaryValue == this.SecondaryValue ? Value.TRUE : Value.FALSE
+                        : this.Type == Operation.TestNotEqualTo ? this.PrimaryValue != this.SecondaryValue ? Value.TRUE : Value.FALSE
+                        : this.Type == Operation.TestGreaterThan ? this.PrimaryValue.GreaterThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
+                        : this.Type == Operation.TestLessThan ? this.PrimaryValue.LessThan( this.SecondaryValue ) ? Value.TRUE : Value.FALSE
                         : throw new Exception( $"Unexpted TEST statement type: {this.Type}" );
                     this.Memory.SetValue( SpecialVariables.TEST_RESULT, result );
                     break;
                 }
 
-                case Operation.TYPE:
+                case Operation.Type:
                 {
                     string type = this.SecondaryValue.TypeString( )[..^"Value".Length].ToUpper( );
                     this.Memory.SetValue( this.PrimaryToken, new StringValue( type ), true );
                     break;
                 }
 
-                case Operation.SCOPE_OPEN:
+                case Operation.ScopeOpen:
                 {
                     this.Memory.OpenScope( );
                     break;
                 }
 
-                case Operation.SCOPE_CLOSE:
+                case Operation.ScopeClose:
                 {
                     this.Memory.CloseScope( );
                     break;
                 }
 
-                case Operation.GOTO:
+                case Operation.Goto:
                 {
                     // Subtract one because the IP will be incremented after this
                     int newIP = this.PrimaryValue is IntegerValue intVal ? intVal.Get - 1

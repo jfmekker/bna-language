@@ -20,7 +20,7 @@ namespace UnitTestProject.CompiletimeTests
             Token token = Lexer.ReadSingleToken( $"{val}" );
 
             long token_val = long.Parse( token.Value );
-            Assert.AreEqual( TokenType.NUMBER, token.Type );
+            Assert.AreEqual( TokenType.LiteralNumber, token.Type );
             Assert.AreEqual( val, token_val );
         }
 
@@ -35,7 +35,7 @@ namespace UnitTestProject.CompiletimeTests
             Token token = Lexer.ReadSingleToken( val.ToString( ) );
 
             double token_val = double.Parse( token.Value );
-            Assert.AreEqual( TokenType.NUMBER, token.Type );
+            Assert.AreEqual( TokenType.LiteralNumber, token.Type );
             Assert.AreEqual( val, token_val );
         }
 
@@ -48,7 +48,7 @@ namespace UnitTestProject.CompiletimeTests
 
             double token_val = double.Parse( token.Value );
             double expected_val = double.Parse( str );
-            Assert.AreEqual( TokenType.NUMBER, token.Type );
+            Assert.AreEqual( TokenType.LiteralNumber, token.Type );
             Assert.AreEqual( expected_val, token_val );
         }
 
@@ -57,7 +57,7 @@ namespace UnitTestProject.CompiletimeTests
         {
             foreach ( Keyword keyword in Enum.GetValues<Keyword>( ) )
             {
-                Token expected = new( keyword.ToString( ), TokenType.KEYWORD );
+                Token expected = new( keyword.ToString( ), TokenType.Keyword );
 
                 Token actual = Lexer.ReadSingleToken( keyword.ToString( ) );
 
@@ -76,7 +76,7 @@ namespace UnitTestProject.CompiletimeTests
         [DataRow( "reeeeeeeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaalllllllllllyyyy_long_variable_name", DisplayName = "Long name" )]
         public void Lexer_ReadSingleToken_ReturnsVariable( string variable_string )
         {
-            Token expected = new( variable_string, TokenType.VARIABLE );
+            Token expected = new( variable_string, TokenType.Variable );
 
             Token actual = Lexer.ReadSingleToken( variable_string );
 
@@ -91,7 +91,7 @@ namespace UnitTestProject.CompiletimeTests
         public void Lexer_ReadSingleToken_ReturnsVariable_IgnoreWhitespace( string whitespace )
         {
             string variable_string = "variable";
-            Token expected = new( variable_string, TokenType.VARIABLE );
+            Token expected = new( variable_string, TokenType.Variable );
 
             Token actual = Lexer.ReadSingleToken( whitespace + variable_string + whitespace );
 
@@ -99,18 +99,18 @@ namespace UnitTestProject.CompiletimeTests
         }
 
         [TestMethod]
-        [DataRow( Symbol.EQUAL )]
-        [DataRow( Symbol.NOT )]
-        [DataRow( Symbol.GREATER_THAN )]
-        [DataRow( Symbol.LESS_THAN )]
-        [DataRow( Symbol.LABEL_START )]
-        [DataRow( Symbol.LABEL_END )]
-        [DataRow( Symbol.LIST_SEPARATOR )]
-        [DataRow( Symbol.LIST_END )]
+        [DataRow( Symbol.Equal )]
+        [DataRow( Symbol.Not )]
+        [DataRow( Symbol.GreaterThan )]
+        [DataRow( Symbol.LessThan )]
+        [DataRow( Symbol.LabelStart )]
+        [DataRow( Symbol.LabelEnd )]
+        [DataRow( Symbol.ListSeparator )]
+        [DataRow( Symbol.ListEnd )]
         public void Lexer_ReadSingleToken_ReturnsSymbol_StandAloneSymbols( Symbol symbol )
         {
             string symbol_string = $"{(char)symbol}";
-            Token expected = new( symbol_string, TokenType.SYMBOL );
+            Token expected = new( symbol_string, TokenType.Symbol );
 
             Token actual = Lexer.ReadSingleToken( symbol_string );
 
@@ -125,7 +125,7 @@ namespace UnitTestProject.CompiletimeTests
         // [DataRow( "\"\\t\\n\\\"\"" , DisplayName = "Escaped characters" )] // TODO uncomment when escaped characters in strings are fully implemented
         public void Lexer_ReadSingleToken_ReturnsString( string list )
         {
-            Token expected = new( list, TokenType.STRING );
+            Token expected = new( list, TokenType.LiteralString );
 
             Token actual = Lexer.ReadSingleToken( list );
 
@@ -140,7 +140,7 @@ namespace UnitTestProject.CompiletimeTests
         [DataRow( "((0,0),(0,0,0),())", DisplayName = "Sublists" )]
         public void Lexer_ReadSingleToken_ReturnsList( string list )
         {
-            Token expected = new( list, TokenType.LIST );
+            Token expected = new( list, TokenType.List );
 
             Token actual = Lexer.ReadSingleToken( list );
 
@@ -154,7 +154,7 @@ namespace UnitTestProject.CompiletimeTests
         [DataRow( "# \t\"(,)0", DisplayName = "Symbols" )]
         public void Lexer_ReadSingleToken_ReturnsComment( string list )
         {
-            Token expected = new( list, TokenType.COMMENT );
+            Token expected = new( list, TokenType.Comment );
 
             Token actual = Lexer.ReadSingleToken( list );
 

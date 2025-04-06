@@ -192,7 +192,7 @@ namespace BNA.Exceptions
     }
 
     /// <summary>
-    /// Exception thrown by the BNA <see cref="Operation.ERROR"/> statement.
+    /// Exception thrown by the BNA <see cref="Operation.Error"/> statement.
     /// </summary>
     public class ErrorStatementException : RuntimeException
     {

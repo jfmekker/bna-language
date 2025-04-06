@@ -20,10 +20,10 @@ namespace UnitTestProject.CompiletimeTests
 
         public SadParserTests( )
         {
-            Token tokenVariable = new( "var", TokenType.VARIABLE );
-            Token tokenLiteral = new( "1.0", TokenType.NUMBER );
-            Token tokenString = new( "\"my string\"", TokenType.STRING );
-            Token tokenList = new( "(0, 0)", TokenType.LIST );
+            Token tokenVariable = new( "var", TokenType.Variable );
+            Token tokenLiteral = new( "1.0", TokenType.LiteralNumber );
+            Token tokenString = new( "\"my string\"", TokenType.LiteralString );
+            Token tokenList = new( "(0, 0)", TokenType.List );
 
             var nonNumericTypeOperands = new List<Token>( ) { tokenString, tokenList };
             var nonStringTypeOperands = new List<Token>( ) { tokenLiteral, tokenList };
@@ -100,18 +100,18 @@ namespace UnitTestProject.CompiletimeTests
         }
 
         [TestMethod]
-        [DataRow( Symbol.NULL, DisplayName = "NULL" )]
-        [DataRow( Symbol.ESCAPE, DisplayName = "ESCAPE" )]
-        [DataRow( Symbol.GREATER_THAN, DisplayName = "GREATER_THAN" )]
-        [DataRow( Symbol.LESS_THAN, DisplayName = "LESS_THAN" )]
-        [DataRow( Symbol.EQUAL, DisplayName = "EQUAL" )]
-        [DataRow( Symbol.NOT, DisplayName = "NOT" )]
-        [DataRow( Symbol.LABEL_END, DisplayName = "LABEL_END" )]
-        [DataRow( Symbol.STRING_MARKER, DisplayName = "STRING_MARKER" )]
-        [DataRow( Symbol.ACCESSOR, DisplayName = "ACCESSOR" )]
-        [DataRow( Symbol.LIST_START, DisplayName = "LIST_START" )]
-        [DataRow( Symbol.LIST_END, DisplayName = "LIST_END" )]
-        [DataRow( Symbol.LIST_SEPARATOR, DisplayName = "LIST_SEPATOR" )]
+        [DataRow( Symbol.Null, DisplayName = "NULL" )]
+        [DataRow( Symbol.Escape, DisplayName = "ESCAPE" )]
+        [DataRow( Symbol.GreaterThan, DisplayName = "GREATER_THAN" )]
+        [DataRow( Symbol.LessThan, DisplayName = "LESS_THAN" )]
+        [DataRow( Symbol.Equal, DisplayName = "EQUAL" )]
+        [DataRow( Symbol.Not, DisplayName = "NOT" )]
+        [DataRow( Symbol.LabelEnd, DisplayName = "LABEL_END" )]
+        [DataRow( Symbol.StringDelim, DisplayName = "STRING_MARKER" )]
+        [DataRow( Symbol.Accessor, DisplayName = "ACCESSOR" )]
+        [DataRow( Symbol.ListStart, DisplayName = "LIST_START" )]
+        [DataRow( Symbol.ListEnd, DisplayName = "LIST_END" )]
+        [DataRow( Symbol.ListSeparator, DisplayName = "LIST_SEPATOR" )]
         public void Parser_ParseStatement_IllegalSymbolAtStatementStart_ThrowsIllegalTokenException( Symbol symbol )
         {
             List<Token> tokens = [new( symbol )];

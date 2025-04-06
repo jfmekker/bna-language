@@ -63,9 +63,9 @@ namespace BNA.Compile
                 {
                     return this.Current.IsDigit( ) || this.Current is '-' or '.' ? this.NextLiteral( )
                         : this.Current.IsLetter( ) || this.Current is '_' ? this.NextVariableOrKeyword( )
-                        : this.Current is (char)Symbol.STRING_MARKER ? this.NextString( )
-                        : this.Current is (char)Symbol.LIST_START ? this.NextList( )
-                        : this.Current is (char)Symbol.COMMENT ? this.NextComment( )
+                        : this.Current is (char)Symbol.StringDelim ? this.NextString( )
+                        : this.Current is (char)Symbol.ListStart ? this.NextList( )
+                        : this.Current is (char)Symbol.Comment ? this.NextComment( )
                         : this.NextSymbol( );
                 }
             }
@@ -91,7 +91,7 @@ namespace BNA.Compile
 
             string str = builder.ToString( );
             return long.TryParse( str, out long _ ) || double.TryParse( str, out double _ )
-                ? new Token( str, TokenType.NUMBER )
+                ? new Token( str, TokenType.LiteralNumber )
                 : throw new InvalidTokenException( "Literal is not parsable as number." );
         }
 
@@ -101,7 +101,7 @@ namespace BNA.Compile
 
             while ( this.Current is not null )
             {
-                if ( !this.Current.IsLetterOrDigit( ) && this.Current is not '_' and not (char)Symbol.ACCESSOR )
+                if ( !this.Current.IsLetterOrDigit( ) && this.Current is not '_' and not (char)Symbol.Accessor )
                 {
                     break;
                 }
@@ -112,7 +112,7 @@ namespace BNA.Compile
             string str = builder.ToString( );
             for ( int i = 0 ; i < str.Length ; i += 1 )
             {
-                if ( str[i] == (char)Symbol.ACCESSOR &&
+                if ( str[i] == (char)Symbol.Accessor &&
                     (i + 1 >= str.Length || i - 1 < 0
                     || !(char.IsLetterOrDigit( str[i + 1] ) || str[i + 1] == '_')
                     || !(char.IsLetterOrDigit( str[i - 1] ) || str[i - 1] == '_')) )
@@ -121,7 +121,7 @@ namespace BNA.Compile
                 }
             }
 
-            return new Token( str, Enum.TryParse( str, out Keyword _ ) ? TokenType.KEYWORD : TokenType.VARIABLE );
+            return new Token( str, Enum.TryParse( str, out Keyword _ ) ? TokenType.Keyword : TokenType.Variable );
         }
 
         private Token NextString( )
@@ -133,45 +133,45 @@ namespace BNA.Compile
             {
                 _ = builder.Append( this.ConsumeCurrent );
 
-                if ( builder.ToString( )[^1] == (char)Symbol.STRING_MARKER &&
-                    builder.ToString( )[^2] != (char)Symbol.ESCAPE )
+                if ( builder.ToString( )[^1] == (char)Symbol.StringDelim &&
+                    builder.ToString( )[^2] != (char)Symbol.Escape )
                 {
                     string_ended = true;
                     break;
                 }
             }
 
-            return string_ended ? new Token( builder.ToString( ), TokenType.STRING )
-                : throw new MissingTerminatorException( "String", (char)Symbol.STRING_MARKER );
+            return string_ended ? new Token( builder.ToString( ), TokenType.LiteralString )
+                : throw new MissingTerminatorException( "String", (char)Symbol.StringDelim );
         }
 
         private Token NextList( )
         {
             int start_index = this.Index;
-            List<Token> list = [new Token( $"{this.ConsumeCurrent}", TokenType.SYMBOL )];
+            List<Token> list = [new Token( $"{this.ConsumeCurrent}", TokenType.Symbol )];
 
             while ( this.Current is not null )
             {
                 if ( this.NextToken( ) is Token token )
                 {
-                    if ( token.AsSymbol( ) is Symbol.LIST_END )
+                    if ( token.AsSymbol( ) is Symbol.ListEnd )
                     {
                         list.Add( token );
                         break;
                     }
-                    else if ( token.AsSymbol( ) is Symbol.LIST_SEPARATOR )
+                    else if ( token.AsSymbol( ) is Symbol.ListSeparator )
                     {
                         list.Add( token );
                     }
-                    else if ( token.Type is TokenType.NUMBER or TokenType.VARIABLE or TokenType.STRING or TokenType.LIST )
+                    else if ( token.Type is TokenType.LiteralNumber or TokenType.Variable or TokenType.LiteralString or TokenType.List )
                     {
-                        if ( list[^1].AsSymbol( ) is Symbol.LIST_SEPARATOR or Symbol.LIST_START )
+                        if ( list[^1].AsSymbol( ) is Symbol.ListSeparator or Symbol.ListStart )
                         {
                             list.Add( token );
                         }
                         else
                         {
-                            throw new IllegalTokenException( $"Tokens in lists must be separated by '{Symbol.LIST_SEPARATOR}'." );
+                            throw new IllegalTokenException( $"Tokens in lists must be separated by '{Symbol.ListSeparator}'." );
                         }
                     }
                     else
@@ -181,9 +181,9 @@ namespace BNA.Compile
                 }
             }
 
-            return this.Line[this.Index - 1] == (char)Symbol.LIST_END
-                ? new Token( this.Line[start_index..this.Index], TokenType.LIST )
-                : throw new MissingTerminatorException( "List", (char)Symbol.LIST_END );
+            return this.Line[this.Index - 1] == (char)Symbol.ListEnd
+                ? new Token( this.Line[start_index..this.Index], TokenType.List )
+                : throw new MissingTerminatorException( "List", (char)Symbol.ListEnd );
         }
 
         private Token NextComment( )
@@ -195,20 +195,20 @@ namespace BNA.Compile
                 _ = builder.Append( this.ConsumeCurrent );
             }
 
-            return new Token( builder.ToString( ), TokenType.COMMENT );
+            return new Token( builder.ToString( ), TokenType.Comment );
         }
 
         private Token NextSymbol( )
         {
-            return this.Current is (char)Symbol.LESS_THAN
-                                or (char)Symbol.GREATER_THAN
-                                or (char)Symbol.EQUAL
-                                or (char)Symbol.NOT
-                                or (char)Symbol.LIST_SEPARATOR
-                                or (char)Symbol.LIST_END
-                                or (char)Symbol.LABEL_START
-                                or (char)Symbol.LABEL_END
-                ? new Token( $"{this.ConsumeCurrent}", TokenType.SYMBOL )
+            return this.Current is (char)Symbol.LessThan
+                                or (char)Symbol.GreaterThan
+                                or (char)Symbol.Equal
+                                or (char)Symbol.Not
+                                or (char)Symbol.ListSeparator
+                                or (char)Symbol.ListEnd
+                                or (char)Symbol.LabelStart
+                                or (char)Symbol.LabelEnd
+                ? new Token( $"{this.ConsumeCurrent}", TokenType.Symbol )
                 : throw new UnexpectedSymbolException( this.Current );
         }
     }

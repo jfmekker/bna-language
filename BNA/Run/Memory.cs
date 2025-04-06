@@ -55,7 +55,7 @@ namespace BNA.Run
 
         public Value GetValue( Token token )
         {
-            if ( token.Type == TokenType.VARIABLE )
+            if ( token.Type == TokenType.Variable )
             {
                 return this.Variables.TryGetValue( token, out Value? v ) ? v : Value.NULL;
             }
@@ -74,16 +74,16 @@ namespace BNA.Run
         public void SetValue( Token token, Value newValue, bool add = false )
         {
             // Unexpected token type
-            if ( token.Type != TokenType.VARIABLE )
+            if ( token.Type != TokenType.Variable )
             {
                 throw new Exception( "Unexpected token type in SetValue: " + token );
             }
 
             // Handle list element
-            if ( token.Value.Contains( "" + (char)Symbol.ACCESSOR ) )
+            if ( token.Value.Contains( "" + (char)Symbol.Accessor ) )
             {
                 // Get last accessor first (so multi-lists are properly chained)
-                int accessor = token.Value.LastIndexOf( (char)Symbol.ACCESSOR );
+                int accessor = token.Value.LastIndexOf( (char)Symbol.Accessor );
                 if ( accessor == 0 || accessor == token.Value.Length )
                 {
                     throw new Exception( $"Accessor at start or end of token: {token}" );

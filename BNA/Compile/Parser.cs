@@ -54,37 +54,37 @@ namespace BNA.Compile
             switch ( start )
             {
                 case Keyword.SET:
-                { this.SetOperation( Operation.SET ).Operand1( ).Next( Keyword.TO ).Operand2( AllOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Set ).Operand1( ).Next( Keyword.TO ).Operand2( AllOperandTypes( ) ).End( ); break; }
 
                 case Keyword.ADD:
-                { this.SetOperation( Operation.ADD ).Operand2( NumericOperandTypes( ) ).Next( Keyword.TO ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Add ).Operand2( NumericOperandTypes( ) ).Next( Keyword.TO ).Operand1( ).End( ); break; }
 
                 case Keyword.SUBTRACT:
-                { this.SetOperation( Operation.SUBTRACT ).Operand2( NumericOperandTypes( ) ).Next( Keyword.FROM ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Subtract ).Operand2( NumericOperandTypes( ) ).Next( Keyword.FROM ).Operand1( ).End( ); break; }
 
                 case Keyword.MULTIPLY:
-                { this.SetOperation( Operation.MULTIPLY ).Operand1( ).Next( Keyword.BY ).Operand2( NumericOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Multiply ).Operand1( ).Next( Keyword.BY ).Operand2( NumericOperandTypes( ) ).End( ); break; }
 
                 case Keyword.DIVIDE:
-                { this.SetOperation( Operation.DIVIDE ).Operand1( ).Next( Keyword.BY ).Operand2( NumericOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Divide ).Operand1( ).Next( Keyword.BY ).Operand2( NumericOperandTypes( ) ).End( ); break; }
 
                 case Keyword.MOD:
-                { this.SetOperation( Operation.MODULUS ).Operand2( NumericOperandTypes( ) ).Next( Keyword.OF ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Modulus ).Operand2( NumericOperandTypes( ) ).Next( Keyword.OF ).Operand1( ).End( ); break; }
 
                 case Keyword.LOG:
-                { this.SetOperation( Operation.LOGARITHM ).Operand2( NumericOperandTypes( ) ).Next( Keyword.OF ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Logarithm ).Operand2( NumericOperandTypes( ) ).Next( Keyword.OF ).Operand1( ).End( ); break; }
 
                 case Keyword.RAISE:
-                { this.SetOperation( Operation.POWER ).Operand1( ).Next( Keyword.TO ).Operand2( NumericOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Power ).Operand1( ).Next( Keyword.TO ).Operand2( NumericOperandTypes( ) ).End( ); break; }
 
                 case Keyword.ROUND:
-                { this.SetOperation( Operation.ROUND ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Round ).Operand1( ).End( ); break; }
 
                 case Keyword.RANDOM:
-                { this.SetOperation( Operation.RANDOM ).Operand1( ).Next( Keyword.MAX ).Operand2( NumericOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Random ).Operand1( ).Next( Keyword.MAX ).Operand2( NumericOperandTypes( ) ).End( ); break; }
 
                 case Keyword.WAIT:
-                { this.SetOperation( Operation.WAIT ).Operand2( NumericOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Wait ).Operand2( NumericOperandTypes( ) ).End( ); break; }
 
                 case Keyword.TEST:
                 {
@@ -97,10 +97,10 @@ namespace BNA.Compile
                         if ( token.AsSymbol( ) is Symbol symbol )
                         {
                             operation = symbol switch {
-                                Symbol.GREATER_THAN => Operation.TEST_GREATER_THAN,
-                                Symbol.LESS_THAN => Operation.TEST_LESS_THAN,
-                                Symbol.EQUAL => Operation.TEST_EQUAL,
-                                Symbol.NOT => Operation.TEST_NOT_EQUAL,
+                                Symbol.GreaterThan => Operation.TestGreaterThan,
+                                Symbol.LessThan => Operation.TestLessThan,
+                                Symbol.Equal => Operation.TestEqualTo,
+                                Symbol.Not => Operation.TestNotEqualTo,
                                 _ => throw new IllegalTokenException( $"Expected a comparison operator symbol, got {token}." )
                             };
                         }
@@ -119,23 +119,23 @@ namespace BNA.Compile
                 }
 
                 case Keyword.GOTO:
-                { this.SetOperation( Operation.GOTO ).Operand1( ).Optional( Keyword.IF )?.Operand2( NumericOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Goto ).Operand1( ).Optional( Keyword.IF )?.Operand2( NumericOperandTypes( ) ).End( ); break; }
 
                 case Keyword.LIST:
-                { this.SetOperation( Operation.LIST ).Operand1( ).Optional( Keyword.SIZE )?.Operand2( NumericOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.List ).Operand1( ).Optional( Keyword.SIZE )?.Operand2( NumericOperandTypes( ) ).End( ); break; }
 
                 case Keyword.APPEND:
-                { this.SetOperation( Operation.APPEND ).Operand2( AllOperandTypes( ) ).Next( Keyword.TO ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Append ).Operand2( AllOperandTypes( ) ).Next( Keyword.TO ).Operand1( ).End( ); break; }
 
                 case Keyword.SIZE:
-                { this.SetOperation( Operation.SIZE ).Operand1( ).Next( Keyword.OF ).Operand2( AllOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Size ).Operand1( ).Next( Keyword.OF ).Operand2( AllOperandTypes( ) ).End( ); break; }
 
                 case Keyword.OPEN:
                 {
                     this.IncrementIndex( );
                     this.Operand2( StringOperandTypes( ) ).Next( Keyword.AS ).SetOperation(
-                        this.Optional( Keyword.READ, allow_illegal: true ) is not null ? Operation.OPEN_READ
-                        : this.Next( Keyword.WRITE ) is not null ? Operation.OPEN_WRITE
+                        this.Optional( Keyword.READ, allow_illegal: true ) is not null ? Operation.OpenRead
+                        : this.Next( Keyword.WRITE ) is not null ? Operation.OpenWrite
                         : throw new InvalidOperationException( "Parser.Next returned null." ),
                         false
                     ).Operand1( ).End( );
@@ -143,29 +143,29 @@ namespace BNA.Compile
                 }
 
                 case Keyword.CLOSE:
-                { this.SetOperation( Operation.CLOSE ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Close ).Operand1( ).End( ); break; }
 
                 case Keyword.WRITE:
-                { this.SetOperation( Operation.WRITE ).Operand2( AllOperandTypes( ) ).Next( Keyword.TO ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Write ).Operand2( AllOperandTypes( ) ).Next( Keyword.TO ).Operand1( ).End( ); break; }
 
                 case Keyword.READ:
-                { this.SetOperation( Operation.READ ).Operand2( TokenType.VARIABLE ).Next( Keyword.FROM ).Operand1( ).End( ); break; }
+                { this.SetOperation( Operation.Read ).Operand2( TokenType.Variable ).Next( Keyword.FROM ).Operand1( ).End( ); break; }
 
                 case Keyword.INPUT:
-                { this.SetOperation( Operation.INPUT ).Operand1( ).Next( Keyword.WITH ).Operand2( StringOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Input ).Operand1( ).Next( Keyword.WITH ).Operand2( StringOperandTypes( ) ).End( ); break; }
 
                 case Keyword.PRINT:
-                { this.SetOperation( Operation.PRINT ).Operand2( AllOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Print ).Operand2( AllOperandTypes( ) ).End( ); break; }
 
                 case Keyword.TYPE:
-                { this.SetOperation( Operation.TYPE ).Operand1( ).Next( Keyword.OF ).Operand2( AllOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Type ).Operand1( ).Next( Keyword.OF ).Operand2( AllOperandTypes( ) ).End( ); break; }
 
                 case Keyword.SCOPE:
                 {
                     this.IncrementIndex( );
                     this.SetOperation(
-                        this.Optional( Keyword.OPEN, allow_illegal: true ) is not null ? Operation.SCOPE_OPEN
-                        : this.Next( Keyword.CLOSE ) is not null ? Operation.SCOPE_CLOSE
+                        this.Optional( Keyword.OPEN, allow_illegal: true ) is not null ? Operation.ScopeOpen
+                        : this.Next( Keyword.CLOSE ) is not null ? Operation.ScopeClose
                         : throw new InvalidOperationException( "Parser.Next returned null." ),
                         false
                     ).End( );
@@ -173,10 +173,10 @@ namespace BNA.Compile
                 }
 
                 case Keyword.EXIT:
-                { this.SetOperation( Operation.EXIT ).End( ); break; }
+                { this.SetOperation( Operation.Exit ).End( ); break; }
 
                 case Keyword.ERROR:
-                { this.SetOperation( Operation.ERROR ).Operand2( StringOperandTypes( ) ).End( ); break; }
+                { this.SetOperation( Operation.Error ).Operand2( StringOperandTypes( ) ).End( ); break; }
 
                 case Keyword.AND:
                 case Keyword.OR:
@@ -197,8 +197,8 @@ namespace BNA.Compile
         {
             switch ( start )
             {
-                case Symbol.LABEL_START:
-                { this.SetOperation( Operation.LABEL ).Operand1( ).Next( Symbol.LABEL_END ).End( ); break; }
+                case Symbol.LabelStart:
+                { this.SetOperation( Operation.Label ).Operand1( ).Next( Symbol.LabelEnd ).End( ); break; }
 
                 default:
                     throw new IllegalTokenException( $"Illegal symbol to start statement: {this.Current}." );
@@ -309,18 +309,18 @@ namespace BNA.Compile
         {
             if ( this.Current is Token token )
             {
-                if ( token.Type == TokenType.VARIABLE )
+                if ( token.Type == TokenType.Variable )
                 {
                     this.operand1 = token;
                     this.IncrementIndex( );
                     return this;
                 }
 
-                throw new IllegalTokenException( $"Expected operand of type {TokenType.VARIABLE}, got token {token}." );
+                throw new IllegalTokenException( $"Expected operand of type {TokenType.Variable}, got token {token}." );
             }
             else
             {
-                throw new MissingTokenException( TokenType.VARIABLE );
+                throw new MissingTokenException( TokenType.Variable );
             }
         }
 
@@ -336,7 +336,7 @@ namespace BNA.Compile
             }
             catch ( IllegalTokenException )
             {
-                if ( allow_illegal || this.Current?.Type is TokenType.COMMENT )
+                if ( allow_illegal || this.Current?.Type is TokenType.Comment )
                 {
                     return null;
                 }
@@ -356,7 +356,7 @@ namespace BNA.Compile
             }
             catch ( IllegalTokenException )
             {
-                if ( allow_illegal || this.Current?.Type is TokenType.COMMENT )
+                if ( allow_illegal || this.Current?.Type is TokenType.Comment )
                 {
                     return null;
                 }
@@ -376,7 +376,7 @@ namespace BNA.Compile
             }
             catch ( IllegalTokenException )
             {
-                if ( this.Current?.Type is TokenType.COMMENT )
+                if ( this.Current?.Type is TokenType.Comment )
                 {
                     return null;
                 }
@@ -388,7 +388,7 @@ namespace BNA.Compile
         {
             if ( this.Current is not null )
             {
-                if ( allow_comment && this.Current.Value.Type == TokenType.COMMENT )
+                if ( allow_comment && this.Current.Value.Type == TokenType.Comment )
                 {
                     this.IncrementIndex( );
 
@@ -406,17 +406,17 @@ namespace BNA.Compile
 
         private static TokenType[] AllOperandTypes( )
         {
-            return [TokenType.VARIABLE, TokenType.NUMBER, TokenType.STRING, TokenType.LIST];
+            return [TokenType.Variable, TokenType.LiteralNumber, TokenType.LiteralString, TokenType.List];
         }
 
         private static TokenType[] StringOperandTypes( )
         {
-            return [TokenType.VARIABLE, TokenType.STRING];
+            return [TokenType.Variable, TokenType.LiteralString];
         }
 
         private static TokenType[] NumericOperandTypes( )
         {
-            return [TokenType.VARIABLE, TokenType.NUMBER];
+            return [TokenType.Variable, TokenType.LiteralNumber];
         }
 
         private void IncrementIndex( )

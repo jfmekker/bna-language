@@ -22,19 +22,19 @@ namespace BNA.Run
         {
             switch ( token.Type )
             {
-                case TokenType.NUMBER:
+                case TokenType.LiteralNumber:
                     return this.EvaluateNumber( token.Value );
 
-                case TokenType.STRING:
+                case TokenType.LiteralString:
                     return this.EvaluateString( token.Value );
 
-                case TokenType.VARIABLE:
+                case TokenType.Variable:
                     return this.EvaluateVariable( token.Value );
 
-                case TokenType.LIST:
+                case TokenType.List:
                     return this.EvaluateList( token.Value );
 
-                case TokenType.NULL:
+                case TokenType.Null:
                     return Value.NULL;
 
                 default:
@@ -70,7 +70,7 @@ namespace BNA.Run
             StringBuilder sb = new( );
             for ( int i = 1 ; i < str.Length - 1 ; i += 1 )
             {
-                if ( str[i] is (char)Symbol.ESCAPE )
+                if ( str[i] is (char)Symbol.Escape )
                 {
                     if ( i + 1 == str.Length )
                     {
@@ -82,8 +82,8 @@ namespace BNA.Run
                         'b' => '\b', // Backspace - TODO does this work?
                         'n' => '\n', // New line
                         't' => '\t', // Tab
-                        (char)Symbol.STRING_MARKER => (char)Symbol.STRING_MARKER,
-                        (char)Symbol.ESCAPE => (char)Symbol.ESCAPE,
+                        (char)Symbol.StringDelim => (char)Symbol.StringDelim,
+                        (char)Symbol.Escape => (char)Symbol.Escape,
                         _ => str[i + 1], // By default add just the escaped character
                     };
 
@@ -106,7 +106,7 @@ namespace BNA.Run
 
             foreach ( Token t in listTokens )
             {
-                if ( t.AsSymbol( ) is not Symbol.LIST_SEPARATOR )
+                if ( t.AsSymbol( ) is not Symbol.ListSeparator )
                 {
                     listValues.Add( this.Evaluate( t ) );
                 }
@@ -118,10 +118,10 @@ namespace BNA.Run
         private Value EvaluateVariable( string str )
         {
             // Get list element
-            if ( str.Contains( (char)Symbol.ACCESSOR, StringComparison.Ordinal ) )
+            if ( str.Contains( (char)Symbol.Accessor, StringComparison.Ordinal ) )
             {
                 // Get last accessor first (so multi-lists are properly chained)
-                int accessor = str.LastIndexOf( (char)Symbol.ACCESSOR );
+                int accessor = str.LastIndexOf( (char)Symbol.Accessor );
                 if ( accessor == 0 || accessor == str.Length )
                 {
                     // Should have been detected at compiletime
@@ -148,7 +148,7 @@ namespace BNA.Run
                     : throw new NonIndexableValueException( accessedTok, accessedVal );
             }
 
-            return this.Memory.GetValue( new Token( str, TokenType.VARIABLE ) );
+            return this.Memory.GetValue( new Token( str, TokenType.Variable ) );
         }
     }
 }

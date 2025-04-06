@@ -9,7 +9,7 @@ namespace BNA.Run
     public class Variable
     {
         /// <summary>
-        /// Token identifying a variable. Must be <see cref="TokenType.VARIABLE"/> type.
+        /// Token identifying a variable. Must be <see cref="TokenType.Variable"/> type.
         /// </summary>
         public Token Token
         {

@@ -38,10 +38,10 @@ namespace UnitTestProject.RuntimeTests
         };
 
         public static Token GetTokenOfType( TokenType type ) => type switch {
-            TokenType.NUMBER => new Token( "0", type ),
-            TokenType.STRING => new Token( "\"\"", type ),
-            TokenType.LIST => new Token( "()", type ),
-            TokenType.VARIABLE => new Token( "var", type ),
+            TokenType.LiteralNumber => new Token( "0", type ),
+            TokenType.LiteralString => new Token( "\"\"", type ),
+            TokenType.List => new Token( "()", type ),
+            TokenType.Variable => new Token( "var", type ),
             _ => throw new ArgumentException( "Unknow token type." ),
         };
     }

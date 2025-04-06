@@ -86,8 +86,8 @@ namespace BNA.Exceptions
 
     /// <summary>
     /// Exception thrown when a list or string <see cref="Token"/> is being
-    /// parsed but the closing terminator (<see cref="Symbol.LIST_END"/> or
-    /// <see cref="Symbol.STRING_MARKER"/>) was not found.
+    /// parsed but the closing terminator (<see cref="Symbol.ListEnd"/> or
+    /// <see cref="Symbol.StringDelim"/>) was not found.
     /// </summary>
     public class MissingTerminatorException : CompiletimeException
     {

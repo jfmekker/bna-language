@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace BNA.Common
+﻿namespace BNA.Common
 {
     /// <summary>
     /// The type of an operation for <see cref="Compile.Statement"/> or <see cref="Run.Instruction"/>
@@ -8,58 +6,57 @@ namespace BNA.Common
     /// <remarks>
     /// This is not "user" facing, so values can be renamed without too much issue.
     /// </remarks>
-    [SuppressMessage( "Naming", "CA1707:Identifiers should not contain underscores", Justification = "TODO" )]
     public enum Operation
     {
         // non-operations
-        NULL = 0,
-        LABEL,
+        None = 0,
+        Label,
 
         // numeric operations
-        SET,
-        ADD,
-        SUBTRACT,
-        MULTIPLY,
-        DIVIDE,
-        RANDOM,
-        BITWISE_OR,
-        BITWISE_AND,
-        BITWISE_XOR,
-        BITWISE_NEGATE,
-        POWER,
-        MODULUS,
-        LOGARITHM,
-        ROUND,
+        Set,
+        Add,
+        Subtract,
+        Multiply,
+        Divide,
+        Random,
+        BitwiseOR,
+        BitwiseAND,
+        BitwiseXOR,
+        BitwiseNOT,
+        Power,
+        Modulus,
+        Logarithm,
+        Round,
 
         // list operations
-        LIST,
-        APPEND,
-        SIZE,
+        List,
+        Append,
+        Size,
 
         // io operations
-        OPEN_READ,
-        OPEN_WRITE,
-        CLOSE,
-        READ,
-        WRITE,
-        INPUT,
-        PRINT,
+        OpenRead,
+        OpenWrite,
+        Close,
+        Read,
+        Write,
+        Input,
+        Print,
 
         // test operations
-        TEST_GREATER_THAN,
-        TEST_LESS_THAN,
-        TEST_EQUAL,
-        TEST_NOT_EQUAL,
+        TestGreaterThan,
+        TestLessThan,
+        TestEqualTo,
+        TestNotEqualTo,
 
         // scope operations
-        SCOPE_OPEN,
-        SCOPE_CLOSE,
+        ScopeOpen,
+        ScopeClose,
 
         // misc operations
-        WAIT,
-        GOTO,
-        TYPE,
-        EXIT,
-        ERROR,
+        Wait,
+        Goto,
+        Type,
+        Exit,
+        Error,
     }
 }
