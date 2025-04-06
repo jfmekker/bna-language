@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BNA.Values
 {
@@ -10,6 +11,9 @@ namespace BNA.Values
         /// <summary>
         /// Object wrapper for a 'long' type value.
         /// </summary>
+        [SuppressMessage( "Usage", "CA2225:Operator overloads have named alternates", Justification = "TODO" )]
+        [SuppressMessage( "Design", "CA1062:Validate arguments of public methods", Justification = "TODO" )]
+        [SuppressMessage( "Design", "CA1034:Nested types should not be visible", Justification = "TODO" )]
         public record IntegerObject( long Value )
         {
             public static implicit operator long( IntegerObject obj ) => obj.Value;

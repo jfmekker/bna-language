@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace IntegrationTests
+namespace IntegrationTestProject
 {
     public static class TestFileRunner
     {
@@ -13,15 +13,16 @@ namespace IntegrationTests
         /// <param name="fails">True if a BNA_ERROR should be expected</param>
         public static void RunTestFile( string filename, bool fails = false )
         {
-            ReturnCode r = ReturnCode.UNEXPECTED_ERROR;
+            ReturnCode r;
 
             try
             {
-                r = BNA.BNA.RunFromFiles( new string[] { "../../../../Tests/" + filename + ".bna" } );
+                r = BNA.BNA.RunFromFiles( ["../../../../Tests/" + filename + ".bna"] );
             }
             catch ( Exception e )
             {
-                Assert.Inconclusive( $"Exception caught while running test: {e.Message}" );
+                Assert.Inconclusive( $"Exception caught while running test: {e}" );
+                throw;
             }
 
             if ( r == ReturnCode.FILE_ERROR )

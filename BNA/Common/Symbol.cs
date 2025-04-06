@@ -1,4 +1,6 @@
-﻿namespace BNA.Common
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace BNA.Common
 {
     /// <summary>
     /// A BNA language reserved keyword.
@@ -8,6 +10,7 @@
     /// In other words "#" == <see cref="COMMENT"/>.
     /// These values face the "user" and should be modified very carefully.
     /// </remarks>
+    [SuppressMessage( "Naming", "CA1707:Identifiers should not contain underscores", Justification = "TODO" )]
     public enum Symbol
     {
         NULL = '\0',

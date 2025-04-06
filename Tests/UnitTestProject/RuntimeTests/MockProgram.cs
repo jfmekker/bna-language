@@ -2,7 +2,7 @@
 using BNA.Run;
 using System.Collections.Generic;
 
-namespace RuntimeTests
+namespace UnitTestProject.RuntimeTests
 {
     public class MockProgram : IProgram
     {
@@ -14,7 +14,7 @@ namespace RuntimeTests
 
         public MockProgram( )
         {
-            this.Labels = new( );
+            this.Labels = [];
         }
     }
 }

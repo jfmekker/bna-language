@@ -3,12 +3,17 @@ using BNA.Exceptions;
 using BNA.Run;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace BNA
 {
+    [Flags]
+    [SuppressMessage( "Design", "CA1028:Enum Storage should be Int32", Justification = "TODO" )]
+    [SuppressMessage( "Naming", "CA1707:Identifiers should not contain underscores", Justification = "TODO" )]
     public enum ReturnCode : byte
     {
+        [SuppressMessage( "Design", "CA1008:Enums should have zero value", Justification = "TODO" )]
         SUCCESS = 0,
         BNA_ERROR = 1,
         COMPILE_ERROR = 1 << 1,
@@ -20,12 +25,12 @@ namespace BNA
         UNEXPECTED_ERROR = 1 << 7
     }
 
-    public class BNA
+    public static class BNA
     {
         /// <summary>
         /// Static random number generator.
         /// </summary>
-        public static readonly Random RNG = new( DateTime.Now.Millisecond );
+        public static Random RNG { get; } = new( DateTime.Now.Millisecond );
 
         /// <summary>
         /// Compile a function to Python, or take input from the terminal
@@ -33,6 +38,8 @@ namespace BNA
         /// <param name="args">Names of files to compile to Python, can be none.</param>
         public static int Main( string[] args )
         {
+            ArgumentNullException.ThrowIfNull( args );
+
             Console.WriteLine( "================================================================================" );
             Console.WriteLine( "Welcome to the BNA's Not Assembly Interpreter!" );
             Console.WriteLine( "================================================================================" );
@@ -58,6 +65,8 @@ namespace BNA
 
         public static ReturnCode RunFromFiles( string[] files )
         {
+            ArgumentNullException.ThrowIfNull( files );
+
             ReturnCode return_val = 0;
             foreach ( string file in files )
             {
@@ -65,11 +74,11 @@ namespace BNA
                 Console.WriteLine( file + ":" );
 
                 // Check the file extension
-                int lastDirIndex = file.LastIndexOfAny( new char[] { '/', '\\' } );
-                string[] split_filename = file[(lastDirIndex + 1)..].Split( new char[] { '.' } );
+                int lastDirIndex = file.LastIndexOfAny( ['/', '\\'] );
+                string[] split_filename = file[(lastDirIndex + 1)..].Split( ['.'] );
                 string filename = split_filename[0];
                 string extension = split_filename[1];
-                if ( !extension.Equals( "bna" ) )
+                if ( !extension.Equals( "bna", StringComparison.OrdinalIgnoreCase ) )
                 {
                     ConsolePrintError( "Wrong extension, expected '.bna' file: " + file );
                     return ReturnCode.FILE_ERROR;
@@ -105,7 +114,7 @@ namespace BNA
             return return_val;
         }
 
-        public static ReturnCode RunFromInput( )
+        internal static ReturnCode RunFromInput( )
         {
             ReturnCode return_val = ReturnCode.SUCCESS;
 
@@ -138,7 +147,7 @@ namespace BNA
                         else
                         {
                             string filename = input[1..];
-                            _ = RunFromFiles( new string[] { filename } );
+                            _ = RunFromFiles( [filename] );
                         }
                         run = false;
                         break;
@@ -165,8 +174,10 @@ namespace BNA
             return return_val;
         }
 
-        public static ReturnCode CompileAndRun( List<string> lines )
+        public static ReturnCode CompileAndRun( IReadOnlyCollection<string> lines )
         {
+            ArgumentNullException.ThrowIfNull( lines );
+
             // Compile to program and run
             try
             {
@@ -198,12 +209,12 @@ namespace BNA
             }
 #if DEBUG
 #else
-			catch ( Exception e ) {
-				ConsolePrintError( "Unexpected Exception caught:" );
-				ConsolePrintError( e.Message );
-				ConsolePrintError( "Please report this issue on github (https://github.com/jfmekker/bna-language/issues)!" );
-				return ReturnCode.UNEXPECTED_ERROR;
-			}
+            catch ( Exception e ) {
+                ConsolePrintError( "Unexpected Exception caught:" );
+                ConsolePrintError( e.Message );
+                ConsolePrintError( "Please report this issue on github (https://github.com/jfmekker/bna-language/issues)!" );
+                return ReturnCode.UNEXPECTED_ERROR;
+            }
 #endif
         }
 

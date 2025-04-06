@@ -1,4 +1,6 @@
-﻿namespace BNA.Common
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace BNA.Common
 {
     /// <summary>
     /// The type of an operation for <see cref="Compile.Statement"/> or <see cref="Run.Instruction"/>
@@ -6,6 +8,7 @@
     /// <remarks>
     /// This is not "user" facing, so values can be renamed without too much issue.
     /// </remarks>
+    [SuppressMessage( "Naming", "CA1707:Identifiers should not contain underscores", Justification = "TODO" )]
     public enum Operation
     {
         // non-operations

@@ -2,7 +2,6 @@
 using BNA.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BNA.Compile
 {
@@ -18,18 +17,18 @@ namespace BNA.Compile
             get; init;
         }
 
-        private readonly List<List<Token>> tokenLines;
+        private readonly List<List<Token>> _tokenLines;
 
-        private readonly List<Statement> statements;
+        private readonly List<Statement> _statements;
 
-        public Compiler( ICollection<string> lines )
+        public Compiler( IReadOnlyCollection<string> lines )
         {
             // Start with empty line to one-index lines and avoid 0-line programs
             this.Line = 0;
-            this.Lines = lines.Prepend( string.Empty ).ToList( );
+            this.Lines = [string.Empty, .. lines];
 
-            this.tokenLines = new( );
-            this.statements = new( );
+            this._tokenLines = [];
+            this._statements = [];
         }
 
         public Statement[] Compile( )
@@ -42,7 +41,7 @@ namespace BNA.Compile
 
             this.DebugPrintStatements( );
 
-            return statements.ToArray( );
+            return [.. this._statements];
         }
 
         private void ParseTokens( )
@@ -53,7 +52,7 @@ namespace BNA.Compile
                 Lexer lexer = new( this.Lines[i] );
                 try
                 {
-                    this.tokenLines.Add( lexer.ReadTokens( ) );
+                    this._tokenLines.Add( [.. lexer.ReadTokens( )] );
                 }
                 catch ( CompiletimeException e )
                 {
@@ -65,12 +64,12 @@ namespace BNA.Compile
         private void ParseStatements( )
         {
             Debug.AddLine( "\nParsing..." );
-            for ( int i = 0 ; i < tokenLines.Count ; i += 1 )
+            for ( int i = 0 ; i < this._tokenLines.Count ; i += 1 )
             {
-                Parser parser = new( this.Lines[i], this.tokenLines[i] );
+                Parser parser = new( this.Lines[i], this._tokenLines[i] );
                 try
                 {
-                    this.statements.Add( parser.ParseStatement( ) );
+                    this._statements.Add( parser.ParseStatement( ) );
                     // this.statements.Add( Statement.ParseStatement( tokenLines[i] ) );
                 }
                 catch ( Exception e )
@@ -95,27 +94,27 @@ namespace BNA.Compile
         {
             Debug.AddLine( "\nTokens:" );
             int total = 0;
-            for ( int i = 1 ; i < this.tokenLines.Count ; i += 1 )
+            for ( int i = 1 ; i < this._tokenLines.Count ; i += 1 )
             {
                 Debug.Add( "  Line " + i + ": " );
-                foreach ( Token t in this.tokenLines[i] )
+                foreach ( Token t in this._tokenLines[i] )
                 {
                     total += 1;
                     Debug.Add( t.ToString( ) + " " );
                 }
                 Debug.AddLine( );
             }
-            Debug.AddLine( "" + total + " total from " + (this.tokenLines.Count - 1) + " lines" );
+            Debug.AddLine( "" + total + " total from " + (this._tokenLines.Count - 1) + " lines" );
         }
 
         private void DebugPrintStatements( )
         {
             Debug.AddLine( "\nStatements:" );
-            for ( int i = 1 ; i < this.statements.Count ; i += 1 )
+            for ( int i = 1 ; i < this._statements.Count ; i += 1 )
             {
-                Debug.AddLine( "  Line " + i + ": " + this.statements[i] );
+                Debug.AddLine( "  Line " + i + ": " + this._statements[i] );
             }
-            Debug.AddLine( "" + (this.statements.Count - 1) + " lines" );
+            Debug.AddLine( "" + (this._statements.Count - 1) + " lines" );
         }
     }
 }

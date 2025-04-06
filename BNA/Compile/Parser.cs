@@ -2,15 +2,9 @@
 using BNA.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BNA.Compile
 {
-    [SuppressMessage( "CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "Not unnecessary." )]
-    [SuppressMessage(
-        "Maintainability",
-        "CA1515:Consider making public types internal",
-        Justification = "Type will be moved to library." )]
     public class Parser
     {
         public string RawLine { get; init; }
@@ -431,7 +425,7 @@ namespace BNA.Compile
             int i = -1;
             if ( this.Current is Token token )
             {
-                i = this.RawLine.IndexOf( token.Value, this.RawIndex, StringComparison.InvariantCulture );
+                i = this.RawLine.IndexOf( token.Value, this.RawIndex, StringComparison.Ordinal );
                 i = i >= 0 ? i : throw new InvalidOperationException( "Could not get RawIndex of Token that should exist in Line." );
             }
             this.RawIndex = i >= 0 ? i : this.RawLine.Length - 1;

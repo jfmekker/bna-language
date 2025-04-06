@@ -2,7 +2,7 @@
 using BNA.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CompiletimeTests
+namespace UnitTestProject.CompiletimeTests
 {
     [TestClass]
     public class SadLexerTests

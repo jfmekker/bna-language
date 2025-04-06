@@ -13,12 +13,12 @@ namespace BNA.Exceptions
         /// <summary>
         /// Line number of the line that caused the <see cref="Exception"/>.
         /// </summary>
-        public readonly int Line;
+        public int Line { get; }
 
         /// <summary>
         /// The <see cref="Statement"/> that was compiled for the line.
         /// </summary>
-        public readonly Statement Statement;
+        public Statement Statement { get; }
 
         /// <summary>
         /// Create a new <see cref="RuntimeException"/> instance by wrapping
@@ -28,7 +28,7 @@ namespace BNA.Exceptions
         /// <param name="statement">Compiled statement.</param>
         /// <param name="innerException">Exception that was thrown.</param>
         public RuntimeException( int line, Statement statement, Exception innerException )
-            : base( $"{innerException.Message}\nRuntime Error - line {line}: {statement.Line}\n\t-> {statement}", innerException )
+            : base( $"{innerException?.Message}\nRuntime Error - line {line}: {statement.Line}\n\t-> {statement}", innerException )
         {
             this.Line = line;
             this.Statement = statement;
@@ -45,15 +45,17 @@ namespace BNA.Exceptions
     /// </remarks>
     public class UndefinedOperationException : Exception
     {
-        public readonly string Operation;
+        public string Operation { get; }
 
-        public readonly Value Operand1;
+        public Value Operand1 { get; }
 
-        public readonly Value? Operand2;
+        public Value? Operand2 { get; }
 
         public UndefinedOperationException( Value operand1, string operation, Value? operand2 = null )
-            : base( $"Undefined operation: {operand1.TypeString( )} {operation} {operand2?.TypeString( ) ?? string.Empty}" )
+            : base( $"Undefined operation: {operand1?.TypeString( )} {operation} {operand2?.TypeString( ) ?? string.Empty}" )
         {
+            ArgumentNullException.ThrowIfNull( operand1 );
+
             this.Operation = operation;
             this.Operand1 = operand1;
             this.Operand2 = operand2;
@@ -65,15 +67,17 @@ namespace BNA.Exceptions
     /// </summary>
     public class IncorrectOperandTypeException : Exception
     {
-        public readonly Token Token;
+        public Token Token { get; }
 
-        public readonly Value Value;
+        public Value Value { get; }
 
-        public readonly Operation Statement;
+        public Operation Statement { get; }
 
         public IncorrectOperandTypeException( Operation statement, Token token, Value value )
-            : base( $"Incorrect operand type for {statement} statement: {token} = {value.TypeString( )} '({value})'" )
+            : base( $"Incorrect operand type for {statement} statement: {token} = {value?.TypeString( )} '({value})'" )
         {
+            ArgumentNullException.ThrowIfNull( value );
+
             this.Statement = statement;
             this.Token = token;
             this.Value = value;
@@ -86,9 +90,9 @@ namespace BNA.Exceptions
     /// </summary>
     public class InvalidIndexValueException : Exception
     {
-        public readonly Token Token;
+        public Token Token { get; }
 
-        public readonly Value Value;
+        public Value Value { get; }
 
         public InvalidIndexValueException( Token token, Value value )
             : base( $"Invalid index ({token} = {value}), index must be integer." )
@@ -103,9 +107,9 @@ namespace BNA.Exceptions
     /// </summary>
     public class ValueOutOfRangeException : Exception
     {
-        public readonly Value Index;
+        public Value Index { get; }
 
-        public readonly string Reason;
+        public string Reason { get; }
 
         public ValueOutOfRangeException( Value index, string reason )
             : base( $"Value ({index}) out of range for {reason}." )
@@ -120,9 +124,9 @@ namespace BNA.Exceptions
     /// </summary>
     public class NonIndexableValueException : Exception
     {
-        public readonly Token Token;
+        public Token Token { get; }
 
-        public readonly Value Value;
+        public Value Value { get; }
 
         public NonIndexableValueException( Token token, Value value )
             : base( $"Cannot access index of non-indexable value ({token} = {value})" )
@@ -138,7 +142,7 @@ namespace BNA.Exceptions
     /// </summary>
     public class NonExistantVariableException : Exception
     {
-        public readonly Token Token;
+        public Token Token { get; }
 
         public NonExistantVariableException( Token token )
             : base( $"Variable '{token}' does not exist in current scope." )
@@ -160,10 +164,11 @@ namespace BNA.Exceptions
     /// </summary>
     public class ErrorStatementException : Exception
     {
-        public string StatementMessage;
+        public string StatementMessage { get; }
 
         public ErrorStatementException( Value value ) : base( $"ERROR {value}" )
         {
+            ArgumentNullException.ThrowIfNull( value );
             this.StatementMessage = value.ToString( );
         }
     }

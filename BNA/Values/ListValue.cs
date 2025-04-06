@@ -13,19 +13,19 @@ namespace BNA.Values
         /// <summary>
         /// Create a new default <see cref="ListValue"/> instance.
         /// </summary>
-        public ListValue( ) { this.Get = new( ); }
+        public ListValue( ) { this.Get = []; }
 
         /// <summary>
         /// Create a new <see cref="ListValue"/> instance filled with <see cref="Value.NULL"/> values.
         /// </summary>
         /// <param name="length">Length of list to start with.</param>
-        public ListValue( int length ) { this.Get = Enumerable.Repeat( NULL, length ).ToList( ); }
+        public ListValue( int length ) { this.Get = [.. Enumerable.Repeat( NULL, length )]; }
 
         /// <summary>
         /// Create a new <see cref="ListValue"/> instance.
         /// </summary>
         /// <param name="vals">List of values to store.</param>
-        public ListValue( List<Value> vals ) { this.Get = vals; }
+        public ListValue( ICollection<Value> vals ) { this.Get = [.. vals]; }
 
         /// <summary>
         /// Gets the actual <see cref="List{T}"/> of <see cref="Value"/> objects stored.
@@ -49,7 +49,7 @@ namespace BNA.Values
         public ListValue DeepCopy( )
         {
             List<Value> list = this.Get;
-            List<Value> newList = new( );
+            List<Value> newList = [];
 
             foreach ( Value val in list )
             {
@@ -68,7 +68,7 @@ namespace BNA.Values
 
         public override Value Append( Value value )
             => this.Get.Append( value ) is not null
-             ? this : throw new Exception( "Error occured while appending to list." );
+             ? this : throw new InvalidOperationException( "Error occured while appending to list." );
 
         public override Value Size( ) => new IntegerValue( this.Get.Count );
     }

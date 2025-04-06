@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BNA.Values
 {
@@ -7,10 +8,11 @@ namespace BNA.Values
     /// </summary>
     public class NaNValue : Value
     {
-        public override object Get
-        {
-            get => throw new Exception( "Cannot get value of a NaNValue." );
-        }
+        [SuppressMessage( "Design", "CA1065:Do not raise exceptions in unexpected locations",
+            Justification = "This is reasonable for NaN" )]
+        [SuppressMessage( "Usage", "CA2201:Do not raise reserved exception types",
+            Justification = "TODO: Make custom runtime exception" )]
+        public override object Get => throw new Exception( "Cannot get value of a NaNValue." );
 
         public override string TypeString( ) => "NaNValue";
 

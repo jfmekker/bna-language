@@ -1,32 +1,34 @@
-﻿using BNA.Common;
+﻿using System.Diagnostics.CodeAnalysis;
+using BNA.Common;
 using BNA.Values;
 
 namespace BNA.Run
 {
+    [SuppressMessage( "Naming", "CA1707:Identifiers should not contain underscores", Justification = "TODO" )]
     public static class SpecialVariables
     {
         /// <summary>
         /// Variable that is set by any TEST statements.
         /// </summary>
-        public static readonly Token TEST_RESULT = new( "result", TokenType.VARIABLE );
-        public static readonly Value TEST_RESULT_DEFAULT = Value.FALSE;
+        public static Token TEST_RESULT { get; } = new( "result", TokenType.VARIABLE );
+        public static Value TEST_RESULT_DEFAULT { get; } = Value.FALSE;
 
         /// <summary>
         /// Only variable that passes into a new scope.
         /// </summary>
-        public static readonly Token ARGUMENT = new( "argument", TokenType.VARIABLE );
-        public static readonly Value ARGUMENT_DEFAULT = Value.NULL;
+        public static Token ARGUMENT { get; } = new( "argument", TokenType.VARIABLE );
+        public static Value ARGUMENT_DEFAULT { get; } = Value.NULL;
 
         /// <summary>
         /// Only variables that passes into an old scope.
         /// </summary>
-        public static readonly Token RETURN = new( "return", TokenType.VARIABLE );
-        public static readonly Value RETURN_DEFAULT = Value.NULL;
+        public static Token RETURN { get; } = new( "return", TokenType.VARIABLE );
+        public static Value RETURN_DEFAULT { get; } = Value.NULL;
 
         /// <summary>
         /// Variable to compare nulls.
         /// </summary>
-        public static readonly Token NULL = new( "null", TokenType.VARIABLE );
-        public static readonly Value NULL_DEFAULT = Value.NULL;
+        public static Token NULL { get; } = new( "null", TokenType.VARIABLE );
+        public static Value NULL_DEFAULT { get; } = Value.NULL;
     }
 }

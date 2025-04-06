@@ -3,17 +3,20 @@ using BNA.Compile;
 using BNA.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
-namespace CompiletimeTests
+namespace UnitTestProject.CompiletimeTests
 {
     [TestClass]
     public class SadParserTests
     {
+        [SuppressMessage( "Naming", "CA1720:Identifier contains type name",
+            Justification = "TODO: Use operand from BNA lib" )]
         public enum OperandType { NON_NUMERIC, NON_STRING, NON_VARIABLE }
 
-        public readonly IReadOnlyDictionary<OperandType, IReadOnlyList<Token>> OperandsByType;
+        public IReadOnlyDictionary<OperandType, IReadOnlyList<Token>> OperandsByType { get; }
 
-        public readonly Token VariableOperand;
+        public Token VariableOperand { get; }
 
         public SadParserTests( )
         {
@@ -52,7 +55,7 @@ namespace CompiletimeTests
             foreach ( Token operand1 in this.OperandsByType[OperandType.NON_VARIABLE] )
             {
                 string line = $"{first} {operand1.Value} {mid} {this.VariableOperand.Value}";
-                List<Token> tokens = new( ) { new( first ), operand1, new( mid ), this.VariableOperand };
+                List<Token> tokens = [new( first ), operand1, new( mid ), this.VariableOperand];
                 Parser parser = new( line, tokens );
 
                 _ = Assert.ThrowsException<IllegalTokenException>( ( ) => _ = parser.ParseStatement( ) );
@@ -72,7 +75,7 @@ namespace CompiletimeTests
             foreach ( Token operand1 in this.OperandsByType[OperandType.NON_VARIABLE] )
             {
                 string line = $"{first} {this.VariableOperand.Value} {mid} {operand1.Value}";
-                List<Token> tokens = new( ) { new( first ), this.VariableOperand, new( mid ), operand1 };
+                List<Token> tokens = [new( first ), this.VariableOperand, new( mid ), operand1];
                 Parser parser = new( line, tokens );
 
                 _ = Assert.ThrowsException<IllegalTokenException>( ( ) => _ = parser.ParseStatement( ) );
@@ -90,7 +93,7 @@ namespace CompiletimeTests
         [DataRow( Keyword.AS, DisplayName = "AS" )]
         public void Parser_ParseStatement_IllegalKeywordAtStatementStart_ThrowsIllegalTokenException( Keyword word )
         {
-            List<Token> tokens = new( ) { new( word ) };
+            List<Token> tokens = [new( word )];
             Parser parser = new( tokens[0].Value, tokens );
 
             _ = Assert.ThrowsException<IllegalTokenException>( ( ) => _ = parser.ParseStatement( ) );
@@ -111,7 +114,7 @@ namespace CompiletimeTests
         [DataRow( Symbol.LIST_SEPARATOR, DisplayName = "LIST_SEPATOR" )]
         public void Parser_ParseStatement_IllegalSymbolAtStatementStart_ThrowsIllegalTokenException( Symbol symbol )
         {
-            List<Token> tokens = new( ) { new( symbol ) };
+            List<Token> tokens = [new( symbol )];
             Parser parser = new( tokens[0].Value, tokens );
 
             _ = Assert.ThrowsException<IllegalTokenException>( ( ) => _ = parser.ParseStatement( ) );

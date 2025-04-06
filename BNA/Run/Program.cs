@@ -54,7 +54,7 @@ namespace BNA.Run
         public Program( Statement[] statements )
         {
             this.Memory = new( );
-            this.Labels = new( );
+            this.Labels = [];
             this.Statements = statements; // TODO convert to instructions here
             this.IP = 0;
         }
@@ -104,7 +104,7 @@ namespace BNA.Run
                 }
             }
 
-            CloseAllFiles( new List<Value>( this.Memory.Variables.Values ) );
+            CloseAllFiles( [.. this.Memory.Variables.Values] );
         }
 
         /// <summary>

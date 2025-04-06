@@ -4,6 +4,7 @@ using BNA.Exceptions;
 using BNA.Values;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace BNA.Run
@@ -37,10 +38,12 @@ namespace BNA.Run
                     return Value.NULL;
 
                 default:
-                    throw new Exception( "Unexpected token type in given to Evaluator: " + token.ToString( ) );
+                    throw new InvalidOperationException( "Unexpected token type in given to Evaluator: " + token.ToString( ) );
             }
         }
 
+        [SuppressMessage( "Performance", "CA1822:Mark members as static",
+            Justification = "Keep the Evaluate* methods all non-static." )]
         private Value EvaluateNumber( string str )
         {
             if ( long.TryParse( str, out long lval ) )
@@ -52,13 +55,17 @@ namespace BNA.Run
                 return new FloatValue( dval );
             }
 
-            throw new Exception( $"Could not parse value from number literal: '{str}'" );
+            throw new FormatException( $"Could not parse value from number literal: '{str}'" );
         }
 
-        private Value EvaluateString( string str )
+        [SuppressMessage( "Performance", "CA1822:Mark members as static",
+            Justification = "Keep the Evaluate* methods all non-static." )]
+        private StringValue EvaluateString( string str )
         {
             if ( str.Length < 2 )
-                throw new Exception( $"String token too short to be valid: '{str}'" );
+            {
+                throw new ArgumentException( $"String token too short to be valid: '{str}'" );
+            }
 
             StringBuilder sb = new( );
             for ( int i = 1 ; i < str.Length - 1 ; i += 1 )
@@ -66,7 +73,9 @@ namespace BNA.Run
                 if ( str[i] is (char)Symbol.ESCAPE )
                 {
                     if ( i + 1 == str.Length )
-                        throw new Exception( "Escape character at end of string, should have been caught by compiler." );
+                    {
+                        throw new InvalidOperationException( "Escape character at end of string, should have been caught by compiler." );
+                    }
 
                     char escaped_char = str[i + 1] switch {
                         'a' => '\a', // Alert/beep/bell - TODO does this work?
@@ -89,11 +98,11 @@ namespace BNA.Run
             return new StringValue( sb.ToString( ) );
         }
 
-        private Value EvaluateList( string str )
+        private ListValue EvaluateList( string str )
         {
             Lexer lexer = new( str[1..^1] );
-            List<Token> listTokens = lexer.ReadTokens( );
-            List<Value> listValues = new( );
+            IReadOnlyCollection<Token> listTokens = lexer.ReadTokens( );
+            List<Value> listValues = [];
 
             foreach ( Token t in listTokens )
             {
@@ -109,14 +118,14 @@ namespace BNA.Run
         private Value EvaluateVariable( string str )
         {
             // Get list element
-            if ( str.Contains( "" + (char)Symbol.ACCESSOR ) )
+            if ( str.Contains( (char)Symbol.ACCESSOR, StringComparison.Ordinal ) )
             {
                 // Get last accessor first (so multi-lists are properly chained)
                 int accessor = str.LastIndexOf( (char)Symbol.ACCESSOR );
                 if ( accessor == 0 || accessor == str.Length )
                 {
                     // Should have been detected at compiletime
-                    throw new Exception( $"Accessor at start or end of token: '{str}'" );
+                    throw new InvalidOperationException( $"Accessor at start or end of token: '{str}'" );
                 }
 
                 // Get value of index part

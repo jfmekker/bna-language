@@ -1,18 +1,22 @@
 ﻿using BNA.Common;
 using BNA.Compile;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
-namespace CompiletimeTests
+namespace UnitTestProject.CompiletimeTests
 {
     [TestClass]
     public class HappyParserTests
     {
+        [SuppressMessage( "Naming", "CA1720:Identifier contains type name",
+            Justification = "TODO: Use operand from BNA lib" )]
         public enum OperandType { ANY, NUMERIC, STRING, VARIABLE }
 
-        public readonly IReadOnlyDictionary<OperandType, IReadOnlyList<Token>> OperandsByType;
+        public IReadOnlyDictionary<OperandType, IReadOnlyList<Token>> OperandsByType { get; }
 
-        public readonly Token Operand1;
+        public Token Operand1 { get; }
 
         public HappyParserTests( )
         {
@@ -45,7 +49,7 @@ namespace CompiletimeTests
             Token token = new( "# a comment", TokenType.COMMENT );
             string line = comment ? token.Value : string.Empty;
             Statement expected = new( line, Operation.NULL );
-            List<Token> tokens = new( );
+            List<Token> tokens = [];
             tokens.AddIf( comment, token );
             Parser parser = new( line, tokens );
 
@@ -71,7 +75,7 @@ namespace CompiletimeTests
             {
                 string line = $"{first} {this.Operand1.Value} {mid} {operand2.Value}";
                 Statement expected = new( line, operation, this.Operand1, operand2 );
-                List<Token> tokens = new( ) { new( first ), this.Operand1, new( mid ), operand2 };
+                List<Token> tokens = [new( first ), this.Operand1, new( mid ), operand2];
                 Parser parser = new( line, tokens );
 
                 Statement actual = parser.ParseStatement( );
@@ -94,7 +98,7 @@ namespace CompiletimeTests
             {
                 string line = $"{first} {operand2.Value} {mid} {this.Operand1.Value}";
                 Statement expected = new( line, operation, this.Operand1, operand2 );
-                List<Token> tokens = new( ) { new( first ), operand2, new( mid ), this.Operand1 };
+                List<Token> tokens = [new( first ), operand2, new( mid ), this.Operand1];
                 Parser parser = new( line, tokens );
 
                 Statement actual = parser.ParseStatement( );
@@ -112,7 +116,7 @@ namespace CompiletimeTests
             {
                 string line = $"{first} {operand.Value}";
                 Statement expected = new( line, operation, operand );
-                List<Token> tokens = new( ) { new( first ), operand };
+                List<Token> tokens = [new( first ), operand];
                 Parser parser = new( line, tokens );
 
                 Statement actual = parser.ParseStatement( );
@@ -131,7 +135,7 @@ namespace CompiletimeTests
             {
                 string line = $"{first} {operand2.Value}";
                 Statement expected = new( line, operation, operand2: operand2 );
-                List<Token> tokens = new( ) { new( first ), operand2 };
+                List<Token> tokens = [new( first ), operand2];
                 Parser parser = new( line, tokens );
 
                 Statement actual = parser.ParseStatement( );
@@ -149,13 +153,13 @@ namespace CompiletimeTests
             Keyword mid1 = Keyword.AS;
             Keyword mid2 = operation == Operation.OPEN_READ ? Keyword.READ
                          : operation == Operation.OPEN_WRITE ? Keyword.WRITE
-                         : throw new System.Exception( "Test given incompatible or unexpected input." );
+                         : throw new ArgumentException( "Test given incompatible or unexpected input." );
 
             foreach ( Token operand2 in this.OperandsByType[operandType] )
             {
                 string line = $"{first} {operand2.Value} {mid1} {mid2} {this.Operand1.Value}";
                 Statement expected = new( line, operation, this.Operand1, operand2 );
-                List<Token> tokens = new( ) { new( first ), operand2, new( mid1 ), new( mid2 ), this.Operand1 };
+                List<Token> tokens = [new( first ), operand2, new( mid1 ), new( mid2 ), this.Operand1];
                 Parser parser = new( line, tokens );
 
                 Statement actual = parser.ParseStatement( );
@@ -178,7 +182,7 @@ namespace CompiletimeTests
             {
                 string line = $"{first} {this.Operand1.Value} {symbol_token.Value} {operand2.Value}";
                 Statement expected = new( line, operation, this.Operand1, operand2 );
-                List<Token> tokens = new( ) { new( first ), this.Operand1, symbol_token, operand2 };
+                List<Token> tokens = [new( first ), this.Operand1, symbol_token, operand2];
                 Parser parser = new( line, tokens );
 
                 Statement actual = parser.ParseStatement( );
@@ -195,7 +199,7 @@ namespace CompiletimeTests
         {
             string line = $"{first} {second}";
             Statement expected = new( line, operation );
-            List<Token> tokens = new( ) { new( first ) };
+            List<Token> tokens = [new( first )];
             Token second_token = second is Keyword second_keyword ? new( second_keyword ) : default;
             tokens.AddIf( second is not null, second_token );
             Parser parser = new( line, tokens );
@@ -214,7 +218,7 @@ namespace CompiletimeTests
 
             string line = $"{start.Value} {middle.Value} {end.Value}";
             Statement expected = new( line, Operation.LABEL, middle );
-            List<Token> tokens = new( ) { start, middle, end };
+            List<Token> tokens = [start, middle, end];
             Parser parser = new( line, tokens );
 
             Statement actual = parser.ParseStatement( );

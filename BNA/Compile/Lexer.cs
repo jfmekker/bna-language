@@ -2,6 +2,7 @@
 using BNA.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BNA.Compile
@@ -23,9 +24,9 @@ namespace BNA.Compile
         public static Token ReadSingleToken( string value )
         {
             Lexer lexer = new( value );
-            List<Token> tokens = lexer.ReadTokens( );
+            IReadOnlyCollection<Token> tokens = lexer.ReadTokens( );
 
-            return tokens.Count == 1 ? tokens[0]
+            return tokens.Count == 1 ? tokens.ElementAt( 0 )
                 : throw new IllegalTokenException( $"One token expected but {tokens.Count} were parsed." );
         }
 
@@ -35,9 +36,9 @@ namespace BNA.Compile
             this.Index = 0;
         }
 
-        public List<Token> ReadTokens( )
+        public IReadOnlyCollection<Token> ReadTokens( )
         {
-            List<Token> tokens = new( );
+            List<Token> tokens = [];
             while ( this.Current is not null )
             {
                 if ( this.NextToken( ) is Token token )
@@ -146,7 +147,7 @@ namespace BNA.Compile
         private Token NextList( )
         {
             int start_index = this.Index;
-            List<Token> list = new( ) { new Token( $"{this.ConsumeCurrent}", TokenType.SYMBOL ) };
+            List<Token> list = [new Token( $"{this.ConsumeCurrent}", TokenType.SYMBOL )];
 
             while ( this.Current is not null )
             {

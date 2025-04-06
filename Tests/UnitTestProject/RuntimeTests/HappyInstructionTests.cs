@@ -4,14 +4,14 @@ using BNA.Run;
 using BNA.Values;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace RuntimeTests
+namespace UnitTestProject.RuntimeTests
 {
     [TestClass]
     public class HappyInstructionTests
     {
-        public MockProgram Program;
+        public MockProgram Program { get; }
 
-        public MockMemory Memory;
+        public MockMemory Memory { get; }
 
         public HappyInstructionTests( )
         {
@@ -33,7 +33,7 @@ namespace RuntimeTests
             Token operand2_token = MockValue.GetTokenOfType( tok_type );
             Value operand2_value = MockValue.GetValueOfType( val_type );
             Token operand1_token = new( "var1", TokenType.VARIABLE );
-            this.Memory.GetValue_TokenValues = new( ) { (operand2_token, operand2_value) };
+            this.Memory.GetValue_TokenValues = [(operand2_token, operand2_value)];
             Instruction inst = new( Operation.SET, operand1_token, operand2_token, this.Program, this.Memory );
 
             inst.Execute( );
@@ -56,7 +56,7 @@ namespace RuntimeTests
         {
             Variable operand1 = new( new Token( "var1", TokenType.VARIABLE ), new MockValue( ) );
             Variable operand2 = new( new Token( "var2", TokenType.VARIABLE ), new MockValue( ) );
-            this.Memory.GetValue_TokenValues = new( ) { (operand1.Token, operand1.Value), (operand2.Token, operand2.Value) };
+            this.Memory.GetValue_TokenValues = [(operand1.Token, operand1.Value), (operand2.Token, operand2.Value)];
             Instruction inst = new( operation, operand1.Token, operand2.Token, this.Program, this.Memory );
 
             inst.Execute( );
@@ -73,7 +73,7 @@ namespace RuntimeTests
         {
             Variable operand1 = new( new Token( "var1", TokenType.VARIABLE ), new MockValue( ) );
             Variable operand2 = new( new Token( "var2", TokenType.VARIABLE ), new MockValue( ) );
-            this.Memory.GetValue_TokenValues = new( ) { (operand1.Token, operand1.Value), (operand2.Token, operand2.Value) };
+            this.Memory.GetValue_TokenValues = [(operand1.Token, operand1.Value), (operand2.Token, operand2.Value)];
             Instruction inst = new( test_op, operand1.Token, operand2.Token, this.Program, this.Memory );
 
             inst.Execute( );
@@ -86,7 +86,7 @@ namespace RuntimeTests
         public void Instruction_Execute_ErrorOperation( )
         {
             Variable operand2 = new( new Token( "var2", TokenType.VARIABLE ), new MockValue( ) );
-            this.Memory.GetValue_TokenValues = new( ) { (operand2.Token, operand2.Value) };
+            this.Memory.GetValue_TokenValues = [(operand2.Token, operand2.Value)];
             Instruction inst = new( Operation.ERROR, null, operand2.Token, this.Program, this.Memory );
 
             _ = Assert.ThrowsException<ErrorStatementException>( ( ) => inst.Execute( ) );

@@ -2,7 +2,7 @@
 using BNA.Values;
 using System;
 
-namespace RuntimeTests
+namespace UnitTestProject.RuntimeTests
 {
     public class MockValue : Value
     {
@@ -34,7 +34,7 @@ namespace RuntimeTests
             "String" => new StringValue( "" ),
             "List" => new ListValue( 0 ),
             "Mock" => new MockValue( ),
-            _ => throw new Exception( "Unknow value type." ),
+            _ => throw new ArgumentException( "Unknow value type." ),
         };
 
         public static Token GetTokenOfType( TokenType type ) => type switch {
@@ -42,7 +42,7 @@ namespace RuntimeTests
             TokenType.STRING => new Token( "\"\"", type ),
             TokenType.LIST => new Token( "()", type ),
             TokenType.VARIABLE => new Token( "var", type ),
-            _ => throw new Exception( "Unknow token type." ),
+            _ => throw new ArgumentException( "Unknow token type." ),
         };
     }
 }

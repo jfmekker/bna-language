@@ -31,14 +31,14 @@ namespace BNA.Run
         public Memory( )
         {
             this.Scopes = new( );
-            this.Variables = new( );
+            this.Variables = [];
             this.Evaluator = new( this );
         }
 
         public void OpenScope( )
         {
             Value argument_val = this.GetValue( SpecialVariables.ARGUMENT );
-            this.Variables = new Dictionary<Token, Value>( );
+            this.Variables = [];
             this.SetValue( SpecialVariables.ARGUMENT, argument_val );
         }
 

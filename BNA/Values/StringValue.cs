@@ -1,4 +1,6 @@
-﻿namespace BNA.Values
+﻿using System;
+
+namespace BNA.Values
 {
     /// <summary>
     /// String type value.
@@ -26,7 +28,11 @@
 
         public override bool Equals( Value? other ) => other is StringValue strVal && strVal.Get == this.Get;
 
-        public override Value Append( Value value ) => new StringValue( this.Get + value.ToString( ) );
+        public override Value Append( Value value )
+        {
+            ArgumentNullException.ThrowIfNull( value );
+            return new StringValue( this.Get + value.ToString( ) );
+        }
 
         public override Value Size( ) => new IntegerValue( this.Get.Length );
     }

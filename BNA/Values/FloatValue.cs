@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BNA.Values
 {
@@ -10,11 +11,18 @@ namespace BNA.Values
         /// <summary>
         /// Object wrapper for a 'double' type value.
         /// </summary>
+        [SuppressMessage( "Design", "CA1034:Nested types should not be visible", Justification = "TODO" )]
         public record FloatObject( double Value )
         {
-            public static implicit operator double( FloatObject obj ) => obj.Value;
+            public static implicit operator double( FloatObject obj )
+            {
+                ArgumentNullException.ThrowIfNull( obj );
+                return obj.Value;
+            }
 
             public override string ToString( ) => this.Value.ToString( );
+
+            public double ToDouble( ) => this.Value;
         }
 
         /// <summary>

@@ -1,7 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
-namespace IntegrationTests
+namespace IntegrationTestProject
 {
     [TestClass]
     public class FileTests
@@ -67,6 +68,8 @@ namespace IntegrationTests
         }
 
         [TestMethod]
+        [SuppressMessage( "Design", "CA1030:Use events where appropriate",
+            Justification = "TODO: rename" )]
         public void RaiseTest( )
         {
             TestFileRunner.RunTestFile( "statement_test_raise" );

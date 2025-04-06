@@ -1,17 +1,18 @@
-﻿using BNA.Common;
+﻿using System;
+using BNA.Common;
 using BNA.Exceptions;
 using BNA.Run;
 using BNA.Values;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace RuntimeTests
+namespace UnitTestProject.RuntimeTests
 {
     [TestClass]
     public class SadInstructionTests
     {
-        public MockProgram Program;
+        public MockProgram Program { get; }
 
-        public MockMemory Memory;
+        public MockMemory Memory { get; }
 
         public SadInstructionTests( )
         {
@@ -26,11 +27,12 @@ namespace RuntimeTests
         [DataRow( Operation.WAIT, "String", "List", "Mock", DisplayName = "WAIT" )]
         public void Instruction_Execute_Operand2ThrowsIncorrectOperandType( Operation operation, params string[] val_types )
         {
+            ArgumentNullException.ThrowIfNull( val_types );
             foreach ( string val_type in val_types )
             {
                 Variable operand1 = new( new Token( "var1", TokenType.VARIABLE ), new MockValue( ) );
                 Variable operand2 = new( new Token( "var2", TokenType.VARIABLE ), MockValue.GetValueOfType( val_type ) );
-                this.Memory.GetValue_TokenValues = new( ) { (operand1.Token, operand1.Value), (operand2.Token, operand2.Value) };
+                this.Memory.GetValue_TokenValues = [(operand1.Token, operand1.Value), (operand2.Token, operand2.Value)];
                 Instruction inst = new( operation, operand1.Token, operand2.Token, this.Program, this.Memory );
 
                 _ = Assert.ThrowsException<IncorrectOperandTypeException>( ( ) => inst.Execute( ) );
@@ -45,11 +47,12 @@ namespace RuntimeTests
         [DataRow( Operation.WRITE, "Integer", "Float", "String", "List", "Mock", DisplayName = "WRITE" )]
         public void Instruction_Execute_Operand1ThrowsIncorrectOperandType( Operation operation, params string[] val_types )
         {
+            ArgumentNullException.ThrowIfNull( val_types );
             foreach ( string val_type in val_types )
             {
                 Variable operand1 = new( new Token( "var1", TokenType.VARIABLE ), MockValue.GetValueOfType( val_type ) );
                 Variable operand2 = new( new Token( "var2", TokenType.VARIABLE ), new MockValue( ) );
-                this.Memory.GetValue_TokenValues = new( ) { (operand1.Token, operand1.Value), (operand2.Token, operand2.Value) };
+                this.Memory.GetValue_TokenValues = [(operand1.Token, operand1.Value), (operand2.Token, operand2.Value)];
                 Instruction inst = new( operation, operand1.Token, operand2.Token, this.Program, this.Memory );
 
                 _ = Assert.ThrowsException<IncorrectOperandTypeException>( ( ) => inst.Execute( ) );
@@ -64,7 +67,7 @@ namespace RuntimeTests
         {
             Variable operand1 = new( new Token( "var1", TokenType.VARIABLE ), new IntegerValue( new_ip ) );
             Variable operand2 = new( new Token( "var2", TokenType.VARIABLE ), new MockValue( ) );
-            this.Memory.GetValue_TokenValues = new( ) { (operand1.Token, operand1.Value), (operand2.Token, operand2.Value) };
+            this.Memory.GetValue_TokenValues = [(operand1.Token, operand1.Value), (operand2.Token, operand2.Value)];
             Instruction inst = new( Operation.GOTO, operand1.Token, operand2.Token, this.Program, this.Memory );
 
             _ = Assert.ThrowsException<ValueOutOfRangeException>( ( ) => inst.Execute( ) );

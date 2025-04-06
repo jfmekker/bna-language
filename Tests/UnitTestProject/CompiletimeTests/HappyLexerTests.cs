@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 
-namespace CompiletimeTests
+namespace UnitTestProject.CompiletimeTests
 {
     [TestClass]
     public class HappyLexerTests
@@ -17,7 +17,7 @@ namespace CompiletimeTests
         [DataRow( long.MinValue, DisplayName = "Min value" )]
         public void Lexer_ReadSingleToken_ReturnsLiteral_Long( long val )
         {
-            Token token = Lexer.ReadSingleToken( val.ToString( ) );
+            Token token = Lexer.ReadSingleToken( $"{val}" );
 
             long token_val = long.Parse( token.Value );
             Assert.AreEqual( TokenType.NUMBER, token.Type );
@@ -55,7 +55,7 @@ namespace CompiletimeTests
         [TestMethod]
         public void Lexer_ReadSingleToken_ReturnsKeyword( )
         {
-            foreach ( Keyword keyword in Enum.GetValues( typeof( Keyword ) ) )
+            foreach ( Keyword keyword in Enum.GetValues<Keyword>( ) )
             {
                 Token expected = new( keyword.ToString( ), TokenType.KEYWORD );
 
@@ -169,7 +169,7 @@ namespace CompiletimeTests
         {
             Lexer lexer = new( str );
 
-            List<Token> list = lexer.ReadTokens( );
+            IReadOnlyCollection<Token> list = lexer.ReadTokens( );
 
             Assert.AreEqual( num, list.Count );
         }
@@ -183,7 +183,7 @@ namespace CompiletimeTests
         {
             Lexer lexer = new( str );
 
-            List<Token> list = lexer.ReadTokens( );
+            IReadOnlyCollection<Token> list = lexer.ReadTokens( );
 
             Assert.AreEqual( 0, list.Count );
         }

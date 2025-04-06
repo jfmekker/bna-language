@@ -1,8 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
+
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <WarningLevel>5</WarningLevel>
     <AnalysisMode>all</AnalysisMode>
   </PropertyGroup>
+
+  <PropertyGroup Label="Suppress Warnings">
+    <!-- CA1515: Consider making public types internal [TODO] -->
+    <NoWarn>$(NoWarn);CA1515;</NoWarn>
+    <!-- CA1515: Retrieve strings from resource table [TODO] -->
+    <NoWarn>$(NoWarn);CA1303</NoWarn>
+    <!-- IDE0079: Remove unecessary suppression [TODO] -->
+    <NoWarn>$(NoWarn);IDE0079</NoWarn>
+    <!-- CA1032: Add certain constructors to Exception [TODO] -->
+    <NoWarn>$(NoWarn);CA1032</NoWarn>
+    <!-- CA1305/04/11: Localization -->
+    <NoWarn>$(NoWarn);CA1305;CA1304;CA1311</NoWarn>
+  </PropertyGroup>
+
 </Project>

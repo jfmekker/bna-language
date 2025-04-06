@@ -1,9 +1,10 @@
 ﻿using BNA.Common;
 using BNA.Run;
 using BNA.Values;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 
-namespace RuntimeTests
+namespace UnitTestProject.RuntimeTests
 {
     public class MockMemory : IMemory
     {
@@ -15,7 +16,9 @@ namespace RuntimeTests
 
         public void CloseScope( ) { }
 
-        public List<(Token token, Value value)> GetValue_TokenValues { get; set; } = new( );
+        [SuppressMessage( "Usage", "CA2227:Collection properties should be read only",
+            Justification = "This needs to be settable." )]
+        public Collection<(Token token, Value value)> GetValue_TokenValues { get; set; } = [];
 
         public Value GetValue( Token token )
         {

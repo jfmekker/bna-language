@@ -1,36 +1,40 @@
 ﻿using BNA.Exceptions;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BNA.Values
 {
     /// <summary>
     /// A struct holding an abstact value of varying type.
     /// </summary>
+    // TODO make this a record?
     public abstract class Value : IEquatable<Value>
     {
         /// <summary>
         /// Special <see cref="Value"/> to represent null values.
         /// </summary>
-        public static readonly Value NULL = new NullValue( );
+        public static Value NULL { get; } = new NullValue( );
 
         /// <summary>
         /// Special <see cref="Value"/> to represent results of bad operations.
         /// </summary>
-        public static readonly Value NAN = new NaNValue( );
+        public static Value NAN { get; } = new NaNValue( );
 
         /// <summary>
         /// Special <see cref="Value"/> to represent true.
         /// </summary>
-        public static readonly Value TRUE = new IntegerValue( 1 );
+        public static Value TRUE { get; } = new IntegerValue( 1 );
 
         /// <summary>
         /// Special <see cref="Value"/> to represent false.
         /// </summary>
-        public static readonly Value FALSE = new IntegerValue( 0 );
+        public static Value FALSE { get; } = new IntegerValue( 0 );
 
         /// <summary>
         /// Gets the actual <see cref="object"/> stored.
         /// </summary>
+        [SuppressMessage( "Naming", "CA1716:Identifiers should not match keywords",
+            Justification = "TODO" )]
         public abstract object Get { get; }
 
         /// <summary>
@@ -71,7 +75,11 @@ namespace BNA.Values
         /// <param name="first">First value.</param>
         /// <param name="second">Second value.</param>
         /// <returns>True if the two values are equal.</returns>
-        public static bool operator ==( Value first, Value second ) => first.Equals( second );
+        public static bool operator ==( Value first, Value second )
+        {
+            ArgumentNullException.ThrowIfNull( first );
+            return first.Equals( second );
+        }
 
         /// <summary>
         /// Compare non-equality of two <see cref="Value"/> instances.
@@ -79,7 +87,11 @@ namespace BNA.Values
         /// <param name="first">First value.</param>
         /// <param name="second">Second value.</param>
         /// <returns>True if the two values are not equal.</returns>
-        public static bool operator !=( Value first, Value second ) => !first.Equals( second );
+        public static bool operator !=( Value first, Value second )
+        {
+            ArgumentNullException.ThrowIfNull( first );
+            return !first.Equals( second );
+        }
 
         /// <summary>
         /// Compare inequality against another <see cref="Value"/>.
@@ -135,6 +147,8 @@ namespace BNA.Values
         /// </summary>
         /// <returns>Raised <see cref="Value>"/>.</returns>
         /// <exception cref="RuntimeException"/>
+        [SuppressMessage( "Design", "CA1030:Use events where appropriate",
+            Justification = "Just because it starts with 'raise' does not mean it is an event." )]
         public virtual Value RaiseTo( Value value ) => throw new UndefinedOperationException( this, "POW", value );
 
         /// <summary>

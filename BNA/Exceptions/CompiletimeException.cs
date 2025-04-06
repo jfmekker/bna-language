@@ -12,19 +12,19 @@ namespace BNA.Exceptions
         /// <summary>
         /// Line number the <see cref="Exception"/> occured on.
         /// </summary>
-        public readonly int Line;
+        public int Line { get; }
 
         /// <summary>
         /// Character column of the <see langword="char"/> or <see cref="Token"/>
         /// that caused the <see cref="Exception"/>.
         /// </summary>
-        public readonly int Column;
+        public int Column { get; }
 
         /// <summary>
         /// Raw <see langword="string"/> of the line that caused the
         /// <see cref="Exception"/>, as given to the compiler.
         /// </summary>
-        public readonly string LineString;
+        public string LineString { get; }
 
         /// <summary>
         /// Create a new <see cref="CompiletimeException"/> instance by
@@ -35,9 +35,9 @@ namespace BNA.Exceptions
         /// <param name="lineString">String value of the line.</param>
         /// <param name="innerException">Exception to wrap.</param>
         public CompiletimeException( int line, int column, string lineString, Exception innerException )
-            : base( $"{innerException.Message}\n" +
+            : base( $"{innerException?.Message}\n" +
                     $"Compiletime Error - line {line}: {lineString}\n" +
-                    $"                         {" ".Repeat( line.ToString( ).Length )}  {" ".Repeat( column )}",
+                    $"                         {" ".Repeat( $"{line}".Length )}  {" ".Repeat( column )}",
                   innerException )
         {
             this.Line = line;

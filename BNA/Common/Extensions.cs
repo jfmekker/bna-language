@@ -40,10 +40,7 @@ namespace BNA.Common
         /// <returns>The repeated string.</returns>
         public static string Repeat( this string str, int times )
         {
-            if ( times < 0 )
-            {
-                throw new ArgumentOutOfRangeException( times.ToString( ), "Repeat 'times' parameter cannot be negative." );
-            }
+            ArgumentOutOfRangeException.ThrowIfLessThan( times, 0 );
 
             StringBuilder builder = new( times );
 
@@ -65,6 +62,8 @@ namespace BNA.Common
         /// <param name="obj">Object to potentially add.</param>
         public static void AddIf<T>( this ICollection<T> collection, bool condition, T? obj )
         {
+            ArgumentNullException.ThrowIfNull( collection );
+
             if ( condition && obj is not null )
             {
                 collection.Add( obj );
@@ -82,6 +81,7 @@ namespace BNA.Common
         /// <returns>Constructed string.</returns>
         public static string PrintElements<T>( this ICollection<T> collection, string? start = "[ ", string? separator = ", ", string? end = " ]" )
         {
+            ArgumentNullException.ThrowIfNull( collection );
             StringBuilder builder = new( start );
 
             foreach ( T obj in collection )
