@@ -1,19 +1,15 @@
 ﻿using BNA.Common;
 using BNA.Compile;
 using System;
+using System.Text;
 
 namespace BNA.Exceptions
 {
     /// <summary>
     /// A BNA exception encountered at compile time.
     /// </summary>
-    public class CompiletimeException : Exception
+    public class CompiletimeException : LanguageException
     {
-        /// <summary>
-        /// Line number the <see cref="Exception"/> occured on.
-        /// </summary>
-        public int Line { get; }
-
         /// <summary>
         /// Character column of the <see langword="char"/> or <see cref="Token"/>
         /// that caused the <see cref="Exception"/>.
@@ -21,28 +17,56 @@ namespace BNA.Exceptions
         public int Column { get; }
 
         /// <summary>
-        /// Raw <see langword="string"/> of the line that caused the
-        /// <see cref="Exception"/>, as given to the compiler.
-        /// </summary>
-        public string LineString { get; }
-
-        /// <summary>
         /// Create a new <see cref="CompiletimeException"/> instance by
-        /// wrapping the thrown <see cref="Exception"/>.
+        /// wrapping the thrown <see cref="CompiletimeException"/>.
         /// </summary>
+        /// <remarks>
+        /// This should be the outermost exception.
+        /// </remarks>
         /// <param name="line">Line number.</param>
         /// <param name="column">Character column.</param>
-        /// <param name="lineString">String value of the line.</param>
-        /// <param name="innerException">Exception to wrap.</param>
-        public CompiletimeException( int line, int column, string lineString, Exception innerException )
-            : base( $"{innerException?.Message}\n" +
-                    $"Compiletime Error - line {line}: {lineString}\n" +
-                    $"                         {" ".Repeat( $"{line}".Length )}  {" ".Repeat( column )}",
-                  innerException )
+        /// <param name="text">String value of the line.</param>
+        /// <param name="innerException">CompiletimeException to wrap.</param>
+        public CompiletimeException( int line, int column, string text, string message, CompiletimeException? innerException )
+            : base( line, text, message, innerException )
         {
-            this.Line = line;
             this.Column = column;
-            this.LineString = lineString;
+        }
+
+        protected CompiletimeException( string message ) : base( message ) { }
+
+        public override string GetFullMessage( )
+        {
+            // If this is the innermost exception, then we don't have the full info yet
+            if ( this.InnerException == null )
+            {
+                return this.Message;
+            }
+
+            string linePre = "Compiletime Error - line ";
+            string lineNum = this.Line.ToString( );
+            string lineSuf = ": ";
+
+            StringBuilder sb = new( );
+
+            // First line is the actual code line
+            _ = sb.Append( linePre )
+                  .Append( lineNum )
+                  .Append( lineSuf )
+                  .Append( this.Text )
+                  .AppendLine( );
+
+            // Second line is just the caret pointing to the character
+            int numSpaces = linePre.Length + lineNum.Length + lineSuf.Length + (this.Column - 1);
+            _ = sb.Append( " ".Repeat( numSpaces ) )
+                  .Append( '^' )
+                  .AppendLine( );
+
+            // Third line is the message
+            _ = sb.Append( "    Error: " )
+                  .Append( this.Message );
+
+            return sb.ToString( );
         }
     }
 
@@ -50,7 +74,7 @@ namespace BNA.Exceptions
     /// Exception thrown when a <see cref="Symbol"/> was found in an unexpected
     /// place, or did not match the expected symbol.
     /// </summary>
-    public class UnexpectedSymbolException : Exception
+    public class UnexpectedSymbolException : CompiletimeException
     {
         public UnexpectedSymbolException( char? symbol )
             : base( $"Unexpected symbol: '{symbol?.ToString( ) ?? "null"}'" )
@@ -63,7 +87,7 @@ namespace BNA.Exceptions
     /// parsed but the closing terminator (<see cref="Symbol.LIST_END"/> or
     /// <see cref="Symbol.STRING_MARKER"/>) was not found.
     /// </summary>
-    public class MissingTerminatorException : Exception
+    public class MissingTerminatorException : CompiletimeException
     {
         public MissingTerminatorException( string thing, char terminator )
             : base( $"{thing} missing '{terminator}' terminator before end of line." )
@@ -75,7 +99,7 @@ namespace BNA.Exceptions
     /// Exception thrown when a <see cref="Token"/> of an incorrect/unexpected
     /// type was found when parsing a <see cref="Statement"/>.
     /// </summary>
-    public class IllegalTokenException : Exception
+    public class IllegalTokenException : CompiletimeException
     {
         public IllegalTokenException( string message )
             : base( message )
@@ -87,7 +111,7 @@ namespace BNA.Exceptions
     /// Exception thrown when a <see cref="Token"/> is parsed but is not valid,
     /// like an invalid number ("0.1.234") or variable with accessor ("x@").
     /// </summary>
-    public class InvalidTokenException : Exception
+    public class InvalidTokenException : CompiletimeException
     {
         public InvalidTokenException( string message )
             : base( message )
@@ -98,7 +122,7 @@ namespace BNA.Exceptions
     /// <summary>
     /// Exception thrown when a <see cref="Token"/> is expected but none found.
     /// </summary>
-    public class MissingTokenException : Exception
+    public class MissingTokenException : CompiletimeException
     {
         public MissingTokenException( params TokenType[] types )
             : base( $"Missing token, expected {types.PrintElements( )}." )

@@ -28,7 +28,7 @@ namespace BNA.Run
             {
                 return this.IP >= 0 && this.IP < this.Statements.Length
                     ? this.Statements[this.IP]
-                    : throw new Exception( "Bad instruction pointer value ( " + this.IP + " )" );
+                    : throw new InvalidOperationException( "Bad instruction pointer value ( " + this.IP + " )" );
             }
         }
 
@@ -81,21 +81,9 @@ namespace BNA.Run
 
                     instruction.Execute( );
                 }
-                catch ( Exception e )
+                catch ( RuntimeException e )
                 {
-                    if ( e is UndefinedOperationException
-                           or IncorrectOperandTypeException
-                           or InvalidIndexValueException
-                           or NonIndexableValueException
-                           or NonExistantVariableException
-                           or ErrorStatementException )
-                    {
-                        throw new RuntimeException( this.IP, this.Current, e );
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw new RuntimeException( this.IP, this.Current, e.Message, e );
                 }
 
                 if ( this.Running && ++this.IP >= this.Statements.Length )

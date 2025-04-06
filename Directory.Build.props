@@ -14,7 +14,7 @@
     <NoWarn>$(NoWarn);CA1303</NoWarn>
     <!-- IDE0079: Remove unecessary suppression [TODO] -->
     <NoWarn>$(NoWarn);IDE0079</NoWarn>
-    <!-- CA1032: Add certain constructors to Exception [TODO] -->
+    <!-- CA1032: Add certain constructors to Exception -->
     <NoWarn>$(NoWarn);CA1032</NoWarn>
     <!-- CA1305/04/11: Localization -->
     <NoWarn>$(NoWarn);CA1305;CA1304;CA1311</NoWarn>

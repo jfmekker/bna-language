@@ -1,6 +1,5 @@
 ﻿using BNA.Common;
 using BNA.Exceptions;
-using System;
 using System.Collections.Generic;
 
 namespace BNA.Compile
@@ -56,7 +55,7 @@ namespace BNA.Compile
                 }
                 catch ( CompiletimeException e )
                 {
-                    throw new CompiletimeException( i, lexer.Index, this.Lines[i], e );
+                    throw new CompiletimeException( i, lexer.Index, this.Lines[i], $"Tokenizing error - {e.Message}", e );
                 }
             }
         }
@@ -72,20 +71,9 @@ namespace BNA.Compile
                     this._statements.Add( parser.ParseStatement( ) );
                     // this.statements.Add( Statement.ParseStatement( tokenLines[i] ) );
                 }
-                catch ( Exception e )
+                catch ( CompiletimeException e )
                 {
-                    if ( e is UnexpectedSymbolException
-                          or MissingTerminatorException
-                          or IllegalTokenException
-                          or InvalidTokenException
-                          or MissingTokenException )
-                    {
-                        throw new CompiletimeException( i, parser.RawIndex, parser.RawLine, e );
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw new CompiletimeException( i, parser.RawIndex, parser.RawLine, $"Parsing error - {e.Message}", e );
                 }
             }
         }
