@@ -1,6 +1,8 @@
 ﻿using BNA;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
+using System.Reflection;
 
 namespace IntegrationTestProject
 {
@@ -17,7 +19,8 @@ namespace IntegrationTestProject
 
             try
             {
-                r = BNA.BNA.RunFromFiles( ["../../../../Tests/" + filename + ".bna"] );
+                // TODO check file exists
+                r = BNA.BNA.RunFromFiles( ["TestFiles/" + filename + ".bna"] );
             }
             catch ( Exception e )
             {
