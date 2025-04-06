@@ -1,5 +1,6 @@
 ﻿using BNA.Common;
 using BNA.Exceptions;
+using BNA.Utils;
 using System;
 using System.Collections.Generic;
 

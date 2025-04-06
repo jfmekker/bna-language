@@ -1,5 +1,6 @@
 ﻿using BNA.Common;
 using BNA.Compile;
+using BNA.Utils;
 using System;
 using System.Text;
 
@@ -56,9 +57,10 @@ namespace BNA.Exceptions
                   .Append( this.Text )
                   .AppendLine( );
 
+            // TODO check if we need the -1 below
             // Second line is just the caret pointing to the character
             int numSpaces = linePre.Length + lineNum.Length + lineSuf.Length + (this.Column - 1);
-            _ = sb.Append( " ".Repeat( numSpaces ) )
+            _ = sb.AppendRepeated( ' ', numSpaces )
                   .Append( '^' )
                   .AppendLine( );
 
@@ -77,7 +79,7 @@ namespace BNA.Exceptions
     public class UnexpectedSymbolException : CompiletimeException
     {
         public UnexpectedSymbolException( char? symbol )
-            : base( $"Unexpected symbol: '{symbol?.ToString( ) ?? "null"}'" )
+            : base( $"Unexpected symbol: '{symbol.NullableString( )}'" )
         {
         }
     }

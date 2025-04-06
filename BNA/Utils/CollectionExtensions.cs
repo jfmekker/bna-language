@@ -3,55 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BNA.Common
+namespace BNA.Utils
 {
     /// <summary>
-    /// Collection of various extension methods.
+    /// Extension methods for <see cref="ICollection{T}"/> variables.
     /// </summary>
-    /// <seealso href="https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods"/>
-    public static class Extensions
+    public static class CollectionExtensions
     {
-        /// <summary>
-        /// Test if a nullable <see langword="char"/> is a letter.
-        /// </summary>
-        /// <param name="character">The charcter to test.</param>
-        /// <returns>True if the character is not <see langword="null"/> and is a letter.</returns>
-        public static bool IsLetter( this char? character ) => character is char c && char.IsLetter( c );
-
-        /// <summary>
-        /// Test if a nullable <see langword="char"/> is a digit.
-        /// </summary>
-        /// <param name="character">The charcter to test.</param>
-        /// <returns>True if the character is not <see langword="null"/> and is a digit.</returns>
-        public static bool IsDigit( this char? character ) => character is char c && char.IsDigit( c );
-
-        /// <summary>
-        /// Test if a nullable <see langword="char"/> is a letter or digit.
-        /// </summary>
-        /// <param name="character">The character to test.</param>
-        /// <returns>True if the character is not <see langword="null"/> and is a letter or digit.</returns>
-        public static bool IsLetterOrDigit( this char? character ) => character is char c && char.IsLetterOrDigit( c );
-
-        /// <summary>
-        /// Repeat a <see langword="string"/> a given number of times.
-        /// </summary>
-        /// <param name="str">String to repeat.</param>
-        /// <param name="times">Number of times to repeat.</param>
-        /// <returns>The repeated string.</returns>
-        public static string Repeat( this string str, int times )
-        {
-            ArgumentOutOfRangeException.ThrowIfLessThan( times, 0 );
-
-            StringBuilder builder = new( times );
-
-            for ( int i = 0 ; i < times ; i += 1 )
-            {
-                _ = builder.Append( str );
-            }
-
-            return builder.ToString( );
-        }
-
         /// <summary>
         /// Add a nullable <see cref="T"/> to an <see cref="ICollection{T}"/> of the same type if a condition is
         /// met and the object is not null.
