@@ -1,4 +1,4 @@
-﻿using BNA.Common;
+﻿using BNA.Compile.Tokens;
 using BNA.Exceptions;
 using BNA.Utils;
 using System;
@@ -31,6 +31,15 @@ namespace BNA.Compile
                 : throw new IllegalTokenException( $"One token expected but {tokens.Count} were parsed." );
         }
 
+        public static Token ReadFirstToken( string line )
+        {
+            Lexer lexer = new( line );
+            IReadOnlyCollection<Token> tokens = lexer.ReadTokens( );
+
+            return tokens.FirstOrDefault( )
+                ?? throw new IllegalTokenException( $"At least one token expected but none were parsed." );
+        }
+
         public Lexer( string line )
         {
             this.Line = line;
@@ -52,33 +61,65 @@ namespace BNA.Compile
 
         public Token? NextToken( )
         {
+            if ( this.Current is null )
+            {
+                return null;
+            }
+            else if ( this.Current is ' ' or '\t' )
+            {
+                return this.NextWhiteSpace( );
+            }
+            else if ( this.Current.IsDigit( ) || this.Current is '-' or '.' )
+            {
+                return this.NextLiteral( );
+            }
+            else if ( this.Current.IsLetter( ) || this.Current is '_' )
+            {
+                return this.NextVariableOrKeyword( );
+            }
+            else if ( Symbol.StringDelimiter.Matches( this.Current ) )
+            {
+                return this.NextString( );
+            }
+            else if ( Symbol.ListStart.Matches( this.Current ) )
+            {
+                return this.NextList( );
+            }
+            else if ( Symbol.Comment.Matches( this.Current ) )
+            {
+                return this.NextComment( );
+            }
+            else
+            {
+                return this.NextSymbol( );
+            }
+        }
+
+        private WhiteSpace NextWhiteSpace( )
+        {
+            StringBuilder space = new( this.ConsumeCurrent );
             while ( this.Current is not null )
             {
                 if ( this.Current is ' ' or '\t' )
                 {
-                    // Ignore whitespace
-                    this.Index += 1;
+                    _ = space.Append( this.ConsumeCurrent );
                 }
                 else
                 {
-                    return this.Current.IsDigit( ) || this.Current is '-' or '.' ? this.NextLiteral( )
-                        : this.Current.IsLetter( ) || this.Current is '_' ? this.NextVariableOrKeyword( )
-                        : this.Current is (char)Symbol.StringDelim ? this.NextString( )
-                        : this.Current is (char)Symbol.ListStart ? this.NextList( )
-                        : this.Current is (char)Symbol.Comment ? this.NextComment( )
-                        : this.NextSymbol( );
+                    break;
                 }
             }
 
-            return null;
+            return new WhiteSpace( space.ToString( ) );
         }
 
-        private Token NextLiteral( )
+        private Literal NextLiteral( )
         {
             StringBuilder builder = new( $"{this.ConsumeCurrent}" );
 
             while ( this.Current is not null )
             {
+                // TODO allow more number styles
                 if ( this.Current.IsLetterOrDigit( ) || this.Current is '.' or '+' or '-' )
                 {
                     _ = builder.Append( this.ConsumeCurrent );
@@ -90,9 +131,18 @@ namespace BNA.Compile
             }
 
             string str = builder.ToString( );
-            return long.TryParse( str, out long _ ) || double.TryParse( str, out double _ )
-                ? new Token( str, TokenType.LiteralNumber )
-                : throw new InvalidTokenException( "Literal is not parsable as number." );
+            if ( long.TryParse( str, out long l ) )
+            {
+                return new LiteralInteger( l, str );
+            }
+            else if ( double.TryParse( str, out double d ) )
+            {
+                return new LiteralReal( d, str );
+            }
+            else
+            {
+                throw new InvalidTokenException( $"Literal is not parsable as number: {str}" );
+            }
         }
 
         private Token NextVariableOrKeyword( )
@@ -121,72 +171,113 @@ namespace BNA.Compile
                 }
             }
 
-            return new Token( str, Enum.TryParse( str, out Keyword _ ) ? TokenType.Keyword : TokenType.Variable );
+            if ( Keyword.TryParse( str, out Keyword? keyword ) )
+            {
+                return keyword;
+            }
+            else
+            {
+                return new Identifier( str );
+            }
         }
 
-        private Token NextString( )
+        private LiteralString NextString( )
         {
-            StringBuilder builder = new( $"{this.ConsumeCurrent}" );
+            StringBuilder rawBuilder = new( $"{this.ConsumeCurrent}" );
+            StringBuilder valBuilder = new( );
 
-            bool string_ended = false;
-            while ( this.Current is not null )
+            bool escapeNext = false;
+            bool stringEnded = false;
+            while ( this.Current is not null && !stringEnded )
             {
-                _ = builder.Append( this.ConsumeCurrent );
-
-                if ( builder.ToString( )[^1] == (char)Symbol.StringDelim &&
-                    builder.ToString( )[^2] != (char)Symbol.Escape )
+                // TODO fix symbol handling
+                if ( escapeNext )
                 {
-                    string_ended = true;
-                    break;
+                    escapeNext = false;
+
+                    char val = this.Current switch {
+                        (char)Symbol.StringDelim => (char)Symbol.StringDelim,
+                        (char)Symbol.Escape => (char)Symbol.Escape,
+                        't' => '\t',
+                        'n' => '\n',
+                        _ => throw new InvalidTokenException( $"Invalid escape sequence: {(char)Symbol.Escape}{this.Current}" )
+                    };
+
+                    _ = valBuilder.Append( val );
                 }
+                else if ( this.Current == Symbol.Escape.Raw[0] )
+                {
+                    escapeNext = true;
+                }
+                else if ( this.Current == Symbol.StringDelimiter.Raw[0] )
+                {
+                    stringEnded = true;
+                }
+                else
+                {
+                    _ = valBuilder.Append( this.Current );
+                }
+
+                _ = rawBuilder.Append( this.ConsumeCurrent );
             }
 
-            return string_ended ? new Token( builder.ToString( ), TokenType.LiteralString )
-                : throw new MissingTerminatorException( "String", (char)Symbol.StringDelim );
+            if ( !stringEnded )
+            {
+                throw new MissingTokenException( Symbol.StringDelimiter );
+            }
+
+            return new LiteralString( valBuilder.ToString( ), rawBuilder.ToString( ) );
         }
 
-        private Token NextList( )
+        private LiteralList NextList( )
         {
-            int start_index = this.Index;
-            List<Token> list = [new Token( $"{this.ConsumeCurrent}", TokenType.Symbol )];
+            int startIndex = this.Index;
+            _ = this.ConsumeCurrent; // Consume the list start symbol
+            List<Token> list = [Symbol.ListStart];
 
-            while ( this.Current is not null )
+            bool listDone = false;
+            while ( this.Current is not null && !listDone )
             {
-                if ( this.NextToken( ) is Token token )
+                // TODO refactor this
+                switch ( this.NextToken( ) )
                 {
-                    if ( token.AsSymbol( ) is Symbol.ListEnd )
-                    {
-                        list.Add( token );
-                        break;
-                    }
-                    else if ( token.AsSymbol( ) is Symbol.ListSeparator )
-                    {
-                        list.Add( token );
-                    }
-                    else if ( token.Type is TokenType.LiteralNumber or TokenType.Variable or TokenType.LiteralString or TokenType.List )
-                    {
-                        if ( list[^1].AsSymbol( ) is Symbol.ListSeparator or Symbol.ListStart )
+                    case Symbol symTok:
+                        if ( symTok == Symbol.ListEnd || symTok == Symbol.ListSeparator )
                         {
-                            list.Add( token );
+                            listDone = symTok == Symbol.ListEnd;
+                            if ( list[^1] is Symbol lastSymTok && lastSymTok == Symbol.ListSeparator )
+                            {
+                                list.Add( new Nothing( ) );
+                            }
+                            list.Add( symTok );
                         }
                         else
                         {
-                            throw new IllegalTokenException( $"Tokens in lists must be separated by '{Symbol.ListSeparator}'." );
+                            throw new UnexpectedTokenException( symTok, this.Index, Symbol.ListSeparator, Symbol.ListEnd );
                         }
-                    }
-                    else
-                    {
-                        throw new IllegalTokenException( $"Tokens of type '{token.Type}' not allowed in lists." );
-                    }
+                        break;
+                    case Literal litTok:
+                        list.Add( litTok );
+                        break;
+                    case Identifier varTok:
+                        list.Add( varTok );
+                        break;
+                    case WhiteSpace wsTok:
+                        list.Add( wsTok );
+                        break;
+                    case Token tok:
+                        throw new UnexpectedTokenException( tok, this.Index, typeof( Symbol ), typeof( Literal ), typeof( Identifier ), typeof( WhiteSpace ) );
+                    case null:
+                        throw new MissingTokenException( Symbol.ListEnd );
+                    default:
+                        throw new InvalidOperationException( "Unhandled token type in Lexer" );
                 }
             }
 
-            return this.Line[this.Index - 1] == (char)Symbol.ListEnd
-                ? new Token( this.Line[start_index..this.Index], TokenType.List )
-                : throw new MissingTerminatorException( "List", (char)Symbol.ListEnd );
+            return new LiteralList( list, this.Line[startIndex..this.Index] );
         }
 
-        private Token NextComment( )
+        private Comment NextComment( )
         {
             StringBuilder builder = new( );
 
@@ -195,21 +286,20 @@ namespace BNA.Compile
                 _ = builder.Append( this.ConsumeCurrent );
             }
 
-            return new Token( builder.ToString( ), TokenType.Comment );
+            return new Comment( builder.ToString( ) );
         }
 
-        private Token NextSymbol( )
+        private Symbol NextSymbol( )
         {
-            return this.Current is (char)Symbol.LessThan
-                                or (char)Symbol.GreaterThan
-                                or (char)Symbol.Equal
-                                or (char)Symbol.Not
-                                or (char)Symbol.ListSeparator
-                                or (char)Symbol.ListEnd
-                                or (char)Symbol.LabelStart
-                                or (char)Symbol.LabelEnd
-                ? new Token( $"{this.ConsumeCurrent}", TokenType.Symbol )
-                : throw new UnexpectedSymbolException( this.Current );
+            char s = this.Current ?? throw new InvalidOperationException( "Current should not have been null" );
+            if ( Enum.IsDefined( (Symbol)s ) )
+            {
+                return new SymbolToken( (Symbol)this.ConsumeCurrent );
+            }
+            else
+            {
+                throw new UnexpectedSymbolException( s );
+            }
         }
     }
 }

@@ -1,7 +1,8 @@
-﻿using BNA.Common;
-using BNA.Compile;
+﻿using BNA.Compile.Statments;
+using BNA.Compile.Tokens;
 using BNA.Utils;
 using System;
+using System.Linq;
 using System.Text;
 
 namespace BNA.Exceptions
@@ -15,7 +16,7 @@ namespace BNA.Exceptions
         /// Character column of the <see langword="char"/> or <see cref="Token"/>
         /// that caused the <see cref="Exception"/>.
         /// </summary>
-        public int Column { get; }
+        public int Column { get; protected init; }
 
         /// <summary>
         /// Create a new <see cref="CompiletimeException"/> instance by
@@ -73,6 +74,48 @@ namespace BNA.Exceptions
     }
 
     /// <summary>
+    /// Exception thrown when a <see cref="Token"/> is expected but none found.
+    /// </summary>
+    public class MissingTokenException : CompiletimeException
+    {
+        public MissingTokenException( params Token[] expected )
+            : base( $"Missing token, expected '{string.Join( "' or '", expected.AsEnumerable( ) )}'." )
+        {
+        }
+
+        public MissingTokenException( params Type[] expectedTypes )
+            : base( $"Missing token, expected {string.Join( " or ", expectedTypes.Select( t => t.Name ) )}." )
+        {
+        }
+    }
+
+    public class UnexpectedTokenException : CompiletimeException
+    {
+        public Token Token { get; }
+
+        public UnexpectedTokenException( Token token )
+            : base( $"Token '{token}' is not a valid start to any statement." )
+        {
+            this.Token = token;
+            this.Column = 1;
+        }
+
+        public UnexpectedTokenException( Token token, int column, params Token[] expected )
+            : base( $"Unexpected token '{token}', expected '{string.Join( "' or '", expected.AsEnumerable( ) )}'." )
+        {
+            this.Token = token;
+            this.Column = column;
+        }
+
+        public UnexpectedTokenException( Token token, int column, params Type[] expectedTypes )
+            : base( $"Unexpected token '{token}', expected {string.Join( " or ", expectedTypes.Select( t => t.Name ) )}." )
+        {
+            this.Token = token;
+            this.Column = column;
+        }
+    }
+
+    /// <summary>
     /// Exception thrown when a <see cref="Symbol"/> was found in an unexpected
     /// place, or did not match the expected symbol.
     /// </summary>
@@ -121,24 +164,4 @@ namespace BNA.Exceptions
         }
     }
 
-    /// <summary>
-    /// Exception thrown when a <see cref="Token"/> is expected but none found.
-    /// </summary>
-    public class MissingTokenException : CompiletimeException
-    {
-        public MissingTokenException( params TokenType[] types )
-            : base( $"Missing token, expected {types.PrintElements( )}." )
-        {
-        }
-
-        public MissingTokenException( string token )
-            : base( $"Missing token, expected '{token}'." )
-        {
-        }
-
-        public MissingTokenException( )
-            : base( "Statement ended too early." )
-        {
-        }
-    }
 }

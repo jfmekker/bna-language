@@ -1,4 +1,4 @@
-﻿using BNA.Common;
+﻿using BNA.Compile.Tokens;
 using BNA.Values;
 using System;
 

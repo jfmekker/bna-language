@@ -1,5 +1,5 @@
-﻿using BNA.Common;
-using BNA.Compile;
+﻿using BNA.Compile;
+using BNA.Compile.Tokens;
 using BNA.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;

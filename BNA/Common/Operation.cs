@@ -1,7 +1,7 @@
 ﻿namespace BNA.Common
 {
     /// <summary>
-    /// The type of an operation for <see cref="Compile.Statement"/> or <see cref="Run.Instruction"/>
+    /// The type of an operation for <see cref="BNA.Compile.Statments.Statement"/> or <see cref="Run.Instruction"/>
     /// </summary>
     /// <remarks>
     /// This is not "user" facing, so values can be renamed without too much issue.

@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using BNA.Common;
+using BNA.Compile.Tokens;
 using BNA.Values;
 
 namespace BNA.Run

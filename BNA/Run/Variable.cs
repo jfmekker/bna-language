@@ -1,10 +1,10 @@
-﻿using BNA.Common;
+﻿using BNA.Compile.Tokens;
 using BNA.Values;
 
 namespace BNA.Run
 {
     /// <summary>
-    /// The coupling of a <see cref="Value"/> and an identifying <see cref="Common.Token"/>.
+    /// The coupling of a <see cref="Value"/> and an identifying <see cref="BNA.Compile.Tokens.Token"/>.
     /// </summary>
     public class Variable
     {
